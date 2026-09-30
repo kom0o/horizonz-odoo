@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Inherit Employee Form View -->
+    <record id="view_employee_form_inherit_arabic_code" model="ir.ui.view">
+        <field name="name">hr.employee.form.inherit.arabic.code</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']/ancestor::h1" position="after">
+                <h2 class="mt-1">
+                    <field name="arabic_name" placeholder="Arabic Name / الاسم بالعربي"/>
+                </h2>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <label for="employee_code" class="fw-bold text-muted mb-0"/>
+                    <field name="employee_code" placeholder="e.g. EMP-001" class="oe_inline fw-bold text-primary" style="max-width: 200px;"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Inherit Employee Tree (List) View -->
+    <record id="view_employee_tree_inherit_arabic_code" model="ir.ui.view">
+        <field name="name">hr.employee.tree.inherit.arabic.code</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_tree"/>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="before">
+                <field name="employee_code" optional="show"/>
+            </xpath>
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="arabic_name" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Inherit Employee Search View -->
+    <record id="view_employee_filter_inherit_arabic_code" model="ir.ui.view">
+        <field name="name">hr.employee.search.inherit.arabic.code</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_filter"/>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="employee_code"/>
+                <field name="arabic_name"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
