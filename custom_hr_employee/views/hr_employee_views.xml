@@ -50,19 +50,4 @@
         </field>
     </record>
 
-    <!-- Inherit Employee Form View: Add Portal Group in HR Settings -->
-    <record id="view_employee_form_inherit_portal" model="ir.ui.view">
-        <field name="name">hr.employee.form.inherit.portal</field>
-        <field name="model">hr.employee</field>
-        <field name="inherit_id" ref="hr.view_employee_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//page[@name='hr_settings']/group" position="inside">
-                <group string="Portal" name="portal_settings">
-                    <field name="portal_username"/>
-                    <field name="portal_password" password="True"/>
-                </group>
-            </xpath>
-        </field>
-    </record>
-
 </odoo>
