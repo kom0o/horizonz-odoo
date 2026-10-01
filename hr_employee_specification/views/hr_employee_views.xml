@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_employee_form_inherit_specifications" model="ir.ui.view">
+        <field name="name">hr.employee.form.specifications</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <notebook position="inside">
+                <page string="Specifications" name="specifications">
+                    <group>
+                        <field name="has_specifications" widget="boolean_toggle"/>
+                    </group>
+                    <field name="specification_config_ids" invisible="has_specifications == False">
+                        <list editable="bottom">
+                            <field name="spec_type"/>
+                            <field name="total_amount"/>
+                            <field name="divide_by"/>
+                            <field name="monthly_amount" readonly="1"/>
+                        </list>
+                    </field>
+                </page>
+            </notebook>
+        </field>
+    </record>
+</odoo>

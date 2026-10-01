@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hr_employee_specification_config_user,hr.employee.specification.config.user,model_hr_employee_specification_config,hr.group_hr_user,1,1,1,1
+access_hr_employee_specification_setup_user,hr.employee.specification.setup.user,model_hr_employee_specification_setup,hr.group_hr_user,1,1,1,1
+access_hr_employee_specification_user,hr.employee.specification.user,model_hr_employee_specification,hr.group_hr_user,1,1,1,1
