@@ -6,27 +6,9 @@
             <field name="code">LOAN</field>
             <field name="category_id" ref="hr_payroll_community.DED"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">
-lines = payslip.env['hr.loan.line'].search([
-    ('loan_id.employee_id', '=', payslip.employee_id.id),
-    ('loan_id.state', '=', 'confirmed'),
-    ('paid', '=', False),
-    ('installment_date', '&gt;=', payslip.date_from),
-    ('installment_date', '&lt;=', payslip.date_to)
-])
-result = bool(lines)
-            </field>
+            <field name="condition_python">result = payslip.get_loan_amount() &gt; 0</field>
             <field name="amount_select">code</field>
-            <field name="amount_python_compute">
-lines = payslip.env['hr.loan.line'].search([
-    ('loan_id.employee_id', '=', payslip.employee_id.id),
-    ('loan_id.state', '=', 'confirmed'),
-    ('paid', '=', False),
-    ('installment_date', '&gt;=', payslip.date_from),
-    ('installment_date', '&lt;=', payslip.date_to)
-])
-result = -sum(lines.mapped('amount'))
-            </field>
+            <field name="amount_python_compute">result = -payslip.get_loan_amount()</field>
             <field name="sequence" eval="150"/>
         </record>
     </data>

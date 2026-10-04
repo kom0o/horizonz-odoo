@@ -32,3 +32,14 @@ class HrPayslip(models.Model):
                     'payslip_id': False
                 })
         return res
+
+    def get_loan_amount(self):
+        self.ensure_one()
+        loan_lines = self.env['hr.loan.line'].search([
+            ('loan_id.employee_id', '=', self.employee_id.id),
+            ('loan_id.state', '=', 'confirmed'),
+            ('paid', '=', False),
+            ('installment_date', '>=', self.date_from),
+            ('installment_date', '<=', self.date_to)
+        ])
+        return sum(loan_lines.mapped('amount'))
