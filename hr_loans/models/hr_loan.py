@@ -6,7 +6,7 @@ class HrLoan(models.Model):
     _name = 'hr.loan'
     _description = 'HR Loan'
 
-    name = fields.Char(string="Loan Name", default="/", readonly=True)
+    name = fields.Char(string="Loan Name", default="/", readonly=True, copy=False)
     employee_id = fields.Many2one('hr.employee', string="Employee", required=True)
     type = fields.Selection([
         ('loan', 'Loan'),
@@ -47,6 +47,7 @@ class HrLoan(models.Model):
     credit_account_id = fields.Many2one('account.account', string="Credit Account")
     journal_id = fields.Many2one('account.journal', string="Journal")
     journal_entry_id = fields.Many2one('account.move', string="Journal Entry Id", readonly=True)
+    journal_entry_count = fields.Integer(compute='_compute_journal_entry_count')
     
     state = fields.Selection([
         ('draft', 'Draft'),
@@ -54,6 +55,29 @@ class HrLoan(models.Model):
     ], string="State", default="draft", tracking=True)
     
     line_ids = fields.One2many('hr.loan.line', 'loan_id', string="Details")
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('name', '/') == '/':
+                vals['name'] = self.env['ir.sequence'].next_by_code('hr.loan') or '/'
+        return super().create(vals_list)
+
+    def _compute_journal_entry_count(self):
+        for rec in self:
+            rec.journal_entry_count = 1 if rec.journal_entry_id else 0
+
+    def action_open_journal_entry(self):
+        self.ensure_one()
+        if self.journal_entry_id:
+            return {
+                'name': 'Journal Entry',
+                'type': 'ir.actions.act_window',
+                'res_model': 'account.move',
+                'res_id': self.journal_entry_id.id,
+                'view_mode': 'form',
+                'target': 'current',
+            }
 
     @api.onchange('amount', 'installment_by', 'installment_amount', 'no_of_installments')
     def _onchange_installments(self):
@@ -138,3 +162,15 @@ class HrLoanLine(models.Model):
     amount = fields.Float(string="Amount")
     paid = fields.Boolean(string="Paid")
     payslip_id = fields.Many2one('hr.payslip', string="Payslip", help="Links the installment to the payslip that paid it.")
+
+    def action_open_payslip(self):
+        self.ensure_one()
+        if self.payslip_id:
+            return {
+                'name': 'Payslip',
+                'type': 'ir.actions.act_window',
+                'res_model': 'hr.payslip',
+                'res_id': self.payslip_id.id,
+                'view_mode': 'form',
+                'target': 'current',
+            }

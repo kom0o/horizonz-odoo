@@ -13,6 +13,7 @@ This module allows you to manage employee loans and debts.
     'data': [
         'security/ir.model.access.csv',
         'security/hr_loan_security.xml',
+        'data/ir_sequence_data.xml',
         'data/hr_payroll_data.xml',
         'views/hr_loan_views.xml',
     ],

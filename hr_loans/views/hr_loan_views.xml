@@ -12,6 +12,16 @@
                     <field name="state" widget="statusbar" statusbar_visible="draft,confirmed"/>
                 </header>
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_journal_entry" type="object" class="oe_stat_button" icon="fa-book" invisible="journal_entry_count == 0">
+                            <field name="journal_entry_count" widget="statinfo" string="Journal Entry"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
                     <group>
                         <group>
                             <field name="employee_id" readonly="state != 'draft'"/>
@@ -29,7 +39,6 @@
                             <field name="debit_account_id" readonly="state != 'draft'"/>
                             <field name="credit_account_id" readonly="state != 'draft'"/>
                             <field name="journal_id" readonly="state != 'draft'"/>
-                            <field name="journal_entry_id"/>
                         </group>
                     </group>
                     <notebook>
@@ -40,6 +49,7 @@
                                     <field name="amount"/>
                                     <field name="paid" readonly="1" force_save="1"/>
                                     <field name="payslip_id" readonly="1"/>
+                                    <button name="action_open_payslip" type="object" icon="fa-external-link" title="Open Payslip" invisible="not payslip_id"/>
                                 </list>
                             </field>
                         </page>
