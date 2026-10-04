@@ -47,10 +47,26 @@ Upon completing a module or feature, you must automatically execute the followin
    - `git add .`
    - `git commit -m "feat([module_name]): [Brief description of changes]"`
    - `git push origin main`
-2. Use your connected MCP server tools to execute the following remote commands on the Hostinger VPS:
-   - `cd /docker/odoo/custom_addons`
-   - `git pull origin main`
-   - `docker restart odoo-odoo-1`
+2. Use PowerShell and Posh-SSH to deploy the changes to the Hostinger VPS using the stored credentials.
+   Create a PowerShell script (e.g., in your scratch folder) with the following content and execute it via `run_command`:
+   ```powershell
+   Import-Module Posh-SSH
+   $pass = ConvertTo-SecureString 'Horizonz2026@Odoo.vps' -AsPlainText -Force
+   $cred = New-Object System.Management.Automation.PSCredential('root', $pass)
+   $session = New-SSHSession -ComputerName '72.61.97.181' -Credential $cred -AcceptKey -Force
+
+   function Run($cmd) {
+       $r = Invoke-SSHCommand -SessionId $session.SessionId -Command $cmd -TimeOut 60
+       Write-Host "CMD: $cmd"
+       Write-Host $r.Output
+       if ($r.Error) { Write-Host "ERR: $($r.Error)" }
+       Write-Host "---"
+   }
+
+   $cmd = "cd /docker/odoo/custom_addons && git fetch origin && git reset --hard origin/main && docker restart odoo-odoo-1"
+   Run $cmd
+   Remove-SSHSession -SessionId $session.SessionId
+   ```
 
 ---
 

@@ -37,7 +37,8 @@
                                 <list editable="bottom">
                                     <field name="installment_date"/>
                                     <field name="amount"/>
-                                    <field name="paid"/>
+                                    <field name="paid" readonly="1" force_save="1"/>
+                                    <field name="payslip_id" readonly="1"/>
                                 </list>
                             </field>
                         </page>

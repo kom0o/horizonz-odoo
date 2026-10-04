@@ -105,3 +105,4 @@ class HrLoanLine(models.Model):
     installment_date = fields.Date(string="Installment Date")
     amount = fields.Float(string="Amount")
     paid = fields.Boolean(string="Paid")
+    payslip_id = fields.Many2one('hr.payslip', string="Payslip", help="Links the installment to the payslip that paid it.")

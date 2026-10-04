@@ -9,9 +9,10 @@ Employee Loans and Debts Management
 This module allows you to manage employee loans and debts.
     """,
     'author': 'Antigravity',
-    'depends': ['hr', 'account'],
+    'depends': ['hr', 'account', 'hr_payroll_community'],
     'data': [
         'security/ir.model.access.csv',
+        'data/hr_payroll_data.xml',
         'views/hr_loan_views.xml',
     ],
     'installable': True,
