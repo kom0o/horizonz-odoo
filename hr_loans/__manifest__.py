@@ -12,6 +12,7 @@ This module allows you to manage employee loans and debts.
     'depends': ['hr', 'account', 'hr_payroll_community'],
     'data': [
         'security/ir.model.access.csv',
+        'security/hr_loan_security.xml',
         'data/hr_payroll_data.xml',
         'views/hr_loan_views.xml',
     ],
