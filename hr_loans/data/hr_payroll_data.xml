@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data noupdate="1">
+    <data noupdate="0">
         <record id="hr_salary_rule_loan" model="hr.salary.rule">
             <field name="name">Loan Installment</field>
             <field name="code">LOAN</field>
