@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_loan_form" model="ir.ui.view">
+        <field name="name">hr.loan.form</field>
+        <field name="model">hr.loan</field>
+        <field name="arch" type="xml">
+            <form string="Loans">
+                <header>
+                    <button name="action_compute_installments" string="Compute" type="object" invisible="state != 'draft'"/>
+                    <button name="action_confirm" string="Confirm" type="object" invisible="state != 'draft'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="employee_id"/>
+                            <field name="type"/>
+                            <field name="loan_type" invisible="type != 'loan'"/>
+                            <field name="debt_type" invisible="type != 'debt'"/>
+                            <field name="amount"/>
+                            <field name="installment_by"/>
+                            <field name="installment_amount" readonly="installment_by == 'number'" force_save="1"/>
+                            <field name="no_of_installments" readonly="installment_by == 'amount'" force_save="1"/>
+                        </group>
+                        <group>
+                            <field name="request_date"/>
+                            <field name="payment_start_date"/>
+                            <field name="debit_account_id"/>
+                            <field name="credit_account_id"/>
+                            <field name="journal_id"/>
+                            <field name="journal_entry_id"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Details">
+                            <field name="line_ids">
+                                <list editable="bottom">
+                                    <field name="installment_date"/>
+                                    <field name="amount"/>
+                                    <field name="paid"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_loan_tree" model="ir.ui.view">
+        <field name="name">hr.loan.list</field>
+        <field name="model">hr.loan</field>
+        <field name="arch" type="xml">
+            <list string="Loans">
+                <field name="employee_id"/>
+                <field name="type"/>
+                <field name="amount"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_hr_loan" model="ir.actions.act_window">
+        <field name="name">Loans</field>
+        <field name="res_model">hr.loan</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new Loan or Debt
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_hr_loans_root" name="Loans" parent="hr.menu_hr_root" sequence="100"/>
+    <menuitem id="menu_hr_loans" name="Loans" parent="menu_hr_loans_root" action="action_hr_loan" sequence="1"/>
+</odoo>
