@@ -95,7 +95,39 @@ class HrLoan(models.Model):
 
     def action_confirm(self):
         for rec in self:
+            if not rec.debit_account_id or not rec.credit_account_id or not rec.journal_id:
+                raise UserError("Debit Account, Credit Account, and Journal must be set to confirm the loan.")
+            
+            move_vals = {
+                'date': rec.request_date or fields.Date.context_today(self),
+                'journal_id': rec.journal_id.id,
+                'ref': rec.name,
+                'line_ids': [
+                    (0, 0, {
+                        'name': 'Loan For ' + rec.employee_id.name,
+                        'account_id': rec.debit_account_id.id,
+                        'debit': rec.amount,
+                        'credit': 0.0,
+                    }),
+                    (0, 0, {
+                        'name': 'Loan For ' + rec.employee_id.name,
+                        'account_id': rec.credit_account_id.id,
+                        'debit': 0.0,
+                        'credit': rec.amount,
+                    }),
+                ]
+            }
+            move = self.env['account.move'].create(move_vals)
+            move.action_post()
+            rec.journal_entry_id = move.id
             rec.state = 'confirmed'
+
+    def action_draft(self):
+        for rec in self:
+            if rec.journal_entry_id:
+                rec.journal_entry_id.button_draft()
+                rec.journal_entry_id.with_context(force_delete=True).unlink()
+            rec.state = 'draft'
 
 class HrLoanLine(models.Model):
     _name = 'hr.loan.line'
