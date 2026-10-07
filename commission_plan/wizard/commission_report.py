@@ -190,7 +190,7 @@ class CommissionReport(models.TransientModel):
                 'options': json.dumps(data, default=json_default),
                 'output_format': 'xlsx',
                 'report_name': 'Commission Plan xlsx report'},
-            'report_type': 'xlsx'
+            'report_type': 'commission_xlsx'
         }
 
     def get_xlsx_report(self, data, response):

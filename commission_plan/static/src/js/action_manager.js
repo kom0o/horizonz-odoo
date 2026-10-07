@@ -9,9 +9,9 @@ import { download } from "@web/core/network/download";
  * and triggers a file download on completion.
  */
 const reportHandlersRegistry = registry.category("ir.actions.report handlers");
-if (!reportHandlersRegistry.contains("xlsx")) {
-    reportHandlersRegistry.add("xlsx", async (action) => {
-        if (action.report_type === 'xlsx') {
+if (!reportHandlersRegistry.contains("commission_xlsx")) {
+    reportHandlersRegistry.add("commission_xlsx", async (action) => {
+        if (action.report_type === 'commission_xlsx') {
             BlockUI;
             await download({
                 url: '/xlsx_reports',
