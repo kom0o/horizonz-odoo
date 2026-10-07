@@ -1,0 +1,32 @@
+.eh_board_scorecard {
+    .eh_scorecard_toolbar, .eh_scorecard_heading, .eh_scorecard_actions {
+        display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .eh_scorecard_toolbar { margin-bottom: 12px; align-items: end; }
+    .eh_scorecard_heading { justify-content: space-between; margin-bottom: 12px; }
+    .eh_scorecard_heading h4 { display: inline; margin-left: 10px; }
+    .eh_scorecard_score { font-size: 1.4rem; color: #346554; }
+    .eh_scorecard_node {
+        padding: 16px; margin-block: 14px; border: 1px solid var(--border-color, #d9dfe5);
+        border-left: 4px solid #628878; border-radius: 8px;
+    }
+    .eh_scorecard_fields {
+        display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 12px;
+        label { display: grid; gap: 4px; font-size: .9rem; }
+    }
+    .eh_scorecard_wide { grid-column: span 2; }
+    .eh_scorecard_actions { margin-top: 12px; }
+    .eh_scorecard_values {
+        display: flex; gap: 32px; padding-top: 12px; flex-wrap: wrap;
+        div { display: grid; gap: 3px; }
+        span { color: var(--text-muted, #596774); font-size: .85rem; }
+        strong { font-size: 1.2rem; }
+    }
+    .eh_scorecard_empty { text-align: center; padding: 38px 16px; }
+    details summary { cursor: pointer; }
+    @media (max-width: 700px) {
+        .eh_scorecard_fields { grid-template-columns: 1fr; }
+        .eh_scorecard_wide { grid-column: span 1; }
+        .eh_scorecard_node { margin-left: 0 !important; }
+    }
+}

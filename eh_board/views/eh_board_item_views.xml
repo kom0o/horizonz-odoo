@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_eh_board_item_list" model="ir.ui.view">
+        <field name="name">eh.board.item.list</field>
+        <field name="model">eh.board.item</field>
+        <field name="arch" type="xml">
+            <list string="Items">
+                <field name="sequence" widget="handle"/>
+                <field name="title"/>
+                <field name="item_type"/>
+                <field name="datasource_id"/>
+                <field name="primary_dimension_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_eh_board_item_form" model="ir.ui.view">
+        <field name="name">eh.board.item.form</field>
+        <field name="model">eh.board.item</field>
+        <field name="arch" type="xml">
+            <form string="Item">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="title"/>
+                            <field name="subtitle"/>
+                            <field name="item_type"/>
+                            <field name="color_mode"/>
+                        </group>
+                        <group>
+                            <field name="datasource_id"/>
+                            <field name="model_id" invisible="1"/>
+                            <field name="model_name" invisible="1"/>
+                            <field name="accent"/>
+                            <field name="tile_style" invisible="item_type not in ('tile', 'kpi')"/>
+                            <field name="record_limit"/>
+                        </group>
+                    </group>
+                    <group string="Data"
+                           invisible="item_type in ('richtext', 'todo')">
+                        <group>
+                            <field name="provider_type" invisible="1"/>
+                            <field name="list_mode" invisible="item_type != 'list'"/>
+                            <field name="list_field_ids" widget="many2many_tags"
+                                   options="{'no_create': True, 'no_create_edit': True}"
+                                   invisible="item_type != 'list' or list_mode != 'records'"/>
+                            <field name="measure_ids" widget="many2many_tags"
+                                   options="{'no_create': True, 'no_create_edit': True}"
+                                   invisible="item_type == 'list' and list_mode == 'records'"/>
+                            <field name="primary_dimension_id"
+                                   options="{'no_create': True, 'no_create_edit': True}"
+                                   invisible="provider_type == 'file' or (item_type == 'list' and list_mode == 'records')"/>
+                            <field name="secondary_dimension_id"
+                                   options="{'no_create': True, 'no_create_edit': True}"
+                                   invisible="provider_type == 'file' or (item_type == 'list' and list_mode == 'records')"/>
+                            <field name="primary_column_id"
+                                   invisible="provider_type != 'file'"/>
+                            <field name="secondary_column_id"
+                                   invisible="provider_type != 'file'"/>
+                            <field name="date_granularity"/>
+                        </group>
+                        <group>
+                            <field name="domain" widget="domain"
+                                   options="{'model': 'model_name'}"
+                                   invisible="not model_name"/>
+                        </group>
+                    </group>
+                    <group string="Content"
+                           invisible="item_type not in ('richtext', 'todo')">
+                        <field name="content" nolabel="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Interaction" name="interaction">
+                            <group>
+                                <field name="click_action"/>
+                                <field name="target_dashboard_id"
+                                       invisible="click_action != 'dashboard'"
+                                       required="click_action == 'dashboard'"
+                                       domain="[('id', '!=', dashboard_id)]"
+                                       options="{'no_create': True, 'no_create_edit': True}"/>
+                                <field name="window_action_id"
+                                       invisible="click_action != 'action'"
+                                       required="click_action == 'action'"
+                                       domain="[('res_model', '=', model_name)]"
+                                       options="{'no_create': True, 'no_create_edit': True}"/>
+                            </group>
+                        </page>
+                        <page string="Drill-down" name="drill">
+                            <field name="drill_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="field_id"/>
+                                    <field name="chart_type"/>
+                                    <field name="sort"/>
+                                    <field name="limit"/>
+                                    <field name="propagate_domain"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>

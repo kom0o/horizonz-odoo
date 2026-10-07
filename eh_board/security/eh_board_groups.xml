@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="module_category_eh_board" model="ir.module.category">
+        <field name="name">Dashboard Builder</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <!-- Viewer: opens and reads published dashboards. -->
+    <record id="group_board_viewer" model="res.groups">
+        <field name="name">Viewer</field>
+        <field name="category_id" ref="module_category_eh_board"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="comment">Can open and read dashboards shared with them.</field>
+    </record>
+
+    <!-- Builder: designs dashboards, items, measures, data sources, filters. -->
+    <record id="group_board_builder" model="res.groups">
+        <field name="name">Builder</field>
+        <field name="category_id" ref="module_category_eh_board"/>
+        <field name="implied_ids" eval="[(4, ref('group_board_viewer'))]"/>
+        <field name="comment">Can design dashboards, items, measures, data sources and filters.</field>
+    </record>
+
+    <!-- Admin: full control, including cross-owner and template management. -->
+    <record id="group_board_admin" model="res.groups">
+        <field name="name">Administrator</field>
+        <field name="category_id" ref="module_category_eh_board"/>
+        <field name="implied_ids" eval="[(4, ref('group_board_builder'))]"/>
+        <field name="comment">Full control over every dashboard and the template library.</field>
+    </record>
+
+    <record id="base.user_admin" model="res.users">
+        <field name="groups_id" eval="[(4, ref('group_board_admin'))]"/>
+    </record>
+
+</odoo>

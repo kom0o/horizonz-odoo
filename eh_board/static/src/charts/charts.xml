@@ -1,0 +1,630 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="eh_board.CartesianChart">
+        <div class="eh_board_chart eh_board_cartesian" t-on-wheel="onWheel"
+             t-ref="chart" t-att-class="{ o_horizontal: horizontal }">
+            <div class="eh_board_zoom" t-if="hasZoom" aria-label="Chart zoom controls">
+                <button type="button" t-on-click="() => this.pan(-1)" title="Pan left" aria-label="Pan left"><i class="fa fa-angle-left"/></button>
+                <button type="button" t-on-click="zoomOut" title="Zoom out" aria-label="Zoom out"><i class="fa fa-search-minus"/></button>
+                <button type="button" class="eh_board_zoom_label" t-on-click="resetZoom" title="Reset zoom" t-esc="zoomLabel"/>
+                <button type="button" t-on-click="zoomIn" title="Zoom in" aria-label="Zoom in"><i class="fa fa-search-plus"/></button>
+                <button type="button" t-on-click="() => this.pan(1)" title="Pan right" aria-label="Pan right"><i class="fa fa-angle-right"/></button>
+            </div>
+            <svg t-att-viewBox="viewBox" t-att-style="svgStyle" preserveAspectRatio="xMidYMid meet"
+                 role="img" t-att-aria-label="props.meta and props.meta.title">
+                <!-- value grid lines + ticks -->
+                <t t-if="showGrid" t-foreach="gridLines" t-as="g" t-key="g.value">
+                    <line class="eh_board_grid_line"
+                          t-att-x1="horizontal ? g.pos : plot.x"
+                          t-att-x2="horizontal ? g.pos : plot.x + plot.w"
+                          t-att-y1="horizontal ? plot.y : g.pos"
+                          t-att-y2="horizontal ? plot.y + plot.h : g.pos"/>
+                    <text class="eh_board_axis_label" direction="ltr"
+                          t-att-x="horizontal ? g.pos : plot.x - 6"
+                          t-att-y="horizontal ? plot.y + plot.h + 14 : g.pos + 3"
+                          t-att-text-anchor="horizontal ? 'middle' : 'end'"
+                          t-esc="g.label"/>
+                </t>
+                <!-- bars -->
+                <t t-foreach="bars" t-as="bar" t-key="bar_index">
+                    <rect class="eh_board_bar" t-att-x="bar.x" t-att-y="bar.y"
+                          t-att-class="{ o_comparison: bar.series.comparison }"
+                          t-att-width="Math.max(0, bar.w)" t-att-height="Math.max(0, bar.h)"
+                          t-att-fill="bar.color" rx="4"
+                          t-on-click="() => this.onBarClick(bar)"
+                          t-on-mouseenter="(ev) => this.onBarHover(ev, bar)"
+                          t-on-mousemove="onMove" t-on-mouseleave="onLeave"/>
+                </t>
+                <!-- value labels -->
+                <t t-if="showValues">
+                    <t t-foreach="bars" t-as="bar" t-key="'v' + bar_index">
+                        <text t-if="bar.value" class="eh_board_value_label" direction="ltr"
+                              t-att-x="valueLabel(bar).x" t-att-y="valueLabel(bar).y"
+                              t-att-text-anchor="valueLabel(bar).anchor"
+                              t-esc="fmt(bar.value, bar.series)"/>
+                    </t>
+                </t>
+                <!-- lines / areas -->
+                <t t-foreach="lines" t-as="ln" t-key="ln_index">
+                    <path t-if="ln.area" class="eh_board_area" t-att-d="ln.area"
+                          t-att-fill="ln.color" fill-opacity="0.15"/>
+                    <path class="eh_board_line" t-att-d="ln.path" fill="none"
+                          t-att-class="{ o_comparison: ln.comparison }"
+                          t-att-stroke="ln.color" stroke-width="2.5"/>
+                    <t t-foreach="ln.points" t-as="pt" t-key="pt_index">
+                        <circle class="eh_board_point" t-att-cx="pt.x" t-att-cy="pt.y"
+                                r="3" t-att-fill="ln.color"/>
+                    </t>
+                </t>
+                <!-- invisible hover columns for line/area tooltips -->
+                <t t-if="isLine">
+                    <t t-foreach="bands" t-as="band" t-key="'h' + band.index">
+                        <rect class="eh_board_hover_col" t-att-x="band.start"
+                              t-att-y="plot.y" t-att-width="band.size" t-att-height="plot.h"
+                              fill="transparent"
+                              t-on-click="() => this.onBandClick(band)"
+                              t-on-mouseenter="(ev) => this.onBandHover(ev, band)"
+                              t-on-mousemove="onMove" t-on-mouseleave="onLeave"/>
+                    </t>
+                </t>
+                <!-- cumulative (Pareto) overlay -->
+                <t t-if="cumulativePath">
+                    <path class="eh_board_combo_line" t-att-d="cumulativePath.path" fill="none"/>
+                    <t t-foreach="cumulativePath.points" t-as="cp" t-key="cp_index">
+                        <circle class="eh_board_combo_dot" t-att-cx="cp.x" t-att-cy="cp.y" r="3"/>
+                    </t>
+                </t>
+                <!-- combo line overlay: as_line measures drawn as lines on the
+                     secondary axis (e.g. revenue bars + margin-% line) -->
+                <t t-foreach="overlayLines" t-as="oln" t-key="'ol' + oln_index">
+                    <path class="eh_board_combo_measure_line" t-att-d="oln.path" fill="none"
+                          t-att-stroke="oln.color" stroke-width="2.5"/>
+                    <t t-foreach="oln.points" t-as="opt" t-key="'olp' + opt_index">
+                        <circle t-att-cx="opt.x" t-att-cy="opt.y" r="3.5"
+                                t-att-fill="oln.color" stroke="var(--eh-board-surface)" stroke-width="1"/>
+                    </t>
+                </t>
+                <!-- secondary axis ticks (right side) for the combo line scale -->
+                <t t-if="hasComboLines" t-foreach="lineTicks" t-as="tick" t-key="tick_index">
+                    <text class="eh_board_axis_label eh_board_axis_label_secondary"
+                          t-att-x="plot.x + plot.w + 6" t-att-y="tick.pos + 3"
+                          t-att-text-anchor="'start'" t-esc="tick.label"/>
+                </t>
+                <!-- date-effective target trajectory -->
+                <t t-if="targetPath">
+                    <path class="eh_board_target_path" t-att-d="targetPath.path" fill="none"/>
+                    <circle t-foreach="targetPath.points" t-as="targetPoint" t-key="targetPoint_index"
+                            class="eh_board_target_dot" t-att-cx="targetPoint.x" t-att-cy="targetPoint.y" r="2.5"/>
+                    <text class="eh_board_goal_label" t-att-x="targetPath.last.x - 3"
+                          t-att-y="targetPath.last.y - 5" text-anchor="end"
+                          t-esc="targetPath.label"/>
+                </t>
+                <!-- goal / target line -->
+                <t t-if="goalLine">
+                    <line class="eh_board_goal_line" t-att-x1="goalLine.x1" t-att-y1="goalLine.y"
+                          t-att-x2="goalLine.x2" t-att-y2="goalLine.y"/>
+                    <text class="eh_board_goal_label" t-att-x="goalLine.x2 - 2" t-att-y="goalLine.y - 4"
+                          text-anchor="end" t-esc="goalLine.label"/>
+                </t>
+                <!-- Category labels. Crowded vertical axes rotate 65 degrees;
+                     horizontal bars keep their dedicated name gutter. -->
+                <t t-foreach="bands" t-as="band" t-key="band.index">
+                    <text t-if="band.showTick" class="eh_board_axis_label eh_board_cat_label"
+                          t-att-x="band.tickX" t-att-y="band.tickY"
+                          t-att-text-anchor="band.tickAnchor"
+                          t-att-direction="band.tickDirection"
+                          t-att-transform="band.tickTransform"
+                          t-att-aria-label="band.label">
+                        <title t-esc="band.label"/>
+                        <tspan t-foreach="band.tickLines" t-as="line" t-key="line_index"
+                               t-att-x="band.tickX" t-att-dy="line_index ? 14 : 0" t-esc="line"/>
+                    </text>
+                </t>
+            </svg>
+            <div class="eh_board_legend eh_board_legend_click" t-if="series.length > 1 and showLegend">
+                <button t-foreach="legendItems" t-as="li" t-key="li.index"
+                        class="eh_board_legend_item" t-att-class="{ o_off: li.hidden }"
+                        t-on-click="() => this.toggleHidden(li.index)"
+                        t-att-title="li.hidden ? uiText('Show %s', li.label) : uiText('Hide %s', li.label)">
+                    <span class="eh_board_legend_dot" t-attf-style="background:{{ li.color }}"/>
+                    <t t-esc="li.label"/>
+                </button>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="eh_board.PieChart">
+        <div class="eh_board_chart eh_board_pie">
+            <svg t-att-viewBox="viewBox" preserveAspectRatio="xMidYMid meet" role="img">
+                <t t-foreach="slices" t-as="slice" t-key="slice.index">
+                    <path class="eh_board_slice" t-att-d="slice.path" t-att-fill="slice.color"
+                          t-on-click="() => this.onSliceClick(slice)"
+                          t-on-mouseenter="(ev) => this.onSliceHover(ev, slice)"
+                          t-on-mousemove="onMove" t-on-mouseleave="onLeave"/>
+                </t>
+                <t t-foreach="slices" t-as="slice" t-key="'p' + slice.index">
+                    <text t-if="slice.showLabel" class="eh_board_slice_label"
+                          t-att-x="slice.lx" t-att-y="slice.ly" text-anchor="middle"
+                          paint-order="stroke" t-esc="slice.labelText"/>
+                </t>
+                <text t-if="type !== 'pie'" class="eh_board_pie_center"
+                      x="120" t-att-y="isSemi ? 168 : 122"
+                      text-anchor="middle" t-esc="centerLabel"/>
+                <text t-if="type !== 'pie'" class="eh_board_pie_center_sub"
+                      x="120" t-att-y="isSemi ? 185 : 140"
+                      text-anchor="middle">Total</text>
+            </svg>
+            <div class="eh_board_legend eh_board_legend_click" t-if="showLegend">
+                <button t-foreach="legendItems" t-as="li" t-key="li.index"
+                        class="eh_board_legend_item" t-att-class="{ o_off: li.hidden }"
+                        t-on-click="() => this.toggleHidden(li.index)"
+                        t-att-title="li.hidden ? uiText('Show %s', li.label) : uiText('Hide %s', li.label)">
+                    <span class="eh_board_legend_dot" t-attf-style="background:{{ li.color }}"/>
+                    <t t-esc="li.label"/>
+                </button>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="eh_board.KpiTile">
+        <div class="eh_board_kpi" t-attf-class="eh_board_accent_{{ accent }} o_{{ tileStyle }}"
+             t-att-class="{ o_clickable: clickable, o_cond_fill: fillStyle }" t-on-click="onClick"
+             t-att-style="fillStyle" t-att-title="clickable ? uiText('Open matching records') : ''">
+            <div class="eh_board_kpi_top">
+                <div class="eh_board_kpi_icon"><i t-attf-class="fa {{ icon }}"/></div>
+                <span t-if="hasTrend" class="eh_board_trend"
+                      t-att-class="trendUp ? 'o_up' : 'o_down'">
+                    <i t-att-class="trendUp ? 'fa fa-caret-up' : 'fa fa-caret-down'"/>
+                    <t t-esc="trendPct"/>%
+                </span>
+            </div>
+            <div class="eh_board_kpi_value" t-att-class="{ o_cond_text: hasTextCondition }"
+                 t-att-style="valueStyle" t-esc="display"/>
+            <div class="eh_board_kpi_label" t-if="label" t-esc="label"/>
+            <svg t-if="hasSpark" class="eh_board_spark" viewBox="0 0 120 34"
+                 preserveAspectRatio="none" aria-hidden="true">
+                <path t-att-d="sparkArea" class="eh_board_spark_area"/>
+                <path t-att-d="sparkPath" class="eh_board_spark_line" fill="none"/>
+            </svg>
+            <div class="eh_board_kpi_target" t-if="hasTarget">
+                <div class="eh_board_kpi_bar">
+                    <div class="eh_board_kpi_fill" t-attf-style="width:{{ progressWidth }}%"/>
+                </div>
+                <span class="eh_board_kpi_pct"><t t-esc="achievement"/>% of <t t-esc="targetDisplay"/></span>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="eh_board.GaugeChart">
+        <div class="eh_board_chart eh_board_gauge" t-attf-class="eh_board_accent_{{ accent }}"
+             t-att-class="{ o_clickable: clickable }" t-on-click="onClick"
+             t-att-title="clickable ? uiText('Open matching records') : ''">
+            <svg viewBox="0 0 240 168" preserveAspectRatio="xMidYMid meet" role="img">
+                <path t-att-d="arc.track" fill="none" class="eh_board_gauge_track" stroke-width="18" stroke-linecap="round"/>
+                <path t-att-d="arc.value" fill="none" class="eh_board_gauge_value" stroke-width="18" stroke-linecap="round"/>
+                <text x="120" y="118" text-anchor="middle" class="eh_board_gauge_num" t-esc="display"/>
+                <text x="120" y="142" text-anchor="middle" class="eh_board_gauge_pct"><t t-esc="pct"/>% of <t t-esc="targetDisplay"/></text>
+            </svg>
+        </div>
+    </t>
+
+    <t t-name="eh_board.DecompWidget">
+        <div class="eh_board_decomp">
+            <div class="eh_board_decomp_col">
+                <div class="eh_board_decomp_root">
+                    <div class="eh_board_decomp_root_lbl" t-esc="root.label"/>
+                    <div class="eh_board_decomp_root_val" t-esc="fmt(root.value)"/>
+                </div>
+            </div>
+            <t t-foreach="state.cols" t-as="col" t-key="col_index">
+                <div class="eh_board_decomp_col">
+                    <div class="eh_board_decomp_head" t-esc="chainLabels[col_index] || uiText('Level %s', col_index + 1)"/>
+                    <button t-foreach="col.nodes" t-as="node" t-key="node_index"
+                            class="eh_board_decomp_node" t-att-class="{ o_sel: col.sel === node_index }"
+                            t-on-click="() => this.expand(col_index, node_index)">
+                        <div class="eh_board_decomp_bar" t-attf-style="width:{{ barW(node, col) }}%;"/>
+                        <span class="eh_board_decomp_nlbl" t-esc="node.label"/>
+                        <span class="eh_board_decomp_nval"><t t-esc="fmt(node.value)"/> · <t t-esc="Math.round(node.pct)"/>%</span>
+                    </button>
+                    <div t-if="!col.nodes.length" class="eh_board_decomp_empty">No data.</div>
+                </div>
+            </t>
+        </div>
+    </t>
+
+    <t t-name="eh_board.SlicerWidget">
+        <div class="eh_board_slicer" t-att-class="{ o_compact: compact }">
+            <div t-if="!values.length" class="eh_board_slicer_empty">
+                <i class="fa fa-filter"/> Pick a field to slice by.
+            </div>
+            <div t-if="values.length" class="eh_board_slicer_head">
+                <input type="text" class="form-control form-control-sm eh_board_slicer_search"
+                       t-att-value="state.search" t-on-input="(ev) => state.search = ev.target.value"
+                       placeholder="Search..." aria-label="Search slicer values"/>
+                <button type="button" t-if="hasActive" class="eh_board_slicer_clear" t-on-click="clearAll"
+                        title="Clear selection">Clear</button>
+            </div>
+            <div t-if="values.length" class="eh_board_slicer_chips" t-on-keydown="onListKeydown">
+                <button type="button" t-foreach="filteredValues" t-as="v" t-key="v.key" class="eh_board_slicer_chip"
+                        t-att-class="{ o_on: isActive(v) }" t-on-click="() => this.toggle(v)"
+                        t-att-aria-pressed="isActive(v) ? 'true' : 'false'">
+                    <i t-if="compact" class="fa" t-att-class="isActive(v) ? 'fa-check-square-o' : 'fa-square-o'" aria-hidden="true"/>
+                    <span t-esc="v.label"/>
+                </button>
+                <div t-if="!filteredValues.length" class="eh_board_slicer_empty">No matching values.</div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="eh_board.ListWidget">
+        <div class="eh_board_list">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th t-if="!isRecordList">Category</th>
+                        <th t-foreach="columns" t-as="col" t-key="col_index"
+                            t-att-class="{ 'text-end': col.numeric, eh_board_percent_col: col.percentage }"
+                            t-esc="col.label"/>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="rows" t-as="row" t-key="row.index"
+                        t-on-click="() => this.onRowClick(row)" class="eh_board_list_row">
+                        <td t-if="!isRecordList" t-esc="row.label"/>
+                        <td t-foreach="row.cells" t-as="cell" t-key="cell_index"
+                            t-att-class="{ 'text-end': cell.numeric, eh_board_num: cell.numeric, eh_board_percent_col: cell.percentage }"
+                            t-att-style="cell.style">
+                            <div t-if="cell.bar" class="eh_board_databar"
+                                 t-attf-style="width:{{cell.bar}}%;background:{{cell.barColor}};"/>
+                            <span class="eh_board_databar_v"><t t-esc="cell.text"/></span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div t-if="totalRows > 10" class="eh_board_table_pager" aria-label="Table pagination">
+                <span t-esc="rangeLabel"/>
+                <label>Rows
+                    <select t-att-value="state.pageSize" t-on-change="setPageSize"
+                            aria-label="Rows per page">
+                        <option value="10">10</option><option value="25">25</option>
+                        <option value="50">50</option><option value="100">100</option>
+                    </select>
+                </label>
+                <button type="button" t-att-disabled="page &lt;= 1"
+                        t-on-click="() => this.setPage(-1)" aria-label="Previous page">
+                    <i class="fa fa-chevron-left"/>
+                </button>
+                <button type="button" t-att-disabled="page >= totalPages"
+                        t-on-click="() => this.setPage(1)" aria-label="Next page">
+                    <i class="fa fa-chevron-right"/>
+                </button>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="eh_board.RadarChart">
+        <div class="eh_board_chart eh_board_radar">
+            <svg t-att-viewBox="viewBox" preserveAspectRatio="xMidYMid meet" role="img">
+                <t t-foreach="rings" t-as="ring" t-key="ring_index">
+                    <path t-att-d="ring" class="eh_board_radar_ring" fill="none"/>
+                </t>
+                <t t-foreach="axes" t-as="ax" t-key="ax_index">
+                    <line class="eh_board_radar_axis" t-att-x1="geo.cx" t-att-y1="geo.cy"
+                          t-att-x2="ax.x2" t-att-y2="ax.y2"/>
+                    <text class="eh_board_axis_label" t-att-x="ax.lx" t-att-y="ax.ly"
+                          t-att-text-anchor="ax.anchor" t-esc="ax.label"/>
+                    <circle t-att-cx="ax.x2" t-att-cy="ax.y2" r="10" fill="transparent"
+                            t-on-mouseenter="(ev) => this.onHover(ev, ax_index)"
+                            t-on-mousemove="onMove" t-on-mouseleave="onLeave"/>
+                </t>
+                <t t-foreach="polygons" t-as="poly" t-key="poly_index">
+                    <path class="eh_board_radar_area" t-att-d="poly.path" t-att-fill="poly.color"
+                          fill-opacity="0.18" t-att-stroke="poly.color" stroke-width="2"/>
+                    <t t-foreach="poly.points" t-as="pt" t-key="pt_index">
+                        <circle t-att-cx="pt.x" t-att-cy="pt.y" r="3" t-att-fill="poly.color"/>
+                    </t>
+                </t>
+            </svg>
+            <div class="eh_board_legend eh_board_legend_click" t-if="series.length > 1">
+                <button t-foreach="legendItems" t-as="li" t-key="li.index"
+                        class="eh_board_legend_item" t-att-class="{ o_off: li.hidden }"
+                        t-on-click="() => this.toggleHidden(li.index)"
+                        t-att-title="li.hidden ? uiText('Show %s', li.label) : uiText('Hide %s', li.label)">
+                    <span class="eh_board_legend_dot" t-attf-style="background:{{ li.color }}"/>
+                    <t t-esc="li.label"/>
+                </button>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="eh_board.FunnelChart">
+        <div class="eh_board_chart eh_board_funnel">
+            <svg t-att-viewBox="viewBox" preserveAspectRatio="xMidYMid meet" role="img">
+                <t t-foreach="segments" t-as="seg" t-key="seg_index">
+                    <path class="eh_board_funnel_seg" t-att-d="seg.path" t-att-fill="seg.color"
+                          t-on-click="() => this.onClick(seg)"
+                          t-on-mouseenter="(ev) => this.onHover(ev, seg)"
+                          t-on-mousemove="onMove" t-on-mouseleave="onLeave"/>
+                    <text t-if="showLabels" class="eh_board_funnel_label" t-att-x="seg.cx" t-att-y="seg.cy + 4"
+                          text-anchor="middle"><t t-esc="seg.label"/> · <t t-esc="seg.pct"/>%</text>
+                </t>
+            </svg>
+        </div>
+    </t>
+
+    <t t-name="eh_board.ScatterChart">
+        <div class="eh_board_chart eh_board_scatter">
+            <svg t-att-viewBox="viewBox" preserveAspectRatio="xMidYMid meet" role="img">
+                <t t-foreach="yGrid" t-as="g" t-key="'y' + g_index">
+                    <line class="eh_board_grid_line" t-att-x1="plot.x" t-att-x2="plot.x + plot.w"
+                          t-att-y1="g.y" t-att-y2="g.y"/>
+                    <text class="eh_board_axis_label" t-att-x="plot.x - 6" t-att-y="g.y + 3"
+                          text-anchor="end" t-esc="g.label"/>
+                </t>
+                <t t-foreach="xGrid" t-as="g" t-key="'x' + g_index">
+                    <text class="eh_board_axis_label" t-att-x="g.x" t-att-y="plot.y + plot.h + 16"
+                          text-anchor="middle" t-esc="g.label"/>
+                </t>
+                <text class="eh_board_axis_title" t-att-x="plot.x + plot.w / 2"
+                      t-att-y="plot.y + plot.h + 38" text-anchor="middle"
+                      t-esc="xLabel"/>
+                <text class="eh_board_axis_title" t-att-x="-(plot.y + plot.h / 2)"
+                      t-att-y="13" text-anchor="middle" transform="rotate(-90)"
+                      t-esc="yLabel"/>
+                <t t-foreach="points" t-as="p" t-key="p_index">
+                    <circle class="eh_board_scatter_pt" t-att-cx="p.cx" t-att-cy="p.cy" r="6"
+                            t-att-fill="p.color" fill-opacity="0.75"
+                            role="button" tabindex="0"
+                            t-att-aria-label="p.label + ': ' + xLabel + ' ' + p.x + ', ' + yLabel + ' ' + p.y"
+                            t-on-click="() => this.onClick(p)"
+                            t-on-keydown="(ev) => this.onKey(ev, p)"
+                            t-on-mouseenter="(ev) => this.onHover(ev, p)"
+                            t-on-mousemove="onMove" t-on-mouseleave="onLeave"/>
+                </t>
+            </svg>
+        </div>
+    </t>
+
+    <t t-name="eh_board.ContentWidget">
+        <div class="eh_board_content">
+            <t t-if="isTodo">
+                <ul class="eh_board_todo">
+                    <li t-foreach="todoLines" t-as="line" t-key="line_index">
+                        <input type="checkbox" disabled="1"/> <t t-esc="line"/>
+                    </li>
+                </ul>
+            </t>
+            <t t-else="">
+                <div t-out="html"/>
+            </t>
+        </div>
+    </t>
+
+    <t t-name="eh_board.PolarChart">
+        <div class="eh_board_chart eh_board_polar">
+            <svg t-att-viewBox="viewBox" preserveAspectRatio="xMidYMid meet" role="img"
+                 t-att-aria-label="(props.meta and props.meta.title or uiText('Polar area chart'))">
+                <t t-foreach="rings" t-as="ring" t-key="ring_index">
+                    <circle t-att-cx="ring.c" t-att-cy="ring.c" t-att-r="ring.r"
+                            class="eh_board_polar_ring" fill="none"/>
+                </t>
+                <t t-foreach="slices" t-as="s" t-key="s_index">
+                    <path t-att-d="s.path" t-att-fill="s.color" fill-opacity="0.82"
+                          stroke="var(--eh-board-surface)" stroke-width="1"
+                          t-on-click="() => this.onClick(s)"
+                          t-on-mouseenter="(ev) => this.onHover(ev, s)"
+                          t-on-mousemove="onMove" t-on-mouseleave="onLeave"/>
+                </t>
+            </svg>
+            <div class="eh_board_legend eh_board_legend_click">
+                <button t-foreach="legendItems" t-as="li" t-key="li.index"
+                        class="eh_board_legend_item" t-att-class="{ o_off: li.hidden }"
+                        t-on-click="() => this.toggleHidden(li.index)"
+                        t-att-title="li.hidden ? uiText('Show %s', li.label) : uiText('Hide %s', li.label)">
+                    <span class="eh_board_legend_dot" t-attf-style="background:{{ li.color }}"/>
+                    <t t-esc="li.label"/>
+                </button>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="eh_board.MapChart">
+        <div class="eh_board_chart eh_board_map">
+            <!-- choropleth: countries filled by value -->
+            <t t-if="canMap">
+                <svg t-att-viewBox="viewBox" preserveAspectRatio="xMidYMid meet" role="img"
+                     t-att-aria-label="(props.meta and props.meta.title or uiText('Map'))">
+                    <path t-foreach="shapes" t-as="s" t-key="s.code"
+                          t-att-d="s.d" t-att-fill="s.fill"
+                          class="eh_board_map_region"
+                          t-att-class="{ o_has_data: s.hasData }"
+                          t-on-click="() => this.onRegionClick(s)"
+                          t-on-mouseenter="(ev) => this.onRegionHover(ev, s)"
+                          t-on-mousemove="onMove" t-on-mouseleave="onLeave"/>
+                </svg>
+                <div class="eh_board_map_legend">
+                    <span class="eh_board_map_legend_min" t-esc="legend.min"/>
+                    <svg width="120" height="10" class="eh_board_map_legend_bar">
+                        <defs>
+                            <linearGradient id="eh_board_map_grad" x1="0" x2="1" y1="0" y2="0">
+                                <stop t-foreach="legend.stops" t-as="st" t-key="st_index"
+                                      t-att-offset="st.offset" t-att-stop-color="st.color"/>
+                            </linearGradient>
+                        </defs>
+                        <rect x="0" y="0" width="120" height="10" rx="3"
+                              fill="url(#eh_board_map_grad)"/>
+                    </svg>
+                    <span class="eh_board_map_legend_max" t-esc="legend.max"/>
+                </div>
+                <!-- countries with data but no outline in the bundled geometry:
+                     named explicitly so their value is never silently dropped -->
+                <div t-if="unmapped.length" class="eh_board_map_unmapped">
+                    <i class="fa fa-info-circle"/>
+                    <span t-esc="unmapped.length"/> not shown on the map:
+                    <t t-foreach="unmapped.slice(0, 6)" t-as="u" t-key="u_index">
+                        <span class="eh_board_map_unmapped_item"><t t-esc="u.name"/> (<t t-esc="u.value"/>)</span>
+                    </t>
+                    <t t-if="unmapped.length > 6"> and <t t-esc="unmapped.length - 6"/> more</t>
+                </div>
+            </t>
+            <!-- fallback: ranked coloured bars (non-country dim / no geometry) -->
+            <div t-else="" class="eh_board_map_fallback">
+                <div t-foreach="fallbackBars" t-as="bar" t-key="bar_index"
+                     class="eh_board_map_bar_row" t-on-click="() => this.onBarClick(bar)"
+                     t-on-mouseenter="(ev) => this.onBarHover(ev, bar)"
+                     t-on-mousemove="onMove" t-on-mouseleave="onLeave">
+                    <span class="eh_board_map_bar_label" t-esc="bar.label"/>
+                    <span class="eh_board_map_bar_track">
+                        <span class="eh_board_map_bar_fill"
+                              t-attf-style="width:{{ bar.width }};background:{{ bar.color }}"/>
+                    </span>
+                    <span class="eh_board_map_bar_value" t-esc="bar.display"/>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="eh_board.RoseChart">
+        <div class="eh_board_chart eh_board_rose eh_board_polar">
+            <svg t-att-viewBox="viewBox" preserveAspectRatio="xMidYMid meet" role="img"
+                 t-att-aria-label="(props.meta and props.meta.title or uiText('Rose chart'))">
+                <t t-foreach="rings" t-as="ring" t-key="ring_index">
+                    <circle t-att-cx="ring.c" t-att-cy="ring.c" t-att-r="ring.r"
+                            class="eh_board_polar_ring" fill="none"/>
+                </t>
+                <t t-foreach="petals" t-as="s" t-key="s_index">
+                    <path t-att-d="s.path" t-att-fill="s.color" fill-opacity="0.85"
+                          stroke="var(--eh-board-surface)" stroke-width="1"
+                          t-on-click="() => this.onClick(s)"
+                          t-on-mouseenter="(ev) => this.onHover(ev, s)"
+                          t-on-mousemove="onMove" t-on-mouseleave="onLeave"/>
+                </t>
+            </svg>
+            <div class="eh_board_legend eh_board_legend_click">
+                <button t-foreach="legendItems" t-as="li" t-key="li.index"
+                        class="eh_board_legend_item" t-att-class="{ o_off: li.hidden }"
+                        t-on-click="() => this.toggleHidden(li.index)"
+                        t-att-title="li.hidden ? uiText('Show %s', li.label) : uiText('Hide %s', li.label)">
+                    <span class="eh_board_legend_dot" t-attf-style="background:{{ li.color }}"/>
+                    <t t-esc="li.label"/>
+                </button>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="eh_board.RadialChart">
+        <div class="eh_board_chart eh_board_radial">
+            <svg t-att-viewBox="viewBox" preserveAspectRatio="xMidYMid meet" role="img"
+                 t-att-aria-label="(props.meta and props.meta.title or uiText('Radial bar chart'))">
+                <t t-foreach="rings" t-as="r" t-key="r_index">
+                    <path t-att-d="r.track" fill="var(--eh-board-border)" fill-opacity="0.45"/>
+                    <path t-att-d="r.path" t-att-fill="r.color"
+                          t-on-click="() => this.onClick(r)"
+                          t-on-mouseenter="(ev) => this.onHover(ev, r)"
+                          t-on-mousemove="onMove" t-on-mouseleave="onLeave"/>
+                </t>
+            </svg>
+            <div class="eh_board_legend eh_board_legend_click">
+                <button t-foreach="legendItems" t-as="li" t-key="li.index"
+                        class="eh_board_legend_item" t-att-class="{ o_off: li.hidden }"
+                        t-on-click="() => this.toggleHidden(li.index)"
+                        t-att-title="li.hidden ? uiText('Show %s', li.label) : uiText('Hide %s', li.label)">
+                    <span class="eh_board_legend_dot" t-attf-style="background:{{ li.color }}"/>
+                    <t t-esc="li.label"/>
+                </button>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="eh_board.BulletChart">
+        <div class="eh_board_bullet" t-att-class="{ o_clickable: clickable }" t-on-click="onClick"
+             t-att-title="clickable ? uiText('Open matching records') : ''">
+            <div class="eh_board_bullet_track">
+                <t t-foreach="bands" t-as="b" t-key="b_index">
+                    <div class="eh_board_bullet_band" t-attf-style="width:{{b.w}}%;opacity:{{b.o}};"/>
+                </t>
+                <div class="eh_board_bullet_val" t-att-class="{ o_met: met }" t-attf-style="width:{{valuePct}}%;"/>
+                <div t-if="targetPct !== null" class="eh_board_bullet_target" t-attf-style="inset-inline-start:{{targetPct}}%;"/>
+            </div>
+            <div class="eh_board_bullet_meta">
+                <span class="eh_board_bullet_value" t-esc="fmt(value)"/>
+                <span t-if="target" class="eh_board_bullet_tlbl">target <t t-esc="fmt(target)"/></span>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="eh_board.HeatmapChart">
+        <div class="eh_board_heatmap">
+            <table class="eh_board_heat_table">
+                <thead>
+                    <tr><th/>
+                        <th t-foreach="grid.colLabels" t-as="cl" t-key="cl_index" t-esc="cl"/>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="grid.body" t-as="row" t-key="row_index">
+                        <th class="eh_board_heat_rowhead" t-esc="row.label"/>
+                        <td t-foreach="row.cells" t-as="cell" t-key="cell_index"
+                            class="eh_board_num" t-att-style="cell.style" t-esc="cell.text"/>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </t>
+
+    <t t-name="eh_board.PivotWidget">
+        <div class="eh_board_pivot">
+            <t t-set="tableGrid" t-value="pagedGrid"/>
+            <table class="eh_board_pivot_table">
+                <thead>
+                    <tr t-foreach="tableGrid.headerRows" t-as="hr" t-key="hr_index">
+                        <th t-foreach="hr" t-as="h" t-key="h_index"
+                            t-att-colspan="h.span or 1"
+                            t-att-class="{ eh_board_pivot_corner: h.corner, eh_board_pivot_total: h.total, eh_board_percent_col: h.percentage }"
+                            class="text-end" t-esc="h.label"/>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="tableGrid.bodyRows" t-as="row" t-key="row_index">
+                        <th class="eh_board_pivot_rowhead" t-esc="row.label"/>
+                        <td t-foreach="row.cells" t-as="cell" t-key="cell_index"
+                            class="text-end eh_board_num"
+                            t-att-class="{ eh_board_pivot_total: cell.total, eh_board_pivot_cell: cell.drill, eh_board_percent_col: cell.percentage }"
+                            t-att-style="cell.style"
+                            t-on-click="() => this.onCellClick(row, cell)"
+                            t-esc="cell.text"/>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr class="eh_board_pivot_foot">
+                        <th class="eh_board_pivot_rowhead" t-esc="tableGrid.footer.label"/>
+                        <td t-foreach="tableGrid.footer.cells" t-as="cell" t-key="cell_index"
+                            class="text-end eh_board_num"
+                            t-att-class="{ eh_board_pivot_grand: cell.grand, eh_board_percent_col: cell.percentage }"
+                            t-esc="cell.text"/>
+                    </tr>
+                </tfoot>
+            </table>
+            <div t-if="totalRows > 10" class="eh_board_table_pager" aria-label="Pivot pagination">
+                <span t-esc="rangeLabel"/>
+                <label>Rows
+                    <select t-att-value="state.pageSize" t-on-change="setPageSize"
+                            aria-label="Pivot rows per page">
+                        <option value="10">10</option><option value="20">20</option>
+                        <option value="50">50</option><option value="100">100</option>
+                    </select>
+                </label>
+                <button type="button" t-att-disabled="page &lt;= 1"
+                        t-on-click="() => this.setPage(-1)" aria-label="Previous page">
+                    <i class="fa fa-chevron-left"/>
+                </button>
+                <button type="button" t-att-disabled="page >= totalPages"
+                        t-on-click="() => this.setPage(1)" aria-label="Next page">
+                    <i class="fa fa-chevron-right"/>
+                </button>
+            </div>
+        </div>
+    </t>
+
+</templates>

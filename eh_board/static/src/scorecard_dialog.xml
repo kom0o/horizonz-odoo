@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+    <t t-name="eh_board.ScorecardDialog">
+        <Dialog title="title" size="'xl'">
+            <div class="eh_board_scorecard" t-att-aria-busy="state.busy ? 'true' : 'false'">
+                <p t-if="state.loading"><i class="fa fa-spinner fa-spin"/> Loading scorecard…</p>
+                <div t-if="state.error" class="alert alert-danger" role="alert" t-esc="state.error"/>
+                <t t-if="state.data">
+                    <p class="text-muted" t-esc="state.data.notice"/>
+                    <div class="eh_scorecard_toolbar">
+                        <label>Evaluation period
+                            <select class="form-select" t-att-disabled="state.busy" t-on-change="(ev) => this.selectPeriod(ev.target.value)">
+                                <option value="" t-att-selected="!selectedPeriod">Dashboard dates / widget defaults</option>
+                                <option t-foreach="periods" t-as="period" t-key="period.value" t-att-value="period.value" t-att-selected="selectedPeriod === period.value" t-esc="period.label"/>
+                                <option t-if="selectedPeriod &amp;&amp; !periods.some((p) => p.value === selectedPeriod)" t-att-value="selectedPeriod" selected="selected" t-esc="selectedPeriod"/>
+                            </select>
+                        </label>
+                        <button t-if="state.data.can_edit &amp;&amp; !state.editing" type="button" class="btn btn-primary" t-att-disabled="state.busy" t-on-click="edit">Edit scorecard</button>
+                        <t t-if="state.editing">
+                            <button type="button" class="btn btn-outline-primary" t-att-disabled="state.busy || state.nodes.length >= 60" t-on-click="() => this.add('group')">Add objective</button>
+                            <button type="button" class="btn btn-outline-primary" t-att-disabled="state.busy || state.nodes.length >= 60" t-on-click="() => this.add('metric')">Add metric</button>
+                        </t>
+                    </div>
+                    <p class="small text-muted" t-esc="state.data.scope.label"/>
+                    <p class="small text-muted">Evaluation dates apply inside this scorecard. Other dashboard filters and drill paths are retained. A score is available only for a complete target period.</p>
+                    <div t-if="!state.nodes.length" class="eh_scorecard_empty">
+                        <i class="fa fa-sitemap fa-2x"/>
+                        <h4>No scorecard yet</h4>
+                        <p>Connect metric widgets to targets you set, then combine their progress in weighted objectives.</p>
+                        <p t-if="!state.data.can_edit" class="text-muted">A dashboard editor can create the scorecard.</p>
+                    </div>
+                    <div t-if="state.editing &amp;&amp; state.dirty" class="alert alert-info">Changes have not been previewed. Enter your targets and review the calculated result before saving.</div>
+                    <article t-foreach="rows" t-as="entry" t-key="entry.node.key" class="eh_scorecard_node" t-att-style="'margin-left:' + entry.depth * 18 + 'px'">
+                        <t t-set="node" t-value="entry.node"/>
+                        <t t-set="result" t-value="this.result(node.key)"/>
+                        <div class="eh_scorecard_heading">
+                            <div>
+                                <span class="badge text-bg-secondary" t-if="node.kind === 'group'">Weighted objective</span>
+                                <span class="badge text-bg-light" t-else="">Metric</span>
+                                <h4 t-if="!state.editing" t-esc="node.name"/>
+                            </div>
+                            <strong class="eh_scorecard_score" t-if="result &amp;&amp; result.score !== null"><t t-esc="this.number(result.score)"/> / 100</strong>
+                            <span t-else="" class="text-muted">No score</span>
+                        </div>
+                        <t t-if="state.editing">
+                            <div class="eh_scorecard_fields">
+                                <label>Title<input class="form-control" maxlength="120" t-att-value="node.name" t-att-disabled="state.busy" t-on-input="(ev) => this.change(node, 'name', ev.target.value)"/></label>
+                                <label>Owner<select class="form-select" t-att-disabled="state.busy" t-on-change="(ev) => this.change(node, 'owner_id', ev.target.value, true)">
+                                    <option value="">Choose an owner</option>
+                                    <option t-foreach="state.data.owners" t-as="owner" t-key="owner.id" t-att-value="owner.id" t-att-selected="node.owner_id === owner.id" t-esc="owner.name"/>
+                                </select></label>
+                                <label>Parent objective<select class="form-select" t-att-disabled="state.busy" t-on-change="(ev) => this.changeParent(node, ev.target.value)">
+                                    <option value="" t-att-selected="!node.parent_key">Top level</option>
+                                    <option t-foreach="this.validParents(node)" t-as="parent" t-key="parent.key" t-att-value="parent.key" t-att-selected="node.parent_key === parent.key" t-esc="parent.name"/>
+                                </select></label>
+                                <label>Relative weight<input type="number" class="form-control" min="0.000001" step="any" t-att-value="node.weight" t-att-disabled="state.busy" t-on-input="(ev) => this.change(node, 'weight', ev.target.value, true)"/></label>
+                                <label>Effective from<input type="date" class="form-control" t-att-value="node.date_from" t-att-disabled="state.busy || !!node.parent_key" t-on-change="(ev) => this.changePeriod(node, 'date_from', ev.target.value)"/></label>
+                                <label>Effective through<input type="date" class="form-control" t-att-value="node.date_to" t-att-disabled="state.busy || !!node.parent_key" t-on-change="(ev) => this.changePeriod(node, 'date_to', ev.target.value)"/></label>
+                            </div>
+                            <t t-if="node.kind === 'metric'">
+                                <div class="eh_scorecard_fields">
+                                    <label class="eh_scorecard_wide">Metric widget<select class="form-select" t-att-disabled="state.busy" t-on-change="(ev) => this.change(node, 'item_id', ev.target.value, true)">
+                                        <option value="" t-att-selected="!node.item_id">Choose a metric</option>
+                                        <option t-foreach="state.data.items" t-as="item" t-key="item.id" t-att-value="item.id" t-att-selected="node.item_id === item.id" t-att-disabled="!!item.unavailable" t-att-title="item.unavailable" t-esc="item.title"/>
+                                    </select></label>
+                                    <label>Scoring direction<select class="form-select" t-att-disabled="state.busy" t-on-change="(ev) => this.change(node, 'direction', ev.target.value)">
+                                        <option value="higher" t-att-selected="node.direction === 'higher'">Higher is better</option>
+                                        <option value="lower" t-att-selected="node.direction === 'lower'">Lower is better</option>
+                                        <option value="range" t-att-selected="node.direction === 'range'">Within a range</option>
+                                    </select></label>
+                                    <label>Zero-score baseline<input type="number" step="any" class="form-control" t-att-value="node.baseline" t-att-disabled="state.busy" t-on-input="(ev) => this.change(node, 'baseline', ev.target.value, true)"/></label>
+                                    <label>Full-score target<input type="number" step="any" class="form-control" t-att-value="node.target" t-att-disabled="state.busy" t-on-input="(ev) => this.change(node, 'target', ev.target.value, true)"/></label>
+                                    <t t-if="node.direction === 'range'">
+                                        <label>Full-score upper bound<input type="number" step="any" class="form-control" t-att-value="node.target_upper" t-att-disabled="state.busy" t-on-input="(ev) => this.change(node, 'target_upper', ev.target.value, true)"/></label>
+                                        <label>Zero-score upper bound<input type="number" step="any" class="form-control" t-att-value="node.baseline_upper" t-att-disabled="state.busy" t-on-input="(ev) => this.change(node, 'baseline_upper', ev.target.value, true)"/></label>
+                                    </t>
+                                </div>
+                                <p class="small text-muted">Use the actual's unit and currency for targets. Higher: baseline below target. Lower: baseline above target. A zero target is allowed.</p>
+                            </t>
+                            <label class="w-100">Target rationale<textarea class="form-control" rows="2" maxlength="2000" t-att-value="node.note" t-att-disabled="state.busy" t-on-input="(ev) => this.change(node, 'note', ev.target.value)"/></label>
+                            <div class="eh_scorecard_actions">
+                                <button t-if="node.kind === 'group'" type="button" class="btn btn-sm btn-outline-secondary" t-att-disabled="state.busy || state.nodes.length >= 60 || entry.depth >= 4" t-on-click="() => this.add('metric', node)">Add child metric</button>
+                                <button t-if="node.kind === 'group'" type="button" class="btn btn-sm btn-outline-secondary" t-att-disabled="state.busy || state.nodes.length >= 60 || entry.depth >= 4" t-on-click="() => this.add('group', node)">Add child objective</button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" t-att-disabled="state.busy" t-on-click="() => this.remove(node)"><t t-if="node.kind === 'group'">Remove objective and children</t><t t-else="">Remove metric</t></button>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <p class="small text-muted"><t t-esc="this.ownerName(node)"/> · <t t-esc="node.date_from"/> — <t t-esc="node.date_to"/> · Weight <t t-esc="node.weight"/></p>
+                            <p t-if="node.kind === 'metric'" class="small" t-esc="this.itemName(node)"/>
+                            <p t-if="node.note" class="small" t-esc="node.note"/>
+                        </t>
+                        <div t-if="node.kind === 'metric'" class="eh_scorecard_values">
+                            <div><span>Actual</span><strong t-esc="this.actualText(node)"/></div>
+                            <div><span>Target</span><strong t-esc="this.targetText(node)"/></div>
+                            <div><span>Zero-score baseline</span><strong t-esc="this.number(node.baseline)"/></div>
+                        </div>
+                        <p t-if="result &amp;&amp; result.message" class="alert alert-warning mb-1 mt-2" t-esc="result.message"/>
+                        <details t-if="result" class="small mt-2">
+                            <summary>How calculated</summary>
+                            <p t-esc="result.policy"/>
+                            <p t-if="result.definition" t-esc="result.definition"/>
+                            <p>Missing or blocked values remain unavailable. Scores do not establish that an editor's target is appropriate for every filtered audience.</p>
+                        </details>
+                    </article>
+                </t>
+            </div>
+            <t t-set-slot="footer">
+                <t t-if="state.editing">
+                    <button type="button" class="btn btn-outline-primary" t-att-disabled="state.busy" t-on-click="preview">Preview scorecard</button>
+                    <button type="button" class="btn btn-primary" t-att-disabled="state.busy || state.dirty" t-on-click="save">Save scorecard</button>
+                    <button type="button" class="btn btn-secondary" t-att-disabled="state.busy" t-on-click="cancelEdit">Discard edits</button>
+                </t>
+                <button t-else="" type="button" class="btn btn-secondary" t-att-disabled="state.busy" t-on-click="() => props.close()">Close</button>
+            </t>
+        </Dialog>
+    </t>
+</templates>

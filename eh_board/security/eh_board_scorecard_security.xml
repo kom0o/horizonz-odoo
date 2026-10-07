@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="access_scorecard_viewer" model="ir.model.access">
+        <field name="name">board.scorecard.viewer</field>
+        <field name="model_id" ref="model_eh_board_scorecard_node"/>
+        <field name="group_id" ref="group_board_viewer"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+    <record id="access_scorecard_builder" model="ir.model.access">
+        <field name="name">board.scorecard.builder</field>
+        <field name="model_id" ref="model_eh_board_scorecard_node"/>
+        <field name="group_id" ref="group_board_builder"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+    <record id="scorecard_company_rule" model="ir.rule">
+        <field name="name">Scorecard: multi-company</field>
+        <field name="model_id" ref="model_eh_board_scorecard_node"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', ('dashboard_id.company_ids', '=', False), ('dashboard_id.company_ids', 'in', company_ids)]</field>
+    </record>
+    <record id="scorecard_viewer_rule" model="ir.rule">
+        <field name="name">Scorecard: dashboard visibility</field>
+        <field name="model_id" ref="model_eh_board_scorecard_node"/>
+        <field name="groups" eval="[(4, ref('group_board_viewer'))]"/>
+        <field name="domain_force">['|', ('dashboard_id.owner_id', '=', user.id), '|', ('dashboard_id.shared_user_ids', 'in', [user.id]), '&amp;', ('dashboard_id.state', '=', 'published'), '|', ('dashboard_id.group_ids', '=', False), ('dashboard_id.group_ids', 'in', user.groups_id.ids)]</field>
+    </record>
+    <record id="scorecard_builder_rule" model="ir.rule">
+        <field name="name">Scorecard: builder access</field>
+        <field name="model_id" ref="model_eh_board_scorecard_node"/>
+        <field name="groups" eval="[(4, ref('group_board_builder'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+</odoo>

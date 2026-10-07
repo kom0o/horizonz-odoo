@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_eh_board_datasource_remote_form" model="ir.ui.view">
+        <field name="name">eh.board.datasource.remote.form</field>
+        <field name="model">eh.board.datasource</field>
+        <field name="inherit_id" ref="eh_board.view_eh_board_datasource_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='columns']" position="attributes">
+                <attribute name="invisible">provider_type not in ('file', 'sheets', 'rest')</attribute>
+            </xpath>
+            <xpath expr="//field[@name='measure_ids']//field[@name='field_id']" position="attributes">
+                <attribute name="column_invisible">parent.provider_type in ('file', 'sheets', 'rest')</attribute>
+            </xpath>
+            <xpath expr="//field[@name='measure_ids']//field[@name='column_id']" position="attributes">
+                <attribute name="column_invisible">parent.provider_type not in ('file', 'sheets', 'rest')</attribute>
+            </xpath>
+            <xpath expr="//sheet/notebook" position="before">
+                <group string="Remote snapshot" invisible="provider_type not in ('sheets', 'rest')">
+                    <div class="alert alert-info" colspan="2">Remote data is one shared snapshot for this dashboard's audience. Odoo model record rules do not filter remote rows. Only an administrator can configure or refresh this connection.</div>
+                    <group groups="eh_board.group_board_admin">
+                        <field name="remote_audience_ack"/>
+                        <field name="remote_url" invisible="provider_type != 'rest'"/>
+                        <field name="remote_path" invisible="provider_type != 'rest'"/>
+                        <field name="sheets_id" invisible="provider_type != 'sheets'"/>
+                        <field name="sheets_range" invisible="provider_type != 'sheets'"/>
+                        <field name="remote_auth"/>
+                        <field name="credential_id" invisible="remote_auth == 'none'"/>
+                        <field name="remote_token_expires" invisible="remote_auth != 'bearer'"/>
+                        <field name="remote_header_name" invisible="remote_auth != 'header'"/>
+                        <div invisible="provider_type != 'sheets'" class="text-muted" colspan="2">For unattended private Sheets: install google-auth on the server, store the service-account JSON as the credential secret, share the spreadsheet with its client_email as Viewer, and enable the Google Sheets API. No domain-wide delegation is needed. The connector requests the spreadsheets.readonly scope.</div>
+                    </group>
+                    <group groups="eh_board.group_board_admin">
+                        <field name="remote_enabled"/>
+                        <field name="remote_refresh_minutes"/>
+                        <field name="remote_pagination" invisible="provider_type != 'rest'"/>
+                        <field name="remote_page_param" invisible="provider_type != 'rest' or remote_pagination != 'page'"/>
+                        <field name="remote_size_param" invisible="provider_type != 'rest' or remote_pagination != 'page'"/>
+                        <field name="remote_page_size" invisible="provider_type != 'rest' or remote_pagination != 'page'"/>
+                        <field name="remote_max_pages" invisible="provider_type != 'rest' or remote_pagination != 'page'"/>
+                        <button name="action_refresh_remote" type="object" string="Refresh snapshot" class="btn-primary"/>
+                    </group>
+                    <group>
+                        <field name="remote_state"/>
+                        <field name="remote_last_success"/>
+                        <field name="remote_next_refresh"/>
+                        <field name="row_count"/>
+                        <field name="remote_last_error" invisible="not remote_last_error"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

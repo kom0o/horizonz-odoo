@@ -1,0 +1,1759 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="eh_board.BoardAction">
+        <div class="eh_board_app" t-ref="root" t-att-data-eh-theme="state.theme"
+             role="region" t-att-aria-label="uiText('Dashboard: %s', state.name || '')"
+             t-att-class="{ o_kiosk: state.kiosk }">
+            <!-- One host for every anchored popover on this board. It is
+                 position: fixed, so it sits outside every clipping ancestor;
+                 staying a child of .eh_board_app keeps the theme tokens and the
+                 app-scoped rules (focus ring, RTL, kiosk, print) applying to
+                 what it holds. Declared first so the portal target always
+                 exists. See static/src/overlay.js. -->
+            <div class="eh_board_overlay" t-att-id="overlayId"/>
+            <header class="eh_board_header" aria-label="Dashboard workspace">
+                <div class="eh_board_header_primary">
+                <div class="eh_board_identity">
+                <div class="eh_board_mainmenu" t-ref="mainMenu">
+                    <button class="eh_board_menubtn" t-on-click="toggleMenu"
+                            t-att-class="{ o_open: state.menuOpen }" title="Menu">
+                        <i class="fa fa-bars"/>
+                    </button>
+                    <div class="eh_board_menu_drawer" t-if="state.menuOpen">
+                        <div class="eh_board_menu_sec">Dashboards</div>
+                        <button t-foreach="state.boards" t-as="b" t-key="b.id"
+                                class="eh_board_menu_item"
+                                t-att-class="{ o_active: b.id === state.dashboardId, o_child: b.parent_id }"
+                                t-on-click="() => this.pickBoard(b.id)">
+                            <i t-att-class="b.favorite ? 'fa fa-star' : (b.parent_id ? 'fa fa-level-up fa-rotate-90' : 'fa fa-th-large')"/>
+                            <t t-esc="b.name"/>
+                        </button>
+                        <div class="eh_board_menu_div"/>
+                        <button t-if="state.canEdit" class="eh_board_menu_item" t-on-click="newDashboard">
+                            <i class="fa fa-plus"/> New dashboard</button>
+                        <button t-if="state.canEdit" class="eh_board_menu_item" t-on-click="() => { this.state.menuOpen = false; this.openTemplates(); }">
+                            <i class="fa fa-th"/> Start from a template</button>
+                        <button t-if="state.canEdit" class="eh_board_menu_item" t-on-click="openSmartBuild">
+                            <i class="fa fa-magic"/> Smart Build from model</button>
+                        <button t-if="state.canEdit" class="eh_board_menu_item" t-on-click="openAuthoring">
+                            <i class="fa fa-magic"/> Build with AI</button>
+                        <button t-if="state.canEdit" class="eh_board_menu_item" t-on-click="openQueryBuilder">
+                            <i class="fa fa-exchange"/> Compare two models</button>
+                        <button t-if="state.dashboardId" class="eh_board_menu_item" t-on-click="openScorecard">
+                            <i class="fa fa-sitemap"/> KPI scorecard</button>
+                        <button t-if="state.canRemote" class="eh_board_menu_item" t-on-click="openRemoteSources">
+                            <i class="fa fa-cloud"/> Connect Sheets or API</button>
+                        <button t-if="state.canEdit" class="eh_board_menu_item" t-on-click="saveDigestView">
+                            <i class="fa fa-envelope-o"/> Use current filters for digests</button>
+                        <button t-if="state.canEdit" class="eh_board_menu_item" t-on-click="triggerImport">
+                            <i class="fa fa-upload"/> Import JSON backup</button>
+                        <button class="eh_board_menu_item" t-on-click="() => { this.state.menuOpen = false; this.openInsights(); }">
+                            <i class="fa fa-lightbulb-o"/> Smart insights</button>
+                        <button class="eh_board_menu_item" t-on-click="openSettings">
+                            <i class="fa fa-cog"/> Dashboard settings</button>
+                        <button class="eh_board_menu_item" t-on-click="openLayoutHistory">
+                            <i class="fa fa-history"/> Layout history</button>
+                        <button class="eh_board_menu_item" t-on-click="openAlerts">
+                            <i class="fa fa-bell-o"/> Threshold alerts</button>
+                        <div class="eh_board_menu_div"/>
+                        <button class="eh_board_menu_item" t-on-click="goHome">
+                            <i class="fa fa-th"/> All Odoo apps</button>
+                    </div>
+                </div>
+                <div class="eh_board_title">
+                    <span class="eh_board_eyebrow">Analytics workspace</span>
+                    <div class="eh_board_name_row">
+                    <select t-if="state.boards.length > 1" class="eh_board_switcher"
+                            t-on-change="switchTo" title="Switch dashboard">
+                        <option t-foreach="state.boards" t-as="b" t-key="b.id"
+                                t-att-value="b.id" t-att-selected="b.id === state.dashboardId"
+                                t-esc="b.name"/>
+                    </select>
+                    <span t-else="" class="eh_board_name" t-esc="state.name"/>
+                    <button class="eh_board_favorite" t-on-click="toggleFavorite"
+                            t-att-class="{ o_on: state.favorite }"
+                            t-att-title="state.favorite ? uiText('Remove from favorites') : uiText('Add to favorites')"
+                            t-att-aria-pressed="state.favorite ? 'true' : 'false'">
+                        <i t-att-class="state.favorite ? 'fa fa-star' : 'fa fa-star-o'"/>
+                    </button>
+                    </div>
+                    <div class="eh_board_context" aria-label="Dashboard status">
+                        <span><i class="fa fa-th-large"/> <t t-esc="state.metas.length"/> widgets</span>
+                        <span class="eh_board_context_dot"/>
+                        <span t-if="state.refreshMode !== 'off'" class="eh_board_live">
+                            <i class="fa fa-circle"/> Auto-refresh on
+                        </span>
+                        <span t-else=""><i class="fa fa-clock-o"/> On demand</span>
+                    </div>
+                </div>
+                </div>
+                <div class="eh_board_primary_actions" role="toolbar" aria-label="Primary actions">
+                    <button class="eh_board_btn o_quiet" t-on-click="refreshItems" title="Refresh dashboard data">
+                        <i class="fa fa-refresh"/> <span>Refresh</span>
+                    </button>
+                    <button t-if="state.canEdit" class="eh_board_btn" t-att-class="{ o_primary: editMode }" t-on-click="toggleMode">
+                        <i t-att-class="editMode ? 'fa fa-check' : 'fa fa-pencil'"/>
+                        <t t-esc="editMode ? uiText('Finish editing') : uiText('Edit layout')"/>
+                    </button>
+                    <button t-if="state.canEdit" class="eh_board_btn o_primary eh_board_add" t-on-click="openAddDialog">
+                        <i class="fa fa-plus"/> <span>Add widget</span>
+                    </button>
+                    <button t-if="state.canEdit" class="eh_board_btn" t-on-click="openAuthoring">
+                        <i class="fa fa-magic"/> <span>Build with AI</span>
+                    </button>
+                </div>
+                </div>
+
+                <div class="eh_board_commandbar eh_board_toolbar" role="toolbar" aria-label="Dashboard controls">
+                    <div class="eh_board_command_group eh_board_command_filters">
+                        <span class="eh_board_command_label">Scope</span>
+                    <FilterBar preset="state.preset" onPresetChange.bind="onPresetChange"
+                               filters="state.filters" filterValues="state.filterValues"
+                               onFilterChange.bind="onFilterChange"
+                               customStart="state.customStart" customEnd="state.customEnd"
+                               onCustomDateChange.bind="onCustomDateChange"/>
+                    <button class="eh_board_btn o_icon eh_board_xf" t-on-click="toggleCrossfilter"
+                            t-att-class="{ o_primary: state.crossfilter }"
+                            title="Cross-filter: click a chart to filter the whole board">
+                        <i class="fa fa-crosshairs"/>
+                    </button>
+                    </div>
+                    <div class="eh_board_command_spacer"/>
+                    <div class="eh_board_command_group">
+                    <span class="eh_board_command_label">View</span>
+                    <button class="eh_board_btn o_icon" t-on-click="toggleDensity"
+                            t-att-class="{ o_open: state.density === 'compact' }"
+                            title="Toggle comfortable / compact density">
+                        <i class="fa fa-compress"/>
+                    </button>
+                    <button class="eh_board_btn o_icon" t-on-click="openInsights"
+                            title="Smart insights: read this board in plain language">
+                        <i class="fa fa-lightbulb-o"/>
+                    </button>
+                    <button t-if="state.dashboardId" class="eh_board_btn o_icon" t-on-click="openScorecard"
+                            title="KPI scorecard">
+                        <i class="fa fa-sitemap"/>
+                    </button>
+                    <button class="eh_board_btn o_icon" t-on-click="openSettings"
+                            title="Dashboard settings">
+                        <i class="fa fa-cog"/>
+                    </button>
+                    <button class="eh_board_btn o_icon" t-on-click="openLayoutHistory"
+                            title="Restore an earlier layout">
+                        <i class="fa fa-history"/>
+                    </button>
+                    <button class="eh_board_btn o_icon" t-on-click="openAlerts"
+                            title="Threshold alerts">
+                        <i class="fa fa-bell-o"/>
+                    </button>
+                    <select t-if="editMode" class="form-select form-select-sm eh_board_palette"
+                            t-on-change="setPalette" title="Chart palette">
+                        <option value="default" t-att-selected="state.palette === 'default'">Heritage</option>
+                        <option value="ocean" t-att-selected="state.palette === 'ocean'">Ocean</option>
+                        <option value="sunset" t-att-selected="state.palette === 'sunset'">Sunset</option>
+                        <option value="forest" t-att-selected="state.palette === 'forest'">Forest</option>
+                        <option value="mono" t-att-selected="state.palette === 'mono'">Mono</option>
+                    </select>
+                    <button class="eh_board_btn o_icon" t-on-click="toggleTheme" title="Toggle light / dark">
+                        <i t-att-class="state.theme === 'dark' ? 'fa fa-sun-o' : 'fa fa-moon-o'"/>
+                    </button>
+                    </div>
+                    <div class="eh_board_command_group">
+                    <span class="eh_board_command_label">Share</span>
+                    <button class="eh_board_btn eh_board_playbtn" t-on-click="toggleKiosk"
+                            title="Present: fullscreen, auto-rotate (Esc to exit)">
+                        <i class="fa fa-play"/> <span>Present</span>
+                    </button>
+                    <div class="eh_board_export" t-ref="exportMenu">
+                        <button class="eh_board_btn o_icon" t-on-click="toggleExport" t-ref="exportToggle"
+                                title="Export dashboard" t-att-class="{ o_open: state.exportOpen }"
+                                aria-haspopup="true" t-att-aria-expanded="state.exportOpen ? 'true' : 'false'">
+                            <i class="fa fa-download"/>
+                        </button>
+                        <!-- Rendered into the app-level overlay host: a popover
+                             anchored inside the scrolling command bar is clipped
+                             by it, because overflow-x:auto also makes overflow-y
+                             auto. Placed by useBoardPopover (overlay.js). -->
+                        <t t-if="state.exportOpen" t-portal="overlaySelector">
+                        <div class="eh_board_pop eh_board_export_menu" t-ref="exportPop">
+                            <button t-on-click="printPdf"><i class="fa fa-file-pdf-o"/> PDF / Print (charts)</button>
+                            <button t-on-click="exportPdfDoc"><i class="fa fa-file-pdf-o"/> PDF document</button>
+                            <button t-on-click="exportXlsx"><i class="fa fa-file-excel-o"/> Excel workbook</button>
+                            <button t-on-click="exportCsv"><i class="fa fa-file-text-o"/> CSV</button>
+                            <button t-on-click="exportJson"
+                                    title="Move this dashboard to another Odoo database; SQL queries and uploaded files stay private">
+                                <i class="fa fa-file-code-o"/> Export for another database (JSON)
+                            </button>
+                            <button t-if="state.canEdit" t-on-click="triggerImport"
+                                    title="Create a private draft from a portable dashboard JSON file">
+                                <i class="fa fa-upload"/> Import dashboard backup (JSON)
+                            </button>
+                        </div>
+                        </t>
+                    </div>
+                    </div>
+                    <div t-if="editMode" class="eh_board_command_group eh_board_edit_actions">
+                    <span class="eh_board_command_label">Build</span>
+                    <button class="eh_board_btn" t-if="editMode" t-on-click="discardEdits"
+                            title="Undo the moves you made since you started editing">
+                        <i class="fa fa-undo"/> Discard
+                    </button>
+                    <button class="eh_board_btn" t-if="editMode" t-on-click="openAddFilter">
+                        <i class="fa fa-filter"/> Filter
+                    </button>
+                    <button class="eh_board_btn" t-if="editMode" t-on-click="openSmartBuild"
+                            title="Generate a model-aware dashboard with useful filters and drill paths">
+                        <i class="fa fa-magic"/> Smart Build
+                    </button>
+                    <button class="eh_board_btn" t-if="editMode" t-on-click="saveAsTemplate"
+                            title="Save this board as a reusable template">
+                        <i class="fa fa-bookmark-o"/> Save template
+                    </button>
+                    </div>
+                    <button t-if="state.canEdit" class="eh_board_btn o_quiet eh_board_templates" t-on-click="openTemplates" title="Start from a template">
+                        <i class="fa fa-th-large"/> <span>Templates</span>
+                    </button>
+                </div>
+                <nav class="eh_board_subnav" t-if="state.navigation.length > 1" aria-label="Dashboard family">
+                    <button t-foreach="state.navigation" t-as="board" t-key="board.id"
+                            t-att-class="{ o_active: board.id === state.dashboardId }"
+                            t-on-click="() => this.pickBoard(board.id)" t-esc="board.name"/>
+                </nav>
+            </header>
+
+            <div class="eh_board_crossbar" t-if="state.crossFilters.length">
+                <i class="fa fa-crosshairs"/>
+                <span class="eh_board_crosslabel">Filtered by</span>
+                <span class="eh_board_chip" t-foreach="state.crossFilters" t-as="cf" t-key="cf.key">
+                    <t t-esc="cf.label"/>
+                    <button class="eh_board_chip_x" t-on-click="() => this.removeCrossFilter(cf.key)"
+                            t-att-aria-label="uiText('Remove filter %s', cf.label)" title="Remove">×</button>
+                </span>
+                <button class="eh_board_chip_clear" t-on-click="clearCrossFilters">Clear all</button>
+            </div>
+
+            <div class="eh_board_body">
+                <div t-if="state.error" class="eh_board_message">
+                    <i class="fa fa-info-circle"/> <t t-esc="state.error"/>
+                </div>
+                <div t-elif="state.loading" class="eh_board_skeletons">
+                    <div class="eh_board_skel" t-foreach="[1,2,3,4]" t-as="n" t-key="n"/>
+                </div>
+                <t t-else="">
+                    <div t-if="!state.metas.length" class="eh_board_empty">
+                        <div class="eh_board_empty_card">
+                            <i class="fa fa-th-large fa-2x"/>
+                            <h3>A blank canvas</h3>
+                            <p>Switch to Edit and add your first widget - group any model's
+                               data database side and drill anywhere.</p>
+                            <div class="eh_board_empty_actions">
+                                <button t-if="state.canEdit" class="btn btn-primary" t-on-click="() => { this.state.mode = 'edit'; this.openAddDialog(); }">
+                                    <i class="fa fa-plus"/> Add a widget
+                                </button>
+                                <button t-if="state.canEdit" class="btn btn-secondary" t-on-click="openTemplates">
+                                    <i class="fa fa-th-large"/> Start from a template
+                                </button>
+                                <button t-if="state.canEdit" class="btn btn-secondary" t-on-click="openSmartBuild">
+                                    <i class="fa fa-magic"/> Smart Build from model
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <BoardGrid t-else=""
+                               items="state.metas" payloads="state.payloads"
+                               grid="state.grid" editMode="editMode"
+                               loadingIds="state.loadingIds"
+                               drillStacks="state.drillStacks"
+                               crossFilters="state.crossFilters"
+                               onLayoutChange.bind="onLayoutChange"
+                               onVisible.bind="onVisible"
+                               onDrill.bind="onDrill"
+                               onDrillUp.bind="drillUp"
+                               onConfigure.bind="configureItem"
+                               onRemove.bind="removeItem"
+                               onDuplicate.bind="duplicateItem"
+                               Item="BoardItem"/>
+                </t>
+            </div>
+            <AddItemDialog t-if="state.editor.open" t-key="state.editor.itemId or 'new'"
+                           dashboardId="state.dashboardId" itemId="state.editor.itemId"
+                           onSaved.bind="onEditorSaved" close.bind="closeEditor"/>
+            <input t-if="state.canEdit" type="file" accept="application/json,.json"
+                   class="d-none" t-ref="importFile" t-on-change="onImportFile"/>
+
+            <!-- presentation: full-viewport slideshow overlay -->
+            <div class="eh_board_present" t-if="state.kiosk">
+                <div class="eh_board_present_top">
+                    <span class="eh_board_present_board" t-esc="state.name"/>
+                    <span class="eh_board_present_title"
+                          t-esc="currentSlide and (currentSlide.title || currentSlide.type)"/>
+                </div>
+                <div class="eh_board_present_stage">
+                    <div class="eh_board_present_slide" t-if="currentSlide" t-key="currentSlide.id">
+                        <BoardItem meta="currentSlide" payload="state.payloads[currentSlide.id] or null"
+                                   editMode="false" loading="!!state.loadingIds[currentSlide.id]"/>
+                    </div>
+                    <div t-else="" class="eh_board_present_empty">
+                        <i class="fa fa-television fa-2x"/>
+                        <p>Add a widget, then press Play to present.</p>
+                    </div>
+                </div>
+                <div class="eh_board_present_ctrl">
+                    <button class="eh_board_present_btn" t-on-click="prevSlide" title="Previous (Left arrow)">
+                        <i class="fa fa-step-backward"/></button>
+                    <button class="eh_board_present_btn eh_board_present_play" t-on-click="togglePlay"
+                            t-att-title="state.playing ? uiText('Pause (Space)') : uiText('Play (Space)')">
+                        <i t-att-class="state.playing ? 'fa fa-pause' : 'fa fa-play'"/></button>
+                    <button class="eh_board_present_btn" t-on-click="nextSlide" title="Next (Right arrow)">
+                        <i class="fa fa-step-forward"/></button>
+                    <div class="eh_board_present_dots">
+                        <button t-foreach="state.slides" t-as="sid" t-key="sid"
+                                class="eh_board_present_dot" t-att-class="{ o_on: sid_index === state.slideIdx }"
+                                t-on-click="() => this.goToSlide(sid_index)" t-att-title="uiText('Slide %s', sid_index + 1)"/>
+                    </div>
+                    <span class="eh_board_present_pos" t-esc="presentPosition"/>
+                    <button class="eh_board_present_btn eh_board_present_exit" t-on-click="_exitPresent"
+                            title="Exit presentation (Esc)"><i class="fa fa-times"/> Exit</button>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="eh_board.SmartBuildDialog">
+        <Dialog title="'Smart Build dashboard'" size="'md'">
+            <div t-if="state.loading" class="eh_board_gallery_loading">
+                <i class="fa fa-spinner fa-spin"/> Finding readable business models...
+            </div>
+            <div t-else="" class="eh_board_smart_build">
+                <div class="eh_board_smart_hero">
+                    <span class="eh_board_smart_icon"><i class="fa fa-magic"/></span>
+                    <div>
+                        <h4>Useful dashboard, one model</h4>
+                        <p>Smart Build inspects stored dates, categories, and numeric fields, then creates executive KPIs, trends, breakdowns, analysis tables, drill paths, filters, and a responsive layout. No AI key and no invented values.</p>
+                    </div>
+                </div>
+                <div class="eh_board_field">
+                    <label class="eh_board_flabel">Odoo model</label>
+                    <div class="eh_board_model_picker">
+                        <Many2XAutocomplete t-props="modelAutocompleteProps"/>
+                    </div>
+                    <span class="eh_board_help">Technical report models such as <code>sale.report</code> and <code>account.invoice.report</code> are included.</span>
+                </div>
+                <label t-if="props.hasItems" class="eh_board_check eh_board_smart_replace">
+                    <input type="checkbox" t-model="state.replace"/>
+                    <span><strong>Replace current canvas</strong><small>Remove existing widgets and filters before building. Leave off to append below them.</small></span>
+                </label>
+            </div>
+            <t t-set-slot="footer">
+                <button class="btn btn-primary" t-att-disabled="!state.modelId || state.busy"
+                        t-on-click="build">
+                    <i t-att-class="state.busy ? 'fa fa-spinner fa-spin' : 'fa fa-magic'"/>
+                    <t t-esc="state.busy ? uiText(' Building dashboard...') : uiText(' Build dashboard')"/>
+                </button>
+                <button class="btn btn-secondary" t-att-disabled="state.busy"
+                        t-on-click="() => props.close()">Cancel</button>
+            </t>
+        </Dialog>
+    </t>
+
+    <t t-name="eh_board.BoardGrid">
+        <div class="eh_board_grid" t-ref="grid" role="list" aria-label="Dashboard widgets"
+             t-att-class="{ o_editing: props.editMode }">
+            <div class="eh_board_cell" t-foreach="props.items" t-as="meta" t-key="meta.id"
+                 t-att-data-item-id="meta.id" role="listitem"
+                 t-att-aria-label="meta.title || meta.type"
+                 t-att-style="itemStyle(meta)"
+                 t-att-class="{ o_dragging: drag.id === meta.id }">
+                <t t-component="props.Item" t-props="itemProps(meta)"/>
+                <div t-if="props.editMode" class="eh_board_move_handle"
+                     t-on-pointerdown="(ev) => this.onDragStart(ev, meta, 'move')"
+                     title="Drag to move"><i class="fa fa-arrows"/></div>
+                <div t-if="props.editMode" class="eh_board_resize_handle"
+                     t-on-pointerdown="(ev) => this.onDragStart(ev, meta, 'resize')"
+                     title="Drag to resize"/>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="eh_board.BoardItem">
+        <div class="eh_board_widget" t-att-data-item-type="props.meta.type" t-ref="widget"
+             t-att-data-eh-accent="props.meta.accent"
+             t-att-class="{ o_headless: props.meta.category === 'content' and !props.meta.title and !props.editMode, o_content: props.meta.category === 'content', o_fullscreen: state.fullscreen, o_kpi: props.meta.category === 'kpi' }">
+            <div class="eh_board_widget_head"
+                 t-if="props.meta.title or props.editMode or props.meta.category !== 'content'">
+                <span class="eh_board_widget_title" t-esc="props.meta.title || (props.meta.category === 'content' ? '' : props.meta.type)"/>
+                <button t-if="props.meta.description" class="eh_board_tool eh_board_widget_info"
+                        title="How calculated" t-att-aria-expanded="state.showDefinition ? 'true' : 'false'"
+                        t-on-click="() => { state.showDefinition = !state.showDefinition; }">
+                    <i class="fa fa-info-circle"/>
+                </button>
+                <div class="eh_board_widget_tools">
+                    <button t-if="hasSvg" class="eh_board_tool" t-on-click="() => this.exportPng()" title="Export PNG">
+                        <i class="fa fa-picture-o"/></button>
+                    <button t-if="canExport" class="eh_board_tool" t-on-click="() => this.exportItem()" title="Export CSV">
+                        <i class="fa fa-download"/></button>
+                    <button class="eh_board_tool" t-on-click="() => this.toggleFullscreen()"
+                            t-att-title="state.fullscreen ? uiText('Exit fullscreen') : uiText('Fullscreen')">
+                        <i t-att-class="state.fullscreen ? 'fa fa-compress' : 'fa fa-expand'"/></button>
+                    <button t-if="props.editMode" class="eh_board_tool" t-on-click="() => props.onConfigure()" title="Configure">
+                        <i class="fa fa-cog"/></button>
+                    <button t-if="props.editMode" class="eh_board_tool" t-on-click="() => props.onDuplicate()" title="Duplicate">
+                        <i class="fa fa-clone"/></button>
+                    <button t-if="props.editMode" class="eh_board_tool o_danger" t-on-click="() => props.onRemove()" title="Remove">
+                        <i class="fa fa-trash-o"/></button>
+                </div>
+            </div>
+            <div class="eh_board_widget_body" t-on-mouseleave="onLeaveWidget">
+                <div t-if="props.payload and props.payload.source_status" class="eh_board_source_freshness">
+                    Last successful refresh: <t t-esc="props.payload.source_status.last_success || '—'"/> UTC
+                </div>
+                <div t-if="state.showDefinition and props.meta.description" class="eh_board_metric_definition" role="note">
+                    <strong>How calculated</strong>
+                    <p t-esc="props.meta.description"/>
+                </div>
+                <div t-if="breadcrumb.length" class="eh_board_breadcrumb">
+                    <t t-foreach="breadcrumb" t-as="crumb" t-key="crumb.level">
+                        <button class="eh_board_crumb" t-att-class="{ o_last: crumb_last }"
+                                t-on-click="() => this.drillTo(crumb.level)"
+                                t-esc="crumb.label"/>
+                        <i t-if="!crumb_last" class="fa fa-angle-right eh_board_crumb_sep"/>
+                    </t>
+                </div>
+                <div t-if="props.loading" class="eh_board_widget_skel"/>
+                <div t-elif="error" class="eh_board_widget_error">
+                    <i class="fa fa-exclamation-triangle"/> <span t-esc="error"/>
+                </div>
+                <div t-elif="isEmpty" class="eh_board_widget_empty">
+                    <i class="fa fa-inbox"/> <span>No data for the current filters</span>
+                </div>
+                <t t-elif="component">
+                    <div t-if="warning" class="eh_board_widget_warning">
+                        <i class="fa fa-exclamation-circle"/> <span t-esc="warning"/>
+                    </div>
+                    <t t-component="component" t-props="childProps"/>
+                </t>
+                <div t-else="" class="eh_board_widget_error">Unknown widget type</div>
+                <!-- accessible data table behind every chart: screen-reader
+                     content + keyboard-operable drill, hidden until focused -->
+                <table t-if="srTable" class="eh_board_sr" t-att-aria-label="uiText('Data for %s', props.meta.title || uiText('chart'))">
+                    <caption t-esc="props.meta.title || props.meta.type"/>
+                    <thead>
+                        <tr>
+                            <th scope="col" t-esc="srTable.rowHeader"/>
+                            <th t-foreach="srTable.headers" t-as="h" t-key="h_index" scope="col" t-esc="h"/>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="srTable.rows" t-as="srow" t-key="srow_index">
+                            <th scope="row">
+                                <button t-if="srow.drill" class="eh_board_sr_btn"
+                                        t-on-click="() => this.srDrill(srow)" t-esc="srow.label"/>
+                                <t t-else="" t-esc="srow.label"/>
+                            </th>
+                            <td t-foreach="srow.cells" t-as="c" t-key="c_index" t-esc="c"/>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="eh_board.FilterBar">
+        <div class="eh_board_filters">
+            <div class="eh_board_filterbar">
+                <i class="fa fa-calendar"/>
+                <select class="form-select form-select-sm eh_board_dateselect"
+                        t-on-change="onSelect">
+                    <option t-foreach="presets" t-as="p" t-key="p.key"
+                            t-att-value="p.key" t-att-selected="p.key === props.preset"
+                            t-esc="p.label"/>
+                </select>
+            </div>
+            <div class="eh_board_custom_range" t-if="props.preset === 'custom'"
+                 t-att-class="{ o_invalid: customInvalid }">
+                <label>From <input type="date" t-att-value="props.customStart or ''"
+                                   t-on-change="(ev) => this.onCustomInput('start', ev)"/></label>
+                <span aria-hidden="true">→</span>
+                <label>To <input type="date" t-att-min="props.customStart or false"
+                                 t-att-value="props.customEnd or ''"
+                                 t-on-change="(ev) => this.onCustomInput('end', ev)"/></label>
+                <span t-if="customInvalid" class="eh_board_custom_error" role="alert">End must be on or after start.</span>
+            </div>
+            <div class="eh_board_filterbar" t-foreach="fieldFilters" t-as="f" t-key="f.id">
+                <i class="fa fa-filter"/>
+                <select class="form-select form-select-sm eh_board_dateselect"
+                        t-on-change="(ev) => this.onFieldSelect(f, ev)">
+                    <option value="">All <t t-esc="f.name"/></option>
+                    <option t-foreach="f.options" t-as="o" t-key="o.value"
+                            t-att-value="o.value"
+                            t-att-selected="isSelected(f, o.value)"
+                            t-esc="o.label"/>
+                </select>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="eh_board.AddFilterDialog">
+        <Dialog title="'Add a filter'" size="'md'">
+            <div class="eh_board_addfilter">
+                <label class="eh_board_flabel" for="eh_board_filter_model">Model</label>
+                <div class="eh_board_model_picker">
+                    <Many2XAutocomplete t-props="modelAutocompleteProps"/>
+                </div>
+                <label class="eh_board_flabel">Field</label>
+                <select class="form-select form-select-sm eh_board_filter_field" t-model="state.field">
+                    <option value="">Select a field...</option>
+                    <option t-foreach="state.fields" t-as="f" t-key="f.name"
+                            t-att-value="f.name" t-esc="f.label"/>
+                </select>
+                <label class="eh_board_flabel">Label</label>
+                <input type="text" class="form-control form-control-sm" t-model="state.name"
+                       placeholder="Optional label"/>
+            </div>
+            <t t-set-slot="footer">
+                <button class="btn btn-primary" t-att-disabled="!canConfirm" t-on-click="confirm">
+                    <i class="fa fa-plus me-1"/> Add filter
+                </button>
+                <button class="btn btn-secondary" t-on-click="() => props.close()">Cancel</button>
+            </t>
+        </Dialog>
+    </t>
+
+    <t t-name="eh_board.SourceStudio">
+        <Dialog title="dialogTitle" size="'lg'">
+            <div class="eh_board_source_studio">
+                <div class="eh_board_source_types" role="tablist" aria-label="Data source type">
+                    <button type="button" t-foreach="[
+                            {key: 'file', label: 'CSV / Excel', icon: 'fa-file-excel-o'},
+                            {key: 'join', label: 'Join models', icon: 'fa-link'},
+                            {key: 'sql', label: 'Safe SQL', icon: 'fa-database'}]"
+                            t-as="sourceType" t-key="sourceType.key"
+                            class="eh_board_source_type"
+                            role="tab"
+                            t-att-aria-selected="state.provider === sourceType.key ? 'true' : 'false'"
+                            t-att-disabled="(sourceType.key === 'sql' and !props.canSql) or (isEdit and state.provider !== sourceType.key)"
+                            t-att-class="{ o_active: state.provider === sourceType.key }"
+                            t-on-click="() => this.setProvider(sourceType.key)">
+                        <i t-attf-class="fa {{ sourceType.icon }}"/>
+                        <span t-esc="sourceType.label"/>
+                        <small t-if="sourceType.key === 'sql' and !props.canSql">Admin only</small>
+                    </button>
+                </div>
+
+                <div class="eh_board_source_body">
+                    <div class="eh_board_field">
+                        <label class="eh_board_flabel">Source name <span aria-hidden="true">*</span></label>
+                        <input type="text" class="form-control form-control-sm eh_board_source_name"
+                               t-model="state.name" required="required"
+                               placeholder="Example: Monthly targets"/>
+                        <span class="eh_board_help">Required. This name identifies the reusable source in the widget builder.</span>
+                    </div>
+
+                    <div t-if="state.provider === 'file'" class="eh_board_source_panel">
+                        <label class="eh_board_dropfile">
+                            <i class="fa fa-cloud-upload fa-2x"/>
+                            <strong t-esc="state.filename || uiText('Choose CSV or Excel file')"/>
+                            <span t-if="isEdit and state.hasFile">Current file: <t t-esc="state.filename"/>. Choose another file only to replace it.</span>
+                            <span t-else=""><t t-if="isEdit">Choose a file to reconnect this source. </t>CSV, TSV, TXT, XLSX · maximum 20 MB · 50,000 rows</span>
+                            <input type="file" accept=".csv,.tsv,.txt,.xlsx,.xlsm"
+                                   t-on-change="onFile"/>
+                        </label>
+                        <p class="eh_board_hint">Columns and types are detected automatically. Uploaded data stays in one attachment; no database tables or fake Odoo models are created.</p>
+                    </div>
+
+                    <div t-if="state.provider === 'join'" class="eh_board_source_panel eh_board_join_grid">
+                        <section>
+                            <h6>Left side</h6>
+                            <label class="eh_board_flabel" for="eh_board_source_left_model">Model</label>
+                            <div class="eh_board_model_picker"><Many2XAutocomplete t-props="modelProps('left')"/></div>
+                            <label class="eh_board_flabel">Shared key</label>
+                            <select class="form-select form-select-sm" t-model="state.left_key">
+                                <option value="">Select field...</option>
+                                <option t-foreach="state.leftFields" t-as="field" t-key="field.name"
+                                        t-att-value="field.name" t-esc="field.label + ' · ' + field.name"/>
+                            </select>
+                            <label class="eh_board_flabel">Measure</label>
+                            <select class="form-select form-select-sm" t-model="state.left_agg">
+                                <option value="count">Count records</option><option value="sum">Sum</option>
+                                <option value="avg">Average</option><option value="min">Minimum</option><option value="max">Maximum</option>
+                            </select>
+                            <select t-if="state.left_agg !== 'count'" class="form-select form-select-sm mt-1" t-model="state.left_value">
+                                <option value="">Numeric field...</option>
+                                <option t-foreach="numericFields('left')" t-as="field" t-key="field.name"
+                                        t-att-value="field.name" t-esc="field.label"/>
+                            </select>
+                            <input type="text" class="form-control form-control-sm mt-1" t-model="state.left_label" placeholder="Series label"/>
+                        </section>
+                        <div class="eh_board_join_mark"><i class="fa fa-link"/><span>match</span></div>
+                        <section>
+                            <h6>Right side</h6>
+                            <label class="eh_board_flabel" for="eh_board_source_right_model">Model</label>
+                            <div class="eh_board_model_picker"><Many2XAutocomplete t-props="modelProps('right')"/></div>
+                            <label class="eh_board_flabel">Shared key</label>
+                            <select class="form-select form-select-sm" t-model="state.right_key">
+                                <option value="">Select field...</option>
+                                <option t-foreach="state.rightFields" t-as="field" t-key="field.name"
+                                        t-att-value="field.name" t-esc="field.label + ' · ' + field.name"/>
+                            </select>
+                            <label class="eh_board_flabel">Measure</label>
+                            <select class="form-select form-select-sm" t-model="state.right_agg">
+                                <option value="count">Count records</option><option value="sum">Sum</option>
+                                <option value="avg">Average</option><option value="min">Minimum</option><option value="max">Maximum</option>
+                            </select>
+                            <select t-if="state.right_agg !== 'count'" class="form-select form-select-sm mt-1" t-model="state.right_value">
+                                <option value="">Numeric field...</option>
+                                <option t-foreach="numericFields('right')" t-as="field" t-key="field.name"
+                                        t-att-value="field.name" t-esc="field.label"/>
+                            </select>
+                            <input type="text" class="form-control form-control-sm mt-1" t-model="state.right_label" placeholder="Series label"/>
+                        </section>
+                        <p class="eh_board_hint eh_board_span3">Both sides aggregate through Odoo ORM under current user's record rules, then merge on compatible keys. No raw SQL join and no access-rule bypass.</p>
+                    </div>
+
+                    <div t-if="state.provider === 'sql'" class="eh_board_source_panel">
+                        <label class="eh_board_flabel">Read-only query</label>
+                        <textarea class="form-control eh_board_sql_editor" t-model="state.query"
+                                  placeholder="SELECT state AS label, count(*) AS orders FROM sale_order GROUP BY state"/>
+                        <p class="eh_board_hint">Single SELECT/WITH only. Writes, comments, system catalog, credentials, filesystem/network functions, multiple statements, and unsafe session functions are rejected. Five-second timeout and 5,000-row cap.</p>
+                    </div>
+                </div>
+                <p t-if="isEdit" class="eh_board_hint mt-3 mb-0">
+                    Saving updates this source in place. Existing widgets using it receive the change; no duplicate source is created.
+                </p>
+            </div>
+            <t t-set-slot="footer">
+                <button class="btn btn-primary" t-att-disabled="!canConfirm or state.saving" t-on-click="confirm">
+                    <i t-att-class="state.saving ? 'fa fa-spinner fa-spin' : (isEdit ? 'fa fa-check' : 'fa fa-plug')"/>
+                    <t t-esc="isEdit ? uiText('Save changes') : uiText('Connect source')"/>
+                </button>
+                <button class="btn btn-secondary" t-on-click="() => props.close()">Cancel</button>
+            </t>
+        </Dialog>
+    </t>
+
+    <t t-name="eh_board.AlertsDialog">
+        <Dialog title="'Threshold alerts'" size="'lg'">
+            <div class="eh_board_alerts">
+                <div t-if="state.loading" class="eh_board_gallery_loading">
+                    <i class="fa fa-spinner fa-spin"/> Loading alerts...
+                </div>
+                <t t-else="">
+                    <div class="eh_board_flabel_row">
+                        <p class="eh_board_hint m-0">Alerts run on schedule, evaluate as recipient under their record rules, fire once per crossing, and re-arm after recovery.</p>
+                        <button t-if="state.canEdit and !state.editing" type="button"
+                                class="btn btn-primary btn-sm" t-on-click="add">
+                            <i class="fa fa-plus"/> New alert
+                        </button>
+                    </div>
+                    <div t-if="state.editing" class="eh_board_alert_form">
+                        <div class="eh_board_field">
+                            <label class="eh_board_flabel">Name</label>
+                            <input class="form-control form-control-sm" t-model="state.editing.name" placeholder="Revenue below target"/>
+                        </div>
+                        <div class="eh_board_field">
+                            <label class="eh_board_flabel">Widget</label>
+                            <select class="form-select form-select-sm" t-model="state.editing.item_id">
+                                <option t-foreach="state.items" t-as="item" t-key="item.id"
+                                        t-att-value="item.id" t-esc="item.name"/>
+                            </select>
+                        </div>
+                        <div class="eh_board_field">
+                            <label class="eh_board_flabel">Condition</label>
+                            <div class="eh_board_inline2">
+                                <select class="form-select form-select-sm" t-model="state.editing.operator">
+                                    <option value="gt">Greater than</option><option value="gte">At least</option>
+                                    <option value="lt">Less than</option><option value="lte">At most</option>
+                                </select>
+                                <input type="number" step="any" class="form-control form-control-sm"
+                                       t-model="state.editing.threshold"/>
+                            </div>
+                        </div>
+                        <div class="eh_board_field">
+                            <label class="eh_board_flabel">Notify</label>
+                            <select class="form-select form-select-sm" t-model="state.editing.user_id">
+                                <option t-foreach="state.users" t-as="user" t-key="user.id"
+                                        t-att-value="user.id" t-esc="user.name"/>
+                            </select>
+                        </div>
+                        <label class="eh_board_toggle"><input type="checkbox" t-model="state.editing.active"/> Active</label>
+                        <div class="eh_board_alert_form_actions">
+                            <button class="btn btn-primary btn-sm" t-att-disabled="state.saving or !state.editing.item_id" t-on-click="save">
+                                <i t-att-class="state.saving ? 'fa fa-spinner fa-spin' : 'fa fa-check'"/> Save and arm
+                            </button>
+                            <button class="btn btn-secondary btn-sm" t-on-click="cancel">Cancel</button>
+                        </div>
+                    </div>
+                    <div t-if="!state.editing" class="eh_board_alert_list">
+                        <div t-if="!state.alerts.length" class="eh_board_history_empty">
+                            <i class="fa fa-bell-o"/> No alerts yet.
+                        </div>
+                        <article t-foreach="state.alerts" t-as="alert" t-key="alert.id" class="eh_board_alert_row">
+                            <span class="eh_board_alert_state" t-att-class="alert.state === 'triggered' ? 'o_triggered' : 'o_armed'">
+                                <i t-att-class="alert.state === 'triggered' ? 'fa fa-bell' : 'fa fa-bell-o'"/>
+                            </span>
+                            <div>
+                                <strong t-esc="alert.name"/>
+                                <div><t t-esc="itemName(alert.item_id)"/> · <t t-esc="operatorLabel(alert.operator)"/> <t t-esc="alert.threshold"/></div>
+                                <small>Notify <t t-esc="userName(alert.user_id)"/> · <t t-esc="uiText(alert.active ? alert.state : 'paused')"/></small>
+                            </div>
+                            <div class="eh_board_alert_last">
+                                <span>Last value</span><b t-esc="alert.last_value"/>
+                            </div>
+                            <div t-if="state.canEdit" class="eh_board_alert_actions">
+                                <button t-on-click="() => this.edit(alert)" title="Edit"><i class="fa fa-pencil"/></button>
+                                <button t-on-click="() => this.remove(alert)" title="Delete"><i class="fa fa-trash"/></button>
+                            </div>
+                        </article>
+                    </div>
+                </t>
+            </div>
+            <t t-set-slot="footer"><button class="btn btn-secondary" t-on-click="() => props.close()">Close</button></t>
+        </Dialog>
+    </t>
+
+    <t t-name="eh_board.AddItemDialog">
+        <div class="eh_board_editor">
+            <div class="eh_board_editor_head">
+                <span class="eh_board_editor_title"><i class="fa fa-sliders"/> <t t-esc="dialogTitle"/></span>
+                <div class="eh_board_editor_actions">
+                    <span t-if="validationMessage" class="eh_board_editor_validation"
+                          role="status" aria-live="polite">
+                        <i class="fa fa-info-circle"/> <t t-esc="validationMessage"/>
+                    </span>
+                    <button class="btn btn-light" t-on-click="() => props.close()">
+                        <i class="fa fa-times"/> Cancel</button>
+                    <button class="btn btn-primary" t-att-disabled="!canConfirm" t-on-click="confirm">
+                        <i class="fa fa-check"/> <t t-esc="isEdit ? uiText('Save changes') : uiText('Add widget')"/>
+                    </button>
+                </div>
+            </div>
+            <div class="eh_board_editor_body">
+                <!-- ZONE 1: widget type rail -->
+                <div class="eh_board_ed_types">
+                    <label class="eh_board_flabel">Widget type</label>
+                    <div class="eh_board_typegrid">
+                        <button type="button" t-foreach="types" t-as="t" t-key="t.key"
+                             class="eh_board_typecard"
+                             t-att-class="{ o_active: state.item_type === t.key }"
+                             t-att-aria-pressed="state.item_type === t.key ? 'true' : 'false'"
+                             t-on-click="() => this.setType(t.key)">
+                            <i t-attf-class="fa {{ t.icon }}"/>
+                            <span t-esc="t.label"/>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ZONE 2: fields -->
+                <div class="eh_board_ed_fields">
+                    <div class="row g-2">
+                        <div class="col-12 col-lg-4">
+                            <label class="eh_board_flabel">Name</label>
+                            <input type="text" class="form-control form-control-sm" t-model="state.title"
+                                   t-on-input="() => this.refreshPreview()" placeholder="Widget name"/>
+                            <span class="eh_board_help">The title shown on the card. Example: "Revenue by month".</span>
+                        </div>
+                        <div class="col-12 col-lg-4" t-if="needsData">
+                            <label class="eh_board_flabel">Data source</label>
+                            <div class="eh_board_source_picker">
+                                <select class="form-select form-select-sm"
+                                        t-att-value="state.source_id or ''" t-on-change="onSourceSelected">
+                                    <option value="">Odoo model (live ORM)</option>
+                                    <option t-foreach="advancedSources" t-as="source" t-key="source.id"
+                                            t-att-value="source.id"
+                                            t-esc="source.name + ' · ' + source.provider.toUpperCase()"/>
+                                </select>
+                                <button type="button" class="eh_board_addbtn eh_board_source_new"
+                                        t-on-click="() => this.openSourceStudio(false)"
+                                        title="Connect a new CSV/Excel, joined-model, or safe-SQL source">
+                                    <i class="fa fa-plus"/> New
+                                </button>
+                                <button t-if="selectedSource and selectedSource.editable" type="button"
+                                        class="eh_board_addbtn eh_board_source_edit"
+                                        t-on-click="() => this.openSourceStudio(state.source_id)"
+                                        title="Edit selected source without creating a duplicate">
+                                    <i class="fa fa-pencil"/> Edit
+                                </button>
+                            </div>
+                            <div t-if="state.canSql" class="d-flex gap-2 mt-2">
+                                <button type="button" class="eh_board_addbtn" t-on-click="() => this.openRemoteSource('sheets')">Connect Sheets</button>
+                                <button type="button" class="eh_board_addbtn" t-on-click="() => this.openRemoteSource('rest')">Connect API</button>
+                            </div>
+                            <span class="eh_board_help">Choose live Odoo records, uploaded files, joins, SQL, or an administrator-managed remote snapshot.</span>
+                        </div>
+                        <div class="col-12 col-lg-4" t-if="needsData and !isAdvancedSource">
+                            <label class="eh_board_flabel" for="eh_board_widget_model">Model</label>
+                            <div class="eh_board_model_picker">
+                                <Many2XAutocomplete t-props="modelAutocompleteProps"/>
+                            </div>
+                            <span class="eh_board_help">The records to chart. Search by name or technical model (sale.report, account.move.line). Example: Contact for customers, Sales Order for revenue.</span>
+                        </div>
+                    </div>
+
+                    <!-- TABS -->
+                    <div class="eh_board_tabs" role="tablist" aria-label="Widget settings">
+                        <button class="eh_board_tab" t-att-class="{ o_active: state.tab === 'data' }"
+                                type="button" role="tab" t-att-aria-selected="state.tab === 'data' ? 'true' : 'false'"
+                                t-on-click="() => this.setTab('data')">Data</button>
+                        <button class="eh_board_tab" t-if="needsData"
+                                type="button" role="tab" t-att-aria-selected="state.tab === 'display' ? 'true' : 'false'"
+                                t-att-class="{ o_active: state.tab === 'display' }"
+                                t-on-click="() => this.setTab('display')">Display</button>
+                        <button class="eh_board_tab" t-if="hasActions"
+                                type="button" role="tab" t-att-aria-selected="state.tab === 'actions' ? 'true' : 'false'"
+                                t-att-class="{ o_active: state.tab === 'actions' }"
+                                t-on-click="() => this.setTab('actions')">Actions</button>
+                        <button class="eh_board_tab" t-if="hasAdvanced"
+                                type="button" role="tab" t-att-aria-selected="state.tab === 'advanced' ? 'true' : 'false'"
+                                t-att-class="{ o_active: state.tab === 'advanced' }"
+                                t-on-click="() => this.setTab('advanced')">Advanced</button>
+                        <button class="eh_board_tab" type="button" role="tab"
+                                t-att-aria-selected="state.tab === 'description' ? 'true' : 'false'"
+                                t-att-class="{ o_active: state.tab === 'description' }"
+                                t-on-click="() => this.setTab('description')">Description</button>
+                    </div>
+
+                    <!-- DATA TAB -->
+                    <div t-if="state.tab === 'data'" class="eh_board_tabpane">
+                        <t t-if="needsData">
+                            <div class="eh_board_field eh_board_span2" t-if="isList">
+                                <label class="eh_board_flabel" for="eh_board_list_mode">List layout</label>
+                                <select id="eh_board_list_mode" class="form-select form-select-sm"
+                                        t-model="state.list_mode" t-on-change="onListModeChange">
+                                    <option value="records" t-if="!isAdvancedSource">Individual records</option>
+                                    <option value="grouped">Grouped summary</option>
+                                </select>
+                                <span class="eh_board_help">Individual records shows selected model fields as columns. Grouped summary aggregates measures by one or two dimensions.</span>
+                            </div>
+
+                            <div class="eh_board_field eh_board_span2" t-if="state.model_name and isRecordList">
+                                <label class="eh_board_flabel">Fields to display</label>
+                                <input type="search" class="form-control form-control-sm"
+                                       t-model="state.fieldSearch"
+                                       placeholder="Search fields by label or technical name..."/>
+                                <div class="eh_board_selected_fields" t-if="state.listFields.length">
+                                    <button t-foreach="state.listFields" t-as="name" t-key="name"
+                                            type="button" class="eh_board_field_chip"
+                                            t-on-click="() => this.toggleListField(name)"
+                                            t-att-title="uiText('Remove %s', listFieldLabel(name))">
+                                        <t t-esc="listFieldLabel(name)"/> <i class="fa fa-times"/>
+                                    </button>
+                                </div>
+                                <div class="eh_board_record_fields" role="group" aria-label="Available list fields">
+                                    <button t-foreach="filteredRecordFields" t-as="field" t-key="field.name"
+                                            type="button" class="eh_board_fieldpick"
+                                            t-att-class="{ o_selected: isListFieldSelected(field.name) }"
+                                            t-att-aria-pressed="isListFieldSelected(field.name) ? 'true' : 'false'"
+                                            t-att-title="field.label + ' (' + field.name + ')'"
+                                            t-on-click="() => this.toggleListField(field.name)">
+                                        <i t-att-class="isListFieldSelected(field.name) ? 'fa fa-check-square-o' : 'fa fa-square-o'"/>
+                                        <span><t t-esc="field.label"/> <small t-esc="field.name"/></span>
+                                    </button>
+                                </div>
+                                <span class="eh_board_help">Pick up to 12 stored scalar fields. Binary and x2many fields stay excluded because they cannot form safe compact table cells.</span>
+                            </div>
+
+                            <!-- Power BI-style Fields quick-pick -->
+                            <div class="eh_board_field eh_board_span2" t-if="(state.model_name or isTabularSource) and needsDimension">
+                                <div class="eh_board_flabel_row">
+                                    <label class="eh_board_flabel" t-esc="isPivot ? uiText('Pivot fields to display') : uiText('Fields to display')"/>
+                                    <button class="eh_board_addbtn" t-on-click="() => state.fieldsOpen = !state.fieldsOpen">
+                                        <i t-att-class="state.fieldsOpen ? 'fa fa-chevron-up' : 'fa fa-list'"/>
+                                        <t t-esc="state.fieldsOpen ? uiText('Hide') : uiText('Pick fields')"/>
+                                    </button>
+                                </div>
+                                <div t-if="state.fieldsOpen or isTableType" class="eh_board_fieldspanel">
+                                    <input type="text" class="form-control form-control-sm"
+                                           t-model="state.fieldSearch" placeholder="Search fields..."/>
+                                    <div class="eh_board_fieldcols">
+                                        <div class="eh_board_fieldcol">
+                                            <div class="eh_board_fieldcol_h" t-esc="isPivot ? uiText('Rows / Columns') : uiText('Group by')"/>
+                                            <button t-foreach="filteredDims" t-as="d" t-key="d.name"
+                                                    class="eh_board_fieldpick" draggable="true"
+                                                    t-on-dragstart="(ev) => this.onFieldDrag(ev, d.name, 'dim')"
+                                                    t-on-click="() => this.pickDimension(d.name)">
+                                                <i class="fa fa-arrows"/> <t t-esc="d.label"/></button>
+                                        </div>
+                                        <div class="eh_board_fieldcol">
+                                            <div class="eh_board_fieldcol_h">Measures</div>
+                                            <button t-foreach="filteredMeasures" t-as="m" t-key="m.name"
+                                                    class="eh_board_fieldpick" draggable="true"
+                                                    t-on-dragstart="(ev) => this.onFieldDrag(ev, m.name, 'measure')"
+                                                    t-on-click="() => this.pickMeasure(m.name)">
+                                                <i class="fa fa-arrows"/> <t t-esc="m.label"/></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <span class="eh_board_help">Click a field to add it fast: names become Group by, numbers become a Sum measure.</span>
+                            </div>
+
+                            <div class="eh_board_field eh_board_span2 eh_board_well" t-if="needsMeasure"
+                                 t-on-dragover="allowDrop" t-on-drop="(ev) => this.onWellDrop(ev, 'measure')">
+                                <div class="eh_board_flabel_row">
+                                    <label class="eh_board_flabel">Measures</label>
+                                    <button class="eh_board_addbtn" t-on-click="addMeasure">
+                                        <i class="fa fa-plus"/> Add</button>
+                                </div>
+                                <div class="eh_board_measure_row" t-foreach="state.measureList" t-as="m" t-key="m_index">
+                                    <select class="form-select form-select-sm" t-model="m.verb" t-on-change="onField">
+                                        <option t-foreach="verbs" t-as="v" t-key="v.key"
+                                                t-att-value="v.key" t-esc="v.label"/>
+                                    </select>
+                                    <select class="form-select form-select-sm"
+                                            t-if="m.verb !== 'count' and m.verb !== 'formula'"
+                                            t-model="m.field" t-on-change="onField">
+                                        <option value="">Field...</option>
+                                        <option t-foreach="measureFieldChoices(m)" t-as="f" t-key="f.name"
+                                                t-att-value="f.name" t-esc="f.label"/>
+                                    </select>
+                                    <input class="form-control form-control-sm" t-if="m.verb === 'formula'"
+                                           t-model="m.formula" t-on-input="() => this.refreshPreview()"
+                                           placeholder="a / b * 100" title="Arithmetic over other measures as a, b, c ..."/>
+                                    <select class="form-select form-select-sm eh_board_mfmt"
+                                            t-model="m.format" t-on-change="onField" title="Number format">
+                                        <option value="compact">1.2K</option>
+                                        <option value="plain">1,234</option>
+                                        <option value="thousands">K</option>
+                                        <option value="millions">M</option>
+                                    </select>
+                                    <input class="form-control form-control-sm eh_board_munit" t-model="m.unit"
+                                           t-on-input="() => this.refreshPreview()" placeholder="unit" title="Suffix, e.g. % or kg"/>
+                                    <select class="form-select form-select-sm eh_board_mcalc" t-if="isTableType"
+                                            t-model="m.calculation" t-on-change="onField"
+                                            title="Add a calculated percentage beside this value">
+                                        <option value="none">Value only</option>
+                                        <option value="percent_grand">Value + % grand</option>
+                                        <option t-if="isPivot and state.secondary_dimension" value="percent_row">Value + % row</option>
+                                        <option t-if="isPivot and state.secondary_dimension" value="percent_column">Value + % column</option>
+                                    </select>
+                                    <label class="eh_board_asline" t-if="isBarType and m_index > 0"
+                                           title="Draw this measure as a line over the bars (combo chart) on its own right-hand axis.">
+                                        <input type="checkbox" t-model="m.as_line" t-on-change="onField"/>
+                                        <span>line</span>
+                                    </label>
+                                    <button class="eh_board_delbtn" t-if="state.measureList.length > 1"
+                                            t-on-click="() => this.removeMeasure(m_index)">
+                                        <i class="fa fa-times"/></button>
+                                </div>
+                                <span class="eh_board_help">What each bar, slice, or value column measures. For lists/pivots, “Value + %” adds an adjacent percentage without replacing the original value—even for Average.</span>
+                            </div>
+
+                            <div class="eh_board_field eh_board_well" t-if="needsDimension"
+                                 t-on-dragover="allowDrop" t-on-drop="(ev) => this.onWellDrop(ev, 'dimension')">
+                                <label class="eh_board_flabel" t-esc="isPivot ? uiText('Rows') : uiText('Group by')"/>
+                                <select class="form-select form-select-sm" t-model="state.dimension" t-on-change="onField">
+                                    <option value="">Select...</option>
+                                    <option t-foreach="state.dimFields" t-as="d" t-key="d.name"
+                                            t-att-value="d.name" t-esc="d.label"/>
+                                </select>
+                                <span class="eh_board_help" t-esc="isPivot ? uiText('Field displayed down the left side of the pivot.') : uiText('Field whose values become bars, slices, or rows. Group by Country gives one row per country.')"/>
+                            </div>
+                            <div class="eh_board_field eh_board_well" t-if="needsDimension"
+                                 t-on-dragover="allowDrop" t-on-drop="(ev) => this.onWellDrop(ev, 'secondary')">
+                                <label class="eh_board_flabel" t-esc="isPivot ? uiText('Columns') : uiText('Sub group by')"/>
+                                <select class="form-select form-select-sm" t-model="state.secondary_dimension" t-on-change="onField">
+                                    <option value="">(none)</option>
+                                    <option t-foreach="state.dimFields" t-as="d" t-key="d.name"
+                                            t-att-value="d.name" t-esc="d.label"/>
+                                </select>
+                                <span class="eh_board_help" t-esc="isPivot ? uiText('Optional field displayed across the top of the pivot.') : uiText('Splits each group into a second series. Country plus Stage stacks every country bar by stage.')"/>
+                            </div>
+
+                            <div class="eh_board_field" t-if="isRecordList">
+                                <label class="eh_board_flabel">Sort records by</label>
+                                <div class="eh_board_inline2">
+                                    <select class="form-select form-select-sm" t-model="state.sort_field" t-on-change="onField">
+                                        <option value="">Record ID</option>
+                                        <option t-foreach="state.recordFields" t-as="field" t-key="field.name"
+                                                t-att-value="field.name" t-esc="field.label"/>
+                                    </select>
+                                    <select class="form-select form-select-sm eh_board_sortdir" t-model="state.sort_order" t-on-change="onField">
+                                        <option value="desc">Desc</option>
+                                        <option value="asc">Asc</option>
+                                    </select>
+                                </div>
+                                <span class="eh_board_help">Sorts database-side before row limit is applied.</span>
+                            </div>
+
+                            <div class="eh_board_field" t-if="needsDimension">
+                                <label class="eh_board_flabel">Sort</label>
+                                <select class="form-select form-select-sm" t-model="state.sort_mode" t-on-change="onField">
+                                    <option value="default">Default order</option>
+                                    <option value="value_desc">Value: high to low</option>
+                                    <option value="value_asc">Value: low to high</option>
+                                    <option value="label">Label A to Z</option>
+                                    <option value="field">By a specific field</option>
+                                </select>
+                                <span class="eh_board_help">Orders the groups. Value high to low puts the biggest bar first.</span>
+                            </div>
+                            <div class="eh_board_field" t-if="needsDimension and state.sort_mode === 'field'">
+                                <label class="eh_board_flabel">Sort by field</label>
+                                <div class="eh_board_inline2">
+                                    <select class="form-select form-select-sm" t-model="state.sort_field" t-on-change="onField">
+                                        <option value="">Field...</option>
+                                        <option t-foreach="state.dimFields" t-as="d" t-key="d.name"
+                                                t-att-value="d.name" t-esc="d.label"/>
+                                    </select>
+                                    <select class="form-select form-select-sm eh_board_sortdir" t-model="state.sort_order" t-on-change="onField">
+                                        <option value="desc">Desc</option>
+                                        <option value="asc">Asc</option>
+                                    </select>
+                                </div>
+                                <span class="eh_board_help">Order the groups by any field. E.g. sort countries by Created on, newest first.</span>
+                            </div>
+
+                            <div class="eh_board_field" t-if="needsDimension or isRecordList">
+                                <label class="eh_board_flabel">Row limit</label>
+                                <input type="number" min="0" t-att-max="isRecordList ? 500 : false" class="form-control form-control-sm"
+                                       t-model="state.record_limit" t-on-change="onField" placeholder="0 = all"/>
+                                <span class="eh_board_help" t-esc="isRecordList ? uiText('Rows shown on the card (1–500; default 50).') : uiText('Max groups shown. 0 shows all; 5 keeps the top 5 (bucket the rest as Others in Advanced).')"/>
+                            </div>
+                            <div class="eh_board_field" t-if="needsDimension">
+                                <label class="eh_board_flabel">Period</label>
+                                <select class="form-select form-select-sm" t-model="state.granularity" t-on-change="onField">
+                                    <option value="minute">Minute</option>
+                                    <option value="hour">Hour</option>
+                                    <option value="day">Day</option>
+                                    <option value="week">Week</option>
+                                    <option value="month">Month</option>
+                                    <option value="quarter">Quarter</option>
+                                    <option value="year">Year</option>
+                                    <option value="month_number">Month (across years)</option>
+                                </select>
+                                <span class="eh_board_help">Bucket size for a date group. Month gives one point per month (with year); Month across years folds every January together.</span>
+                            </div>
+
+                            <div class="eh_board_field">
+                                <label class="eh_board_flabel">Date filter field</label>
+                                <select class="form-select form-select-sm" t-model="state.date_field" t-on-change="onField">
+                                    <option value="">(auto)</option>
+                                    <option t-foreach="dateFields" t-as="d" t-key="d.name"
+                                            t-att-value="d.name" t-esc="d.label"/>
+                                </select>
+                                <span class="eh_board_help">Which date the board date filter narrows for this widget. Auto picks a sensible one (e.g. Order Date).</span>
+                            </div>
+                            <div class="eh_board_field">
+                                <label class="eh_board_flabel">Default date filter</label>
+                                <select class="form-select form-select-sm" t-model="state.default_date_filter" t-on-change="onField">
+                                    <option value="none">None</option>
+                                    <option value="today">Today</option>
+                                    <option value="yesterday">Yesterday</option>
+                                    <option value="tomorrow">Tomorrow</option>
+                                    <option value="this_week">This week</option>
+                                    <option value="last_week">Last week</option>
+                                    <option value="next_week">Next week</option>
+                                    <option value="this_month">This month</option>
+                                    <option value="last_month">Last month</option>
+                                    <option value="next_month">Next month</option>
+                                    <option value="this_quarter">This quarter</option>
+                                    <option value="last_quarter">Last quarter</option>
+                                    <option value="next_quarter">Next quarter</option>
+                                    <option value="this_year">This year</option>
+                                    <option value="last_year">Last year</option>
+                                    <option value="next_year">Next year</option>
+                                    <option value="wtd">Week to date</option>
+                                    <option value="mtd">Month to date</option>
+                                    <option value="qtd">Quarter to date</option>
+                                    <option value="ytd">Year to date</option>
+                                    <option value="last_7">Last 7 days</option>
+                                    <option value="last_30">Last 30 days</option>
+                                    <option value="last_90">Last 90 days</option>
+                                    <option value="last_365">Last 365 days</option>
+                                </select>
+                                <span class="eh_board_help">Pre-scopes this widget to a range even when the board filter is off. This year always shows the current year.</span>
+                            </div>
+                            <div class="eh_board_field eh_board_span2">
+                                <label class="eh_board_toggle eh_board_archived">
+                                    <input type="checkbox" t-model="state.include_archived" t-on-change="onArchivedChange"/>
+                                    Include archived records
+                                </label>
+                                <span class="eh_board_help">Also count inactive / archived records. Off by default, so a chart of leads ignores archived ones.</span>
+                            </div>
+
+                            <!-- compact domain summary + collapsible editor -->
+                            <div class="eh_board_field eh_board_span2" t-if="state.model_name">
+                                <label class="eh_board_flabel">Filter records</label>
+                                <div class="eh_board_domain_summary">
+                                    <span class="eh_board_domain_count">
+                                        <i class="fa fa-database"/>
+                                        Match <b t-esc="state.matchCount === null ? '…' : state.matchCount"/> record(s)
+                                    </span>
+                                    <button class="eh_board_domain_edit" t-on-click="toggleDomain">
+                                        <i t-att-class="state.domainOpen ? 'fa fa-chevron-up' : 'fa fa-sliders'"/>
+                                        <t t-esc="state.domainOpen ? uiText('Close') : uiText('Edit domain')"/>
+                                    </button>
+                                </div>
+                                <span class="eh_board_help">Extra conditions on the data, on top of the model. Only customers: Customer Rank greater than 0. The count shows how many records match right now.</span>
+                                <div t-if="state.domainOpen" class="eh_board_domain_wrap">
+                                    <DomainSelector resModel="state.model_name" domain="state.domain"
+                                                    isDebugMode="false" readonly="false"
+                                                    update.bind="onDomainChange"/>
+                                </div>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <div class="eh_board_field eh_board_span2">
+                                <label class="eh_board_flabel">Content</label>
+                                <RichEditor value="state.content" onChange.bind="onContentChange"/>
+                                <span class="eh_board_help">The rich text shown in this block, e.g. a section title, notes, or instructions for the board.</span>
+                            </div>
+                        </t>
+                    </div>
+
+                    <!-- DISPLAY TAB -->
+                    <div t-if="state.tab === 'display'" class="eh_board_tabpane">
+                        <div class="eh_board_field eh_board_span2">
+                            <label class="eh_board_flabel">Accent colour</label>
+                            <div class="eh_board_swatches">
+                                <button t-foreach="accents" t-as="a" t-key="a"
+                                        t-attf-class="eh_board_swatch eh_board_accent_{{ a }}"
+                                        t-att-class="{ o_active: state.accent === a }"
+                                        t-on-click="() => { this.state.accent = a; this.refreshPreview(); }"/>
+                            </div>
+                            <span class="eh_board_help">The card's highlight colour. Tiles use it as their fill; charts use it for the first series.</span>
+                        </div>
+
+                        <div class="eh_board_field">
+                            <label class="eh_board_flabel">Colour strategy</label>
+                            <select class="form-select form-select-sm" t-model="state.color_mode"
+                                    t-on-change="onField">
+                                <option value="theme">Dashboard palette</option>
+                                <option value="measure">One colour per measure</option>
+                                <option value="category">One colour per category</option>
+                            </select>
+                            <span class="eh_board_help">Measure mode keeps Revenue, Margin, and Quantity visually stable. Category mode gives each group its own colour.</span>
+                        </div>
+                        <div class="eh_board_field" t-if="state.color_mode !== 'theme'">
+                            <div class="eh_board_flabel_row">
+                                <label class="eh_board_flabel">Custom colour slots</label>
+                                <button type="button" class="eh_board_addbtn" t-on-click="resetCustomColors">
+                                    <i class="fa fa-undo"/> Reset
+                                </button>
+                            </div>
+                            <div class="eh_board_custom_colors">
+                                <label t-foreach="colorSlots" t-as="color" t-key="color_index"
+                                       t-att-title="state.color_mode === 'measure' ? uiText('Measure %s', color_index + 1) : uiText('Category %s', color_index + 1)">
+                                    <input type="color" t-att-value="color"
+                                           t-on-change="(ev) => this.setCustomColor(color_index, ev)"/>
+                                    <small t-esc="color_index + 1"/>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="eh_board_field" t-if="isSlicer">
+                            <label class="eh_board_flabel">Slicer layout</label>
+                            <select class="form-select form-select-sm" t-model="state.slicer_display" t-on-change="onField">
+                                <option value="auto">Automatic</option>
+                                <option value="list">Compact list</option>
+                                <option value="chips">Chips</option>
+                            </select>
+                            <span class="eh_board_help">Automatic uses a compact, scrollable list for more than 10 values.</span>
+                        </div>
+
+                        <div class="eh_board_field" t-if="isTile">
+                            <label class="eh_board_flabel">Tile style</label>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button t-foreach="['soft','solid','outline']" t-as="ts" t-key="ts"
+                                        class="btn btn-outline-secondary text-capitalize"
+                                        t-att-class="{ active: state.tile_style === ts }"
+                                        t-on-click="() => { this.state.tile_style = ts; this.refreshPreview(); }"
+                                        t-esc="ts"/>
+                            </div>
+                            <span class="eh_board_help">Tile look: Soft tint, Solid fill, or Outline. Soft suits most boards.</span>
+                        </div>
+
+                        <div class="eh_board_field">
+                            <label class="eh_board_flabel">Value format</label>
+                            <select class="form-select form-select-sm" t-model="state.number_format" t-on-change="onNumberFormat">
+                                <option value="compact">Compact (1.2K / 3.4M)</option>
+                                <option value="plain">Plain (1,234)</option>
+                                <option value="thousands">Thousands (K)</option>
+                                <option value="millions">Millions (M)</option>
+                            </select>
+                            <span class="eh_board_help">How numbers read. Compact turns 3,400,000 into 3.4M; Plain keeps every digit.</span>
+                        </div>
+                        <div class="eh_board_field" t-if="isPie">
+                            <label class="eh_board_flabel">Slice labels</label>
+                            <select class="form-select form-select-sm" t-model="state.data_label_type" t-on-change="onField">
+                                <option value="value">Value</option>
+                                <option value="percent">Percentage</option>
+                                <option value="none">Hidden</option>
+                            </select>
+                            <span class="eh_board_help">What each pie slice shows: the raw Value (e.g. 39), its Percentage (e.g. 28%), or nothing.</span>
+                        </div>
+
+                        <div class="eh_board_field" t-if="isTargetType">
+                            <label class="eh_board_flabel">Target</label>
+                            <input type="number" class="form-control form-control-sm"
+                                   t-model="state.target" t-on-change="onField" placeholder="Goal, e.g. 100"/>
+                            <span class="eh_board_help">A goal for this KPI. Target 100 with a value of 72 shows 72% of target on the bar.</span>
+                        </div>
+                        <div class="eh_board_field" t-if="supportsComparison">
+                            <label class="eh_board_flabel">Compare to</label>
+                            <select class="form-select form-select-sm" t-model="state.compare" t-on-change="onField">
+                                <option value="none">No comparison</option>
+                                <option value="prev_period">Previous period</option>
+                                <option value="prev_year">Same period last year</option>
+                            </select>
+                            <span class="eh_board_help">KPI: trend badge. Chart: prior-period companion series when a board date range is active.</span>
+                        </div>
+                        <div class="eh_board_field" t-if="isTargetType">
+                            <label class="eh_board_toggle">
+                                <input type="checkbox" t-model="state.show_trend" t-on-change="onField"/>
+                                Sparkline and period trend
+                            </label>
+                            <span class="eh_board_help">Uses live period comparison plus recorded snapshots when available.</span>
+                        </div>
+                        <div class="eh_board_field eh_board_span2" t-if="supportsTargetSchedule">
+                            <div class="eh_board_flabel_row">
+                                <label class="eh_board_flabel">Date-effective targets</label>
+                                <button type="button" class="eh_board_addbtn" t-on-click="addTargetPoint">
+                                    <i class="fa fa-plus"/> Target
+                                </button>
+                            </div>
+                            <div class="eh_board_target_rows" t-if="state.targetSchedule.length">
+                                <div class="eh_board_target_row" t-foreach="state.targetSchedule" t-as="point" t-key="point_index">
+                                    <input type="date" class="form-control form-control-sm"
+                                           t-model="point.date" t-on-change="onField" aria-label="Target effective date"/>
+                                    <input type="number" step="any" class="form-control form-control-sm"
+                                           t-model="point.value" t-on-change="onField" aria-label="Target value"/>
+                                    <button type="button" class="eh_board_delbtn"
+                                            t-on-click="() => this.removeTargetPoint(point_index)"
+                                            aria-label="Remove target"><i class="fa fa-times"/></button>
+                                </div>
+                            </div>
+                            <span class="eh_board_help">Latest target on or before each date wins. KPI uses current range end; date charts draw full target trajectory.</span>
+                        </div>
+
+                        <!-- type-specific option panel -->
+                        <div class="eh_board_field eh_board_span2" t-if="isChartType">
+                            <label class="eh_board_flabel" t-esc="uiText('Chart options')"/>
+                            <div class="eh_board_toggles">
+                                <label class="eh_board_toggle"><input type="checkbox" t-model="state.show_legend" t-on-change="onField"/> Legend</label>
+                                <label class="eh_board_toggle"><input type="checkbox" t-model="state.show_values" t-on-change="onField"/> Value labels</label>
+                                <label class="eh_board_toggle" t-if="!isPie and !isRadial and !isFunnelType"><input type="checkbox" t-model="state.show_grid" t-on-change="onField"/> Grid lines</label>
+                                <label class="eh_board_toggle" t-if="isPie"><input type="checkbox" t-model="state.semi_circle" t-on-change="onField"/> Semi circle</label>
+                                <label class="eh_board_toggle" t-if="isBarType"><input type="checkbox" t-model="state.stacked" t-on-change="onField"/> Stacked</label>
+                                <label class="eh_board_toggle" t-if="isLineType"><input type="checkbox" t-model="state.smooth" t-on-change="onField"/> Smooth</label>
+                                <label class="eh_board_toggle" t-if="isBarType"><input type="checkbox" t-model="state.combo_line" t-on-change="onField"/> Cumulative line</label>
+                            </div>
+                            <span class="eh_board_help">Toggles specific to this chart type. Semi circle turns a pie into a half gauge; Stacked piles a bar's series on top of each other.</span>
+                        </div>
+                        <div class="eh_board_field" t-if="isBarType or isLineType">
+                            <label class="eh_board_flabel">Goal line (0 = none)</label>
+                            <input type="number" class="form-control form-control-sm"
+                                   t-model="state.goal_value" t-on-change="onField" placeholder="e.g. 100"/>
+                            <span class="eh_board_help">Draws a dashed reference line across the chart. Goal 100 marks where the target sits.</span>
+                        </div>
+
+                        <!-- conditional formatting (tiles / lists / pivots) -->
+                        <div class="eh_board_field eh_board_span2" t-if="showConditional">
+                            <div class="eh_board_flabel_row">
+                                <label class="eh_board_flabel">Conditional formatting</label>
+                                <button class="eh_board_addbtn" t-on-click="addRule"><i class="fa fa-plus"/> Rule</button>
+                            </div>
+                            <div class="eh_board_condrow" t-foreach="state.condRules" t-as="r" t-key="r_index">
+                                <select class="form-select form-select-sm eh_board_condmeas"
+                                        t-if="state.measureList.length > 1" t-model="r.measure" t-on-change="onField">
+                                    <option value="">All measures</option>
+                                    <option t-foreach="state.measureList" t-as="mm" t-key="mm_index"
+                                            t-att-value="mm_index"
+                                            t-esc="measureLabel(mm)"/>
+                                </select>
+                                <select class="form-select form-select-sm" t-model="r.op" t-on-change="onField">
+                                    <option value="gt">is greater than</option>
+                                    <option value="gte">is at least</option>
+                                    <option value="lt">is less than</option>
+                                    <option value="lte">is at most</option>
+                                    <option value="eq">equals</option>
+                                    <option value="between">is between</option>
+                                </select>
+                                <input type="number" class="form-control form-control-sm eh_board_condv"
+                                       t-model="r.v1" t-on-input="() => this.refreshPreview()"/>
+                                <input type="number" class="form-control form-control-sm eh_board_condv"
+                                       t-if="r.op === 'between'" t-model="r.v2" t-on-input="() => this.refreshPreview()"/>
+                                <select class="form-select form-select-sm eh_board_condstyle" t-model="r.style" t-on-change="onField">
+                                    <option value="text">colour text</option>
+                                    <option value="fill">fill</option>
+                                    <option value="bar">data bar</option>
+                                </select>
+                                <input type="color" class="eh_board_condcolor" t-model="r.color" t-on-change="onField"/>
+                                <button class="eh_board_delbtn" t-on-click="() => this.removeRule(r_index)"><i class="fa fa-times"/></button>
+                            </div>
+                            <span class="eh_board_help">Paint a value by its size. Example: if Revenue is less than 0, colour the number red; the first matching rule wins.</span>
+                        </div>
+                    </div>
+
+                    <!-- ACTIONS TAB -->
+                    <div t-if="state.tab === 'actions'" class="eh_board_tabpane">
+                        <div class="eh_board_field eh_board_span2">
+                            <label class="eh_board_flabel">When clicked</label>
+                            <select class="form-select form-select-sm" t-model="state.click_action" t-on-change="onField">
+                                <option value="none">Do nothing</option>
+                                <option value="records">Open the matching records</option>
+                                <option value="drill" t-if="needsDimension">Drill down a level</option>
+                                <option value="dashboard">Open another dashboard</option>
+                                <option value="action" t-if="state.model_name">Open an Odoo view/action</option>
+                            </select>
+                        </div>
+                        <div class="eh_board_field eh_board_span2" t-if="state.click_action === 'dashboard'">
+                            <label class="eh_board_flabel">Destination dashboard</label>
+                            <select class="form-select form-select-sm" t-model="state.target_dashboard_id" t-on-change="onField">
+                                <option value="">Choose dashboard...</option>
+                                <option t-foreach="state.boards" t-as="board" t-key="board.id"
+                                        t-att-value="board.id" t-esc="board.name"/>
+                            </select>
+                            <span class="eh_board_help">Creates guided dashboard journeys: executive summary → department → operational detail.</span>
+                        </div>
+                        <div class="eh_board_field eh_board_span2" t-if="state.click_action === 'action' and state.model_name">
+                            <label class="eh_board_flabel" for="eh_board_widget_window_action">Odoo view/action</label>
+                            <div class="eh_board_model_picker">
+                                <Many2XAutocomplete t-props="windowActionAutocompleteProps"/>
+                            </div>
+                            <span class="eh_board_help">Search existing list, pivot, graph, kanban, or calendar actions for this exact model. Creating actions here is disabled.</span>
+                        </div>
+                        <div class="eh_board_field eh_board_span2" t-if="state.click_action === 'drill' and needsDimension">
+                            <label class="eh_board_flabel">Drill path (up to 8 levels)</label>
+                            <div class="eh_board_inline2">
+                                <select class="form-select form-select-sm" t-model="state.drill_field">
+                                    <option value="">Select next field...</option>
+                                    <option t-foreach="state.dimFields" t-as="d" t-key="d.name"
+                                            t-att-value="d.name" t-esc="d.label"/>
+                                </select>
+                                <button class="eh_board_addbtn" t-att-disabled="!state.drill_field"
+                                        t-on-click="addDrillField"><i class="fa fa-plus"/> Add</button>
+                            </div>
+                            <div class="eh_board_selected_fields" t-if="state.drillFields.length">
+                                <button t-foreach="state.drillFields" t-as="field" t-key="field"
+                                        class="eh_board_field_chip" t-on-click="() => this.removeDrillField(field_index)">
+                                    <t t-esc="(state.dimFields.find((d) => d.name === field) || {}).label || field"/>
+                                    <i class="fa fa-times"/>
+                                </button>
+                            </div>
+                            <span class="eh_board_help">Example: Salesperson → Customer → Product. Click any chip to remove it.</span>
+                        </div>
+                        <p class="eh_board_hint eh_board_span2">
+                            Clicking a tile, bar, slice or point opens the exact records behind it -
+                            scoped to what was clicked, respecting record rules.
+                        </p>
+                    </div>
+
+                    <!-- ADVANCED (Advance Configuration) TAB -->
+                    <div t-if="state.tab === 'advanced'" class="eh_board_tabpane">
+                        <div class="eh_board_field eh_board_span2" t-if="needsMeasure">
+                            <label class="eh_board_flabel">Measure identity, scale, and currency</label>
+                            <div class="eh_board_measure_advanced" t-foreach="state.measureList" t-as="m" t-key="m_index">
+                                <input type="text" class="form-control form-control-sm"
+                                       t-model="m.label" t-on-input="() => this.refreshPreview()"
+                                       t-att-placeholder="uiText('Series %s label (optional)', m_index + 1)"/>
+                                <label>
+                                    <small>Multiplier</small>
+                                    <input type="number" step="any" class="form-control form-control-sm"
+                                           t-model="m.multiplier" t-on-change="onField" title="1 = raw value; 0.01 = divide by 100"/>
+                                </label>
+                                <label>
+                                    <small>Currency</small>
+                                    <select class="form-select form-select-sm" t-model="m.currency_id" t-on-change="onField">
+                                        <option value="">No currency</option>
+                                        <option t-foreach="state.currencies" t-as="currency" t-key="currency.id"
+                                                t-att-value="currency.id"
+                                                t-esc="currency.code + ' · ' + currency.symbol"/>
+                                    </select>
+                                </label>
+                            </div>
+                            <span class="eh_board_hint">Multiplier transforms values before display and formulas. Currency controls symbol and before/after placement without abusing a text suffix.</span>
+                        </div>
+                        <div class="eh_board_advrow eh_board_span2" t-if="isChartType">
+                            <label class="eh_board_toggle">
+                                <input type="checkbox" t-model="state.cumulative" t-on-change="onField"/>
+                                Running total
+                            </label>
+                            <span class="eh_board_hint">Each group adds to the ones before it - a climbing cumulative curve.</span>
+                        </div>
+                        <div class="eh_board_advrow eh_board_span2" t-if="isChartType">
+                            <label class="eh_board_toggle">
+                                <input type="checkbox" t-model="state.fill_gaps" t-on-change="onField"/>
+                                Fill empty periods
+                            </label>
+                            <span class="eh_board_hint">Insert zero rows for missing days/months so a time line never jumps a gap.</span>
+                        </div>
+                        <div class="eh_board_advrow eh_board_span2" t-if="isChartType">
+                            <label class="eh_board_toggle">
+                                <input type="checkbox" t-model="state.group_others" t-on-change="onField"/>
+                                Group the rest as "Others"
+                            </label>
+                            <span class="eh_board_hint">With a row limit set, everything past it is summed into one honest Others slice instead of dropped.</span>
+                        </div>
+                        <div class="eh_board_advrow eh_board_span2">
+                            <label class="eh_board_toggle">
+                                <input type="checkbox" t-model="state.record_limit_visibility" t-on-change="onField"/>
+                                Cap click-through to the row limit
+                            </label>
+                            <span class="eh_board_hint">Opening records from this widget shows at most the row-limit count, matching what the chart displays.</span>
+                        </div>
+                    </div>
+
+                    <!-- ITEM DESCRIPTION TAB -->
+                    <div t-if="state.tab === 'description'" class="eh_board_tabpane">
+                        <div class="eh_board_field eh_board_span2">
+                            <label class="eh_board_flabel">Item description</label>
+                            <textarea class="form-control form-control-sm eh_board_descbox"
+                                      t-model="state.description" t-on-input="() => this.refreshPreview()"
+                                      placeholder="Notes about this widget - shown on its info tooltip."/>
+                            <span class="eh_board_hint">A short note explaining what this widget measures. Appears as an info tooltip on the card.</span>
+                        </div>
+                    </div>
+
+                    <!-- plain-English recap pinned to the column floor -->
+                    <div class="eh_board_specrecap">
+                        <div class="eh_board_specrecap_h"><i class="fa fa-check-circle"/> This widget</div>
+                        <div class="eh_board_specrecap_b" t-esc="specSummary"/>
+                    </div>
+                </div>
+
+                <!-- ZONE 3: live preview -->
+                <div class="eh_board_ed_preview">
+                    <div class="eh_board_preview_head">
+                        <i class="fa fa-eye"/> Live preview
+                        <i t-if="state.previewing" class="fa fa-spinner fa-spin ms-1"/>
+                    </div>
+                    <div class="eh_board_preview_stage" t-att-class="'eh_board_accent_' + state.accent">
+                        <BoardItem t-props="previewProps"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="eh_board.RichEditor">
+        <div class="eh_board_rte">
+            <div class="eh_board_rte_bar">
+                <button type="button" t-on-click="() => this.cmd('bold')" title="Bold"><b>B</b></button>
+                <button type="button" t-on-click="() => this.cmd('italic')" title="Italic"><i>I</i></button>
+                <button type="button" t-on-click="() => this.cmd('underline')" title="Underline"><u>U</u></button>
+                <span class="eh_board_rte_sep"/>
+                <button type="button" t-on-click="() => this.cmd('formatBlock','h2')" title="Heading">H2</button>
+                <button type="button" t-on-click="() => this.cmd('formatBlock','h3')" title="Subheading">H3</button>
+                <button type="button" t-on-click="() => this.cmd('formatBlock','p')" title="Paragraph">P</button>
+                <span class="eh_board_rte_sep"/>
+                <button type="button" t-on-click="() => this.cmd('insertUnorderedList')" title="Bulleted list">&#8226; List</button>
+                <button type="button" t-on-click="() => this.cmd('insertOrderedList')" title="Numbered list">1.</button>
+                <button type="button" t-on-click="link" title="Insert link"><i class="fa fa-link"/></button>
+                <span class="eh_board_rte_sep"/>
+                <button type="button" t-on-click="() => this.cmd('removeFormat')" title="Clear formatting"><i class="fa fa-eraser"/></button>
+            </div>
+            <div class="eh_board_rte_edit" t-ref="editable" contenteditable="true"
+                 t-on-input="sync" t-on-blur="sync"/>
+        </div>
+    </t>
+
+    <t t-name="eh_board.InsightsDialog">
+        <Dialog title="'Smart insights'" size="'md'">
+            <div t-if="state.loading" class="eh_board_gallery_loading">
+                <i class="fa fa-spinner fa-spin"/> Reading the board...
+            </div>
+            <div t-elif="!state.insights.length" class="eh_board_gallery_loading">
+                Add some data widgets to get insights.
+            </div>
+            <div t-else="" class="eh_board_insights">
+                <!-- AI narrative (optional, BYO-key) sits above the verified list -->
+                <div t-if="state.narrative" class="eh_board_ai_narrative">
+                    <div class="eh_board_ai_badge">
+                        <i class="fa fa-magic"/>
+                        <span>Narrative by your own <t t-esc="state.provider or 'AI'"/> key</span>
+                    </div>
+                    <p t-esc="state.narrative"/>
+                </div>
+                <div t-foreach="state.insights" t-as="ins" t-key="ins_index" class="eh_board_insight">
+                    <i class="fa fa-lightbulb-o"/>
+                    <div>
+                        <div class="eh_board_insight_title" t-esc="ins.title"/>
+                        <div class="eh_board_insight_text" t-esc="ins.text"/>
+                    </div>
+                </div>
+            </div>
+            <t t-set-slot="footer">
+                <button t-if="state.aiAvailable and !state.narrative" class="btn btn-primary"
+                        t-att-disabled="state.aiBusy" t-on-click="explainWithAi">
+                    <i t-att-class="state.aiBusy ? 'fa fa-spinner fa-spin' : 'fa fa-magic'"/>
+                    <t t-esc="state.aiBusy ? uiText(' Writing...') : uiText(' Explain with AI')"/>
+                </button>
+                <button class="btn btn-secondary" t-on-click="() => props.close()">Close</button>
+            </t>
+        </Dialog>
+    </t>
+
+    <!-- reusable people picker: chips for the chosen + a searchable add list.
+         The caller sets `pickKey` to the settings field it edits. -->
+    <t t-name="eh_board.UserPicker">
+        <div class="eh_board_userpick">
+            <div class="eh_board_chips" t-if="selectedUsers(pickKey).length">
+                <span t-foreach="selectedUsers(pickKey)" t-as="u" t-key="u.id" class="eh_board_userchip">
+                    <t t-esc="u.name"/>
+                    <button class="eh_board_userchip_x" t-if="state.canEdit"
+                            t-on-click="() => this.toggleUser(pickKey, u.id)" title="Remove">×</button>
+                </span>
+            </div>
+            <input type="text" class="form-control form-control-sm" t-att-value="state.search[pickKey]"
+                   t-on-input="(ev) => state.search[pickKey] = ev.target.value"
+                   placeholder="Search people to add..." t-att-disabled="!state.canEdit"/>
+            <div class="eh_board_userlist" t-if="state.canEdit">
+                <button t-foreach="filteredUsers(pickKey)" t-as="u" t-key="u.id"
+                        class="eh_board_useropt" t-on-click="() => this.toggleUser(pickKey, u.id)">
+                    <i class="fa fa-plus-circle"/> <t t-esc="u.name"/>
+                </button>
+                <div t-if="!filteredUsers(pickKey).length" class="eh_board_userempty">
+                    No more people to add.
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="eh_board.DashboardSettings">
+        <Dialog title="'Dashboard settings'" size="'lg'">
+            <div t-if="state.loading" class="eh_board_gallery_loading">
+                <i class="fa fa-spinner fa-spin"/> Loading settings...
+            </div>
+            <div t-else="" class="eh_board_settings">
+                <div t-if="!state.canEdit" class="eh_board_settings_note">
+                    <i class="fa fa-lock"/> You can view these settings but only the owner or a dashboard builder can change them.
+                </div>
+                <div class="eh_board_settings_grid">
+                    <div class="eh_board_field eh_board_span2">
+                        <label class="eh_board_flabel">Name</label>
+                        <input type="text" class="form-control form-control-sm" t-model="state.s.name"
+                               t-att-disabled="!state.canEdit"/>
+                        <span class="eh_board_help">The dashboard's title, shown in the header and the switcher.</span>
+                    </div>
+                    <div class="eh_board_field eh_board_span2">
+                        <label class="eh_board_flabel">Description</label>
+                        <textarea class="form-control form-control-sm eh_board_descbox" t-model="state.s.description"
+                                  t-att-disabled="!state.canEdit"
+                                  placeholder="What this dashboard is for."/>
+                    </div>
+                    <div class="eh_board_field eh_board_span2">
+                        <label class="eh_board_flabel">Dashboard family</label>
+                        <select class="form-select form-select-sm" t-model="state.s.parent_dashboard_id"
+                                t-att-disabled="!state.canEdit">
+                            <option value="">Top-level dashboard</option>
+                            <option t-foreach="state.s.boards or []" t-as="board" t-key="board.id"
+                                    t-att-value="board.id" t-esc="board.name"/>
+                        </select>
+                        <span class="eh_board_help">Choose a parent to create fast in-canvas tabs between summary and detail dashboards.</span>
+                    </div>
+
+                    <div class="eh_board_field eh_board_span2">
+                        <label class="eh_board_flabel">Colour palette</label>
+                        <div class="eh_board_palette_choices" role="group" aria-label="Chart colour palette">
+                            <button t-foreach="palettes" t-as="palette" t-key="palette.key"
+                                    type="button" class="eh_board_palette_choice"
+                                    t-att-class="{ o_selected: state.s.palette === palette.key }"
+                                    t-att-aria-pressed="state.s.palette === palette.key"
+                                    t-att-disabled="!state.canEdit"
+                                    t-on-click="() => this.selectPalette(palette.key)">
+                                <span class="eh_board_palette_name" t-esc="palette.label"/>
+                                <span class="eh_board_palette_tone">
+                                    <small>Light</small>
+                                    <span class="eh_board_palette_swatches" aria-hidden="true">
+                                        <i t-foreach="palette.light" t-as="color" t-key="color"
+                                           t-att-style="'background:' + color"/>
+                                    </span>
+                                </span>
+                                <span class="eh_board_palette_tone">
+                                    <small>Dark</small>
+                                    <span class="eh_board_palette_swatches" aria-hidden="true">
+                                        <i t-foreach="palette.dark" t-as="color" t-key="color"
+                                           t-att-style="'background:' + color"/>
+                                    </span>
+                                </span>
+                            </button>
+                        </div>
+                        <span class="eh_board_help">Preview both modes before choosing. Every mark stays visible against its light or dark chart surface.</span>
+                    </div>
+                    <div class="eh_board_field">
+                        <label class="eh_board_flabel">Density</label>
+                        <select class="form-select form-select-sm" t-model="state.s.density" t-att-disabled="!state.canEdit">
+                            <option value="comfortable">Comfortable</option>
+                            <option value="compact">Compact</option>
+                        </select>
+                        <span class="eh_board_help">Compact packs more widgets on screen; Comfortable gives them room.</span>
+                    </div>
+
+                    <div class="eh_board_field">
+                        <label class="eh_board_flabel">Opens with date range</label>
+                        <select class="form-select form-select-sm" t-model="state.s.default_date_preset" t-att-disabled="!state.canEdit">
+                            <option value="all">None</option>
+                            <option value="today">Today</option>
+                            <option value="yesterday">Yesterday</option>
+                            <option value="tomorrow">Tomorrow</option>
+                            <option value="this_week">This week</option>
+                            <option value="last_week">Last week</option>
+                            <option value="next_week">Next week</option>
+                            <option value="this_month">This month</option>
+                            <option value="last_month">Last month</option>
+                            <option value="next_month">Next month</option>
+                            <option value="this_quarter">This quarter</option>
+                            <option value="last_quarter">Last quarter</option>
+                            <option value="next_quarter">Next quarter</option>
+                            <option value="this_year">This year</option>
+                            <option value="last_year">Last year</option>
+                            <option value="next_year">Next year</option>
+                            <option value="wtd">Week to date</option>
+                            <option value="mtd">Month to date</option>
+                            <option value="qtd">Quarter to date</option>
+                            <option value="ytd">Year to date</option>
+                            <option value="last_7">Last 7 days</option>
+                            <option value="last_30">Last 30 days</option>
+                            <option value="last_90">Last 90 days</option>
+                            <option value="last_365">Last 365 days</option>
+                        </select>
+                        <span class="eh_board_help">The date filter the board starts on. This month means it always opens scoped to the current month.</span>
+                    </div>
+                    <div class="eh_board_field">
+                        <label class="eh_board_flabel">Auto refresh</label>
+                        <div class="eh_board_inline3">
+                            <select class="form-select form-select-sm" t-model="state.s.refresh_mode" t-att-disabled="!state.canEdit">
+                                <option value="off">Manual</option>
+                                <option value="interval">Every</option>
+                            </select>
+                            <input type="number" min="1" class="form-control form-control-sm eh_board_refnum"
+                                   t-if="state.s.refresh_mode === 'interval'" t-model="state.refreshValue"
+                                   t-att-disabled="!state.canEdit"/>
+                            <select class="form-select form-select-sm eh_board_refunit"
+                                    t-if="state.s.refresh_mode === 'interval'" t-model="state.refreshUnit"
+                                    t-att-disabled="!state.canEdit">
+                                <option value="seconds">seconds</option>
+                                <option value="minutes">minutes</option>
+                                <option value="hours">hours</option>
+                            </select>
+                        </div>
+                        <span class="eh_board_help">Re-query every widget on a timer. "Every 5 minutes" keeps a wall board live without a reload. Manual = refresh only when you reopen.</span>
+                    </div>
+
+                    <div class="eh_board_field eh_board_span2">
+                        <label class="eh_board_toggle">
+                            <input type="checkbox" t-model="state.s.published" t-att-disabled="!state.canEdit"/>
+                            Published (visible to the people below and to your groups)
+                        </label>
+                        <span class="eh_board_help">Off = a private draft only you see. On = shared per the list below and any assigned groups.</span>
+                    </div>
+                    <div class="eh_board_field eh_board_span2">
+                        <label class="eh_board_flabel">Share with people</label>
+                        <t t-set="pickKey" t-value="'shared_user_ids'"/>
+                        <t t-call="eh_board.UserPicker"/>
+                        <span class="eh_board_help">Type a name and click to add. These people can open this dashboard even while it is a draft.</span>
+                    </div>
+
+                    <div class="eh_board_field eh_board_span2">
+                        <label class="eh_board_toggle">
+                            <input type="checkbox" t-model="state.s.digest_enabled" t-att-disabled="!state.canEdit"/>
+                            Email a PDF digest on a schedule
+                        </label>
+                    </div>
+                    <div class="eh_board_field eh_board_span2" t-if="state.s.digest_enabled">
+                        <label class="eh_board_flabel">Digest schedule</label>
+                        <div class="eh_board_inline3 eh_board_digest_schedule">
+                            <select class="form-select form-select-sm" t-model="state.s.digest_frequency"
+                                    t-att-disabled="!state.canEdit" aria-label="Digest frequency">
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
+                            </select>
+                            <select class="form-select form-select-sm" t-if="state.s.digest_frequency === 'weekly'"
+                                    t-model="state.s.digest_weekday" t-att-disabled="!state.canEdit"
+                                    aria-label="Digest weekday">
+                                <option value="0">Monday</option>
+                                <option value="1">Tuesday</option>
+                                <option value="2">Wednesday</option>
+                                <option value="3">Thursday</option>
+                                <option value="4">Friday</option>
+                                <option value="5">Saturday</option>
+                                <option value="6">Sunday</option>
+                            </select>
+                            <input class="form-control form-control-sm" type="number" min="1" max="31"
+                                   t-if="state.s.digest_frequency === 'monthly'"
+                                   t-model="state.s.digest_month_day" t-att-disabled="!state.canEdit"
+                                   aria-label="Digest day of month" title="Day of month"/>
+                            <div class="eh_board_digest_hour">
+                                <span>at</span>
+                                <input class="form-control form-control-sm" type="number" min="0" max="23"
+                                       t-model="state.s.digest_hour" t-att-disabled="!state.canEdit"
+                                       aria-label="Digest hour" title="Hour in owner timezone"/>
+                                <span>:00</span>
+                            </div>
+                        </div>
+                        <span class="eh_board_help">Runs in dashboard owner's timezone. Day 29–31 falls back to month's final day.</span>
+                    </div>
+                    <div class="eh_board_field eh_board_span2" t-if="state.s.digest_enabled">
+                        <label class="eh_board_flabel">Digest recipients</label>
+                        <t t-set="pickKey" t-value="'digest_user_ids'"/>
+                        <t t-call="eh_board.UserPicker"/>
+                        <span class="eh_board_help">Who gets scheduled PDF. Empty list sends to dashboard owner.</span>
+                    </div>
+                </div>
+            </div>
+            <t t-set-slot="footer">
+                <button class="btn btn-primary" t-if="state.canEdit" t-att-disabled="state.saving" t-on-click="save">
+                    <i class="fa fa-check"/> Save settings</button>
+                <button class="btn btn-secondary" t-on-click="() => props.close()">Cancel</button>
+            </t>
+        </Dialog>
+    </t>
+
+    <t t-name="eh_board.TemplateGallery">
+        <Dialog title="'Start from a template'" size="'lg'">
+            <div t-if="state.loading" class="eh_board_gallery_loading">
+                <i class="fa fa-spinner fa-spin"/> Loading templates...
+            </div>
+            <div t-elif="!state.templates.length" class="eh_board_gallery_loading">
+                No templates yet. Build a board and use "Save template".
+            </div>
+            <div t-else="" class="eh_board_gallery">
+                <div t-foreach="state.templates" t-as="t" t-key="t.id"
+                     class="eh_board_tpl_card" t-att-class="{ o_unavailable: !t.available }">
+                    <div class="eh_board_tpl_cat" t-esc="categoryLabel(t.category)"/>
+                    <div class="eh_board_tpl_name" t-esc="t.name"/>
+                    <div class="eh_board_tpl_desc" t-esc="t.description"/>
+                    <button t-if="t.available" class="eh_board_btn o_primary eh_board_tpl_use"
+                            t-on-click="() => this.use(t)">
+                        <i class="fa fa-magic"/> Use this
+                    </button>
+                    <div t-else="" class="eh_board_tpl_locked">
+                        <i class="fa fa-lock"/> Needs the <b t-esc="t.required_module"/> app
+                    </div>
+                </div>
+            </div>
+            <t t-set-slot="footer">
+                <button class="btn btn-secondary" t-on-click="() => props.close()">Close</button>
+            </t>
+        </Dialog>
+    </t>
+
+    <t t-name="eh_board.LayoutHistoryDialog">
+        <Dialog title="'Layout history'" size="'md'">
+            <div class="eh_board_history">
+                <div t-if="state.loading" class="eh_board_gallery_loading">
+                    <i class="fa fa-spinner fa-spin"/> Loading versions...
+                </div>
+                <div t-elif="!state.versions.length" class="eh_board_gallery_loading">
+                    Finish an edit session to create first checkpoint.
+                </div>
+                <button t-else="" t-foreach="state.versions" t-as="version" t-key="version.id"
+                        class="eh_board_history_row" t-att-class="{ o_active: version.active }"
+                        t-att-disabled="!props.canEdit or version.active or state.restoring"
+                        t-on-click="() => this.restore(version)">
+                    <i t-att-class="version.active ? 'fa fa-check-circle' : 'fa fa-history'"/>
+                    <span class="eh_board_history_main">
+                        <b t-esc="version.active ? uiText('Current layout') : version.name"/>
+                        <small><t t-esc="version.created"/> · <t t-esc="version.widgets"/> widgets · <t t-esc="version.density"/></small>
+                    </span>
+                    <span t-if="props.canEdit and !version.active" class="eh_board_history_restore">Restore</span>
+                </button>
+            </div>
+            <t t-set-slot="footer">
+                <button class="btn btn-secondary" t-on-click="() => props.close()">Close</button>
+            </t>
+        </Dialog>
+    </t>
+
+</templates>

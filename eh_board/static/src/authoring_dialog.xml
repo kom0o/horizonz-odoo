@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="eh_board.AuthoringDialog">
+        <Dialog title="title" size="'xl'">
+            <div class="eh_board_authoring" t-att-aria-busy="state.busy ? 'true' : 'false'">
+                <p t-if="state.loading"><i class="fa fa-spinner fa-spin"/> Loading available metrics…</p>
+                <t t-else="">
+                    <p class="eh_board_authoring_intro">Describe a business question. Review defined metrics and real previews before adding widgets.</p>
+                    <div t-if="state.error" class="alert alert-danger" role="alert" t-esc="state.error"/>
+                    <div t-if="!state.options.available" class="alert alert-info">
+                        Dashboard AI needs an administrator's provider configuration. Business Packs and Smart Build remain available without AI.
+                    </div>
+                    <section class="eh_board_authoring_scope" aria-label="Choose data for AI">
+                        <h5>Choose data for this question</h5>
+                        <p class="small text-muted" t-esc="state.options.scope_notice"/>
+                        <div class="eh_board_authoring_scope_search">
+                            <input class="form-control form-control-sm" t-model="state.modelQuery" maxlength="80"
+                                   placeholder="Find an Odoo model" t-att-disabled="state.busy"/>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" t-on-click="searchModels"
+                                    t-att-disabled="state.busy">Search models</button>
+                        </div>
+                        <div class="eh_board_authoring_scope_pickers">
+                            <label>Odoo model
+                                <select class="form-select form-select-sm eh_board_authoring_model" t-att-disabled="state.busy || scopeCount >= 3"
+                                        t-on-change="(ev) => this.addScope('models', ev)">
+                                    <option value="">Add an Odoo model…</option>
+                                    <option t-foreach="state.options.model_choices || []" t-as="choice" t-key="choice.id" t-att-value="choice.id"
+                                            t-att-disabled="state.dataScope.models.includes(choice.id)" t-esc="choice.name"/>
+                                </select>
+                            </label>
+                            <label>Saved dashboard source
+                                <select class="form-select form-select-sm eh_board_authoring_source" t-att-disabled="state.busy || scopeCount >= 3"
+                                        t-on-change="(ev) => this.addScope('sources', ev)">
+                                    <option value="">Add a saved source…</option>
+                                    <option t-foreach="state.options.source_choices || []" t-as="choice" t-key="choice.id" t-att-value="choice.id"
+                                            t-att-disabled="state.dataScope.sources.includes(choice.id)" t-esc="choice.name"/>
+                                </select>
+                            </label>
+                        </div>
+                        <div class="eh_board_authoring_scope_selected">
+                            <button t-foreach="scopeSelections" t-as="choice" t-key="choice.key" type="button"
+                                    class="btn btn-sm btn-outline-secondary" t-att-disabled="state.busy"
+                                    t-on-click="() => this.changeScope(choice.kind, choice.id)">
+                                <span t-esc="choice.label"/> <i class="fa fa-times" aria-hidden="true"/><span class="visually-hidden">Remove</span>
+                            </button>
+                        </div>
+                        <p class="small text-muted">Changing the selected data starts a new proposal. Defined business metrics remain available.</p>
+                    </section>
+                    <p t-if="!metrics.length" class="alert alert-info">No business metrics match your installed apps and access rights. Use Smart Build for another readable model.</p>
+                    <details t-if="metrics.length" class="eh_board_authoring_catalogue">
+                        <summary>Available metrics</summary>
+                        <div class="eh_board_authoring_suggestions">
+                            <button t-foreach="metrics" t-as="metric" t-key="metric.id" type="button"
+                                    class="btn btn-sm btn-outline-secondary" t-att-disabled="state.busy"
+                                    t-on-click="() => this.metricPrompt(metric)" t-att-title="metric.description" t-esc="metric.title"/>
+                        </div>
+                    </details>
+                    <label for="eh_board_authoring_prompt" class="form-label fw-bold">
+                        <t t-if="state.plan">Refine this proposal</t><t t-else="">Your business question</t>
+                    </label>
+                    <textarea id="eh_board_authoring_prompt" class="form-control" rows="3" maxlength="2000"
+                              t-model="state.prompt" t-att-disabled="state.busy || !state.options.available"
+                              placeholder="For example: Show confirmed untaxed sales this quarter by salesperson."/>
+                    <div class="eh_board_authoring_prompt_actions">
+                        <button type="button" class="btn btn-primary" t-on-click="generate" t-att-disabled="!canGenerate">
+                            <i t-att-class="state.busy ? 'fa fa-spinner fa-spin' : 'fa fa-magic'"/>
+                            <t t-if="state.plan"> Refine proposal</t><t t-else=""> Create proposal</t>
+                        </button>
+                        <span class="text-muted small" t-esc="limitsText"/>
+                    </div>
+                    <p class="text-muted small" t-esc="state.options.notice"/>
+                    <t t-if="state.plan">
+                        <div t-if="state.plan.assumptions.length" class="alert alert-info">
+                            <strong>Assumptions to review</strong>
+                            <ul><li t-foreach="state.plan.assumptions" t-as="note" t-key="note_index" t-esc="note"/></ul>
+                        </div>
+                        <div t-if="state.plan.unavailable.length" class="alert alert-warning">
+                            <strong>Not included in this proposal</strong>
+                            <ul><li t-foreach="state.plan.unavailable" t-as="note" t-key="note_index" t-esc="note"/></ul>
+                        </div>
+                        <div class="eh_board_authoring_review_header">
+                            <h4>Review proposed widgets</h4>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" t-att-disabled="!state.historyCount || state.busy" t-on-click="undo">Undo proposal change</button>
+                        </div>
+                        <p class="text-muted small">Preview uses each metric's period and your current company. Dashboard filters may change these values after applying.</p>
+                        <div t-if="state.stale" class="alert alert-info">
+                            Options changed. Refresh the preview before applying.
+                            <button type="button" class="btn btn-sm btn-primary ms-2" t-att-disabled="state.busy" t-on-click="refreshPreview">Refresh preview</button>
+                        </div>
+                        <div class="eh_board_authoring_cards">
+                            <article t-foreach="state.previews" t-as="preview" t-key="preview.id" class="eh_board_authoring_card">
+                                <t t-set="proposal" t-value="this.row(preview.id)"/>
+                                <label class="eh_board_authoring_select">
+                                    <input type="checkbox" t-att-checked="state.selected.includes(preview.id)" t-att-disabled="state.busy || preview.error"
+                                           t-on-change="() => this.toggleSelected(preview.id)"/>
+                                    <strong t-esc="preview.metric_title"/>
+                                </label>
+                                <label class="form-label small" t-att-for="'eh_author_title_' + preview.id">Widget title</label>
+                                <input class="form-control form-control-sm" t-att-id="'eh_author_title_' + preview.id" maxlength="120"
+                                       t-att-value="proposal.title" t-att-disabled="state.busy"
+                                       t-on-change="(ev) => this.changeRow(preview.id, 'title', ev.target.value)"/>
+                                <div class="eh_board_authoring_options">
+                                    <label>Chart
+                                        <select class="form-select form-select-sm" t-att-value="proposal.item_type" t-att-disabled="state.busy"
+                                                t-on-change="(ev) => this.changeRow(preview.id, 'item_type', ev.target.value)">
+                                            <option t-foreach="this.metric(proposal).allowed_charts || []" t-as="chart" t-key="chart" t-att-value="chart" t-att-selected="chart === proposal.item_type" t-esc="chartLabels[chart]"/>
+                                        </select>
+                                    </label>
+                                    <label t-if="!['tile', 'kpi'].includes(proposal.item_type) &amp;&amp; !this.metric(proposal).fixed_grouping">Breakdown
+                                        <select class="form-select form-select-sm" t-att-value="proposal.dimension" t-att-disabled="state.busy"
+                                                t-on-change="(ev) => this.changeRow(preview.id, 'dimension', ev.target.value)">
+                                            <option t-foreach="this.metric(proposal).allowed_dimensions || []" t-as="dimension" t-key="dimension.field" t-att-value="dimension.field" t-att-selected="dimension.field === proposal.dimension" t-esc="dimension.label"/>
+                                        </select>
+                                    </label>
+                                    <label t-if="(this.metric(proposal).allowed_date_fields || []).length">Date basis
+                                        <select class="form-select form-select-sm" t-att-value="proposal.date_field" t-att-disabled="state.busy"
+                                                t-on-change="(ev) => this.changeRow(preview.id, 'date_field', ev.target.value)">
+                                            <option t-foreach="this.metric(proposal).allowed_date_fields" t-as="dateField" t-key="dateField.field"
+                                                    t-att-value="dateField.field" t-att-selected="dateField.field === proposal.date_field" t-esc="dateField.label"/>
+                                        </select>
+                                    </label>
+                                    <label>Period
+                                        <select class="form-select form-select-sm" t-att-value="proposal.date_preset" t-att-disabled="state.busy"
+                                                t-on-change="(ev) => this.changeRow(preview.id, 'date_preset', ev.target.value)">
+                                            <option t-foreach="this.metric(proposal).allowed_date_presets || []" t-as="period" t-key="period" t-att-value="period" t-att-selected="period === proposal.date_preset" t-esc="periodLabels[period] || period"/>
+                                        </select>
+                                    </label>
+                                </div>
+                                <p class="eh_board_authoring_definition" t-esc="preview.definition"/>
+                                <ul class="small text-muted" t-if="preview.assumptions.length">
+                                    <li t-foreach="preview.assumptions" t-as="note" t-key="note_index" t-esc="note"/>
+                                </ul>
+                                <p t-if="preview.error" class="alert alert-warning" t-esc="preview.error"/>
+                                <div t-elif="preview.meta &amp;&amp; preview.payload" class="eh_board_authoring_preview" t-att-class="{ 'eh_board_authoring_preview_stale': state.stale }">
+                                    <BoardItem meta="preview.meta" payload="preview.payload" editMode="false"/>
+                                </div>
+                            </article>
+                        </div>
+                        <div t-if="state.options.can_replace &amp;&amp; state.options.existing_items.length" class="eh_board_authoring_replace">
+                            <label><input type="checkbox" t-model="state.replace" t-att-disabled="state.busy"/> Replace selected existing draft widgets</label>
+                            <t t-if="state.replace">
+                                <p class="small">Only checked existing widgets will be removed when the new widgets are applied successfully. Filters remain unchanged.</p>
+                                <label t-foreach="state.options.existing_items" t-as="existing" t-key="existing.id" class="eh_board_authoring_existing">
+                                    <input type="checkbox" t-att-checked="state.replacementIds.includes(existing.id)" t-att-disabled="state.busy"
+                                           t-on-change="() => this.toggleReplacement(existing.id)"/>
+                                    <span t-esc="existing.title"/>
+                                </label>
+                            </t>
+                        </div>
+                    </t>
+                </t>
+            </div>
+            <t t-set-slot="footer">
+                <button type="button" class="btn btn-primary" t-att-disabled="!canApply" t-on-click="apply" t-esc="applyLabel"/>
+                <button type="button" class="btn btn-secondary" t-att-disabled="state.busy" t-on-click="() => props.close()">Cancel</button>
+            </t>
+        </Dialog>
+    </t>
+</templates>

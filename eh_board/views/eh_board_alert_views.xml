@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_eh_board_alert_list" model="ir.ui.view">
+        <field name="name">eh.board.alert.list</field>
+        <field name="model">eh.board.alert</field>
+        <field name="arch" type="xml">
+            <list string="Alerts">
+                <field name="name"/>
+                <field name="dashboard_id"/>
+                <field name="item_id"/>
+                <field name="operator"/>
+                <field name="threshold"/>
+                <field name="state"/>
+                <field name="last_value"/>
+                <field name="last_triggered_on"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_eh_board_alert_form" model="ir.ui.view">
+        <field name="name">eh.board.alert.form</field>
+        <field name="model">eh.board.alert</field>
+        <field name="arch" type="xml">
+            <form string="Alert">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="dashboard_id"/>
+                            <field name="item_id"/>
+                            <field name="user_id"/>
+                        </group>
+                        <group>
+                            <field name="operator"/>
+                            <field name="threshold"/>
+                            <field name="state"/>
+                            <field name="last_value"/>
+                            <field name="last_triggered_on"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_eh_board_alert" model="ir.actions.act_window">
+        <field name="name">Alerts</field>
+        <field name="res_model">eh.board.alert</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_eh_board_alerts"
+              name="Alerts"
+              parent="menu_eh_board_config"
+              action="action_eh_board_alert"
+              sequence="20"/>
+
+</odoo>

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Native Settings integration. This inherited view contributes one app
+         section but can never replace Odoo's base Settings form. -->
+    <record id="view_eh_board_settings" model="ir.ui.view">
+        <field name="name">eh.board.settings.inherit</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority">30</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Dashboard Builder" string="Dashboard Builder"
+                     name="eh_board" logo="/eh_board/static/description/icon.png"
+                     groups="eh_board.group_board_admin">
+                    <block title="Dashboard AI (bring your own key)"
+                           name="eh_board_ai_settings">
+                        <setting string="AI provider"
+                                 help="Off by default. Uses your endpoint and vaulted credential; no vendor proxy.">
+                            <field name="eh_board_ai_provider"/>
+                        </setting>
+                        <setting string="Model and endpoint"
+                                 help="Choose the provider model and optional compatible base URL."
+                                 invisible="eh_board_ai_provider == 'off'">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="eh_board_ai_model" class="col-lg-3 o_light_label"/>
+                                    <field name="eh_board_ai_model" class="oe_inline"/>
+                                </div>
+                                <div class="row mt16">
+                                    <label for="eh_board_ai_base_url" class="col-lg-3 o_light_label"/>
+                                    <field name="eh_board_ai_base_url" class="oe_inline"
+                                           placeholder="https://api.openai.com"/>
+                                </div>
+                            </div>
+                        </setting>
+                        <setting string="Credential and response limit"
+                                 help="Credential names resolve through Dashboard Configuration; secrets never enter Settings."
+                                 invisible="eh_board_ai_provider == 'off'">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="eh_board_ai_credential" class="col-lg-3 o_light_label"/>
+                                    <field name="eh_board_ai_credential" class="oe_inline"/>
+                                </div>
+                                <div class="row mt16">
+                                    <label for="eh_board_ai_word_cap" class="col-lg-3 o_light_label"/>
+                                    <field name="eh_board_ai_word_cap" class="oe_inline"/>
+                                </div>
+                                <div class="row mt16">
+                                    <label for="eh_board_ai_authoring_daily_requests" class="col-lg-3 o_light_label"/>
+                                    <field name="eh_board_ai_authoring_daily_requests" class="oe_inline"/>
+                                </div>
+                                <div class="row mt16">
+                                    <label for="eh_board_ai_authoring_max_tokens" class="col-lg-3 o_light_label"/>
+                                    <field name="eh_board_ai_authoring_max_tokens" class="oe_inline"/>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Dedicated Configuration menu remains available and uses an explicit
+         standalone view. High priority keeps it out of default-view lookup. -->
+    <record id="view_eh_board_ai_settings_form" model="ir.ui.view">
+        <field name="name">eh.board.ai.settings.form</field>
+        <field name="model">res.config.settings</field>
+        <!-- Keep this standalone form out of global default-view resolution.
+             General Settings must resolve to Odoo's base settings form; this
+             view remains reachable through its explicit action below. -->
+        <field name="priority">500</field>
+        <field name="arch" type="xml">
+            <form string="Dashboard AI">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Dashboard AI (bring your own key)</h1>
+                        <p>
+                            Optional. Off by default. When configured, the
+                            dashboard's insights can be rewritten into an
+                            executive narrative by <b>your own</b> LLM endpoint,
+                            authenticated with a key held in the credential
+                            vault. Narration sends computed facts. Dashboard
+                            creation sends your prompt and permitted metric definitions.
+                            Neither feature sends raw records, credentials, or SQL.
+                        </p>
+                    </div>
+                    <group>
+                        <field name="eh_board_ai_provider"/>
+                        <field name="eh_board_ai_model"
+                               invisible="eh_board_ai_provider == 'off'"/>
+                        <field name="eh_board_ai_base_url"
+                               invisible="eh_board_ai_provider == 'off'"
+                               placeholder="https://api.openai.com"/>
+                        <field name="eh_board_ai_credential"
+                               invisible="eh_board_ai_provider == 'off'"/>
+                        <field name="eh_board_ai_word_cap"
+                               invisible="eh_board_ai_provider == 'off'"/>
+                        <field name="eh_board_ai_authoring_daily_requests"
+                               invisible="eh_board_ai_provider == 'off'"/>
+                        <field name="eh_board_ai_authoring_max_tokens"
+                               invisible="eh_board_ai_provider == 'off'"/>
+                    </group>
+                    <footer>
+                        <button string="Apply" type="object" name="execute"
+                                class="btn-primary"/>
+                        <button string="Cancel" special="cancel" class="btn-secondary"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_eh_board_ai_settings" model="ir.actions.act_window">
+        <field name="name">Dashboard AI</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="view_eh_board_ai_settings_form"/>
+        <field name="context">{'module': 'eh_board'}</field>
+    </record>
+
+    <menuitem id="menu_eh_board_ai_settings"
+              name="AI Settings"
+              parent="menu_eh_board_config"
+              action="action_eh_board_ai_settings"
+              groups="eh_board.group_board_admin"
+              sequence="40"/>
+
+</odoo>

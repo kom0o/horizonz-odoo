@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="eh_board.BusinessGallery" owl="1">
+        <Dialog title="'Choose a business dashboard'" size="'xl'">
+            <div class="eh_business_gallery">
+                <p class="eh_business_intro">Start with a business question. Preview your accessible data, check how each number is calculated, then create a private draft.</p>
+                <div t-if="state.loading" role="status"><i class="fa fa-spinner fa-spin"/> Loading dashboards...</div>
+                <div t-if="state.error" class="alert alert-danger" role="alert" t-esc="state.error"/>
+                <div t-if="!state.loading" class="eh_business_packs">
+                    <article t-foreach="state.packs" t-as="pack" t-key="pack.id" class="eh_business_pack"
+                             t-att-class="{ 'o_selected': state.selected &amp;&amp; state.selected.id === pack.id, 'o_unavailable': !pack.available }">
+                        <span class="eh_business_category" t-esc="categoryLabel(pack.category)"/>
+                        <h3 t-esc="pack.name"/>
+                        <p t-esc="pack.description"/>
+                        <p class="eh_business_scope"><strong t-esc="pack.company"/> · <span t-esc="pack.currency"/></p>
+                        <button t-if="pack.available" type="button" class="btn btn-primary" t-att-disabled="state.creating"
+                                t-on-click="(ev) => this.selectPack(pack, ev)">Preview my data</button>
+                        <p t-else="" class="eh_business_unavailable"><i class="fa fa-lock"/> <span t-esc="pack.unavailable_reason"/> <strong t-esc="pack.required_module"/></p>
+                    </article>
+                </div>
+                <section t-if="state.selected" class="eh_business_preview" aria-label="Business dashboard preview">
+                    <div class="eh_business_preview_heading">
+                        <h3 t-esc="state.selected.name"/>
+                        <button type="button" class="btn btn-primary" t-att-disabled="state.previewing || !state.preview || state.creating"
+                                t-on-click="createPack"><i t-if="state.creating" class="fa fa-spinner fa-spin"/> Create private draft</button>
+                    </div>
+                    <p t-esc="state.selected.description"/>
+                    <div t-if="state.previewing" role="status"><i class="fa fa-spinner fa-spin"/> Loading your current data...</div>
+                    <t t-if="state.preview">
+                        <p class="eh_business_scope">Preview uses your access rights. No records are saved until you create the draft.</p>
+                        <div class="eh_business_preview_items">
+                            <article t-foreach="state.preview.items" t-as="entry" t-key="entry.meta.id" class="eh_business_preview_item">
+                                <div class="eh_business_preview_chart"><BoardItem meta="entry.meta" payload="entry.payload" onDrill.bind="noop"/></div>
+                                <details class="eh_business_definition"><summary>How calculated</summary><p t-esc="entry.meta.description"/></details>
+                            </article>
+                        </div>
+                    </t>
+                </section>
+                <details t-if="state.templates.length" class="eh_business_other_templates" open="open">
+                    <summary>Saved templates and more starters</summary>
+                    <div class="eh_board_gallery">
+                        <article t-foreach="state.templates" t-as="t" t-key="t.id" class="eh_board_tpl_card" t-att-class="{ o_unavailable: !t.available }">
+                            <div class="eh_board_tpl_cat" t-esc="categoryLabel(t.category)"/>
+                            <div class="eh_board_tpl_name" t-esc="t.name"/>
+                            <div class="eh_board_tpl_desc" t-esc="t.description"/>
+                            <button t-if="t.available" class="eh_board_btn o_primary eh_board_tpl_use" t-att-disabled="state.creating" t-on-click="() => this.use(t)"><i class="fa fa-magic"/> Use this</button>
+                            <div t-else="" class="eh_board_tpl_locked"><i class="fa fa-lock"/> Needs the <b t-esc="t.required_module"/> app</div>
+                        </article>
+                    </div>
+                </details>
+            </div>
+            <t t-set-slot="footer"><button class="btn btn-secondary" t-att-disabled="state.creating" t-on-click="() => props.close()">Close</button></t>
+        </Dialog>
+    </t>
+</templates>

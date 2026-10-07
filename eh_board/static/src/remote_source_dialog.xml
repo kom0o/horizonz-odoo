@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="eh_board.RemoteSourceDialog">
+        <Dialog title="title" size="'lg'">
+            <div class="eh-remote-source">
+                <p class="alert alert-info">Remote data uses a shared snapshot. Everyone allowed to view this dashboard can see its connected remote data; Odoo model record rules do not filter these rows.</p>
+                <div class="alert alert-danger" role="alert" t-if="state.error"><t t-esc="state.error"/></div>
+                <div class="eh-remote-fields">
+                    <label>Source type<select class="form-select" t-att-disabled="!!sourceId" t-on-change="setProvider"><option value="rest" t-att-selected="state.provider === 'rest'">REST / JSON</option><option value="sheets" t-att-selected="state.provider === 'sheets'">Google Sheets</option></select></label>
+                    <label>Name<input class="form-control" t-model="state.name" maxlength="120" placeholder="Weekly sales plan"/></label>
+                </div>
+                <t t-if="state.provider === 'sheets'">
+                    <div class="eh-remote-fields">
+                        <label>Spreadsheet ID<input class="form-control" t-model="state.sheets_id" placeholder="ID between /d/ and /edit in the Sheets URL"/></label>
+                        <label>Finite range, including headers<input class="form-control" t-model="state.sheets_range" placeholder="Sheet1!A1:F1001"/></label>
+                    </div>
+                    <p class="text-muted">Use a fixed range with a header row, up to 10,000 data rows and 60 columns. Dates must have a consistent sheet format. Data outside the selected range is not included.</p>
+                </t>
+                <t t-else="">
+                    <div class="eh-remote-fields">
+                        <label>Public HTTPS endpoint<input class="form-control" t-model="state.remote_url" placeholder="https://api.example.com/orders"/></label>
+                        <label>Rows JSON pointer<input class="form-control" t-model="state.remote_path" placeholder="/data/items, or blank for a root array"/></label>
+                    </div>
+                    <p class="text-muted">GET only, public HTTPS on port 443. Private addresses and redirects are blocked. Keep secrets out of URLs. JSON rows must be flat objects.</p>
+                </t>
+                <div class="eh-remote-fields">
+                    <label>Authentication<select class="form-select" t-key="state.provider" t-model="state.remote_auth">
+                        <option value="none" t-if="state.provider === 'rest'">No authentication</option>
+                        <option value="service_account" t-if="state.provider === 'sheets'">Google service account JSON</option>
+                        <option value="bearer">OAuth bearer token</option>
+                        <option value="basic" t-if="state.provider === 'rest'">Username and password</option>
+                        <option value="header" t-if="state.provider === 'rest'">API key header</option>
+                    </select></label>
+                    <label t-if="state.remote_auth === 'bearer'">Token expiry in UTC<input type="datetime-local" class="form-control" t-model="state.remote_token_expires"/></label>
+                    <label t-if="state.remote_auth === 'header'">API key header<input class="form-control" t-model="state.remote_header_name" placeholder="X-API-Key"/></label>
+                    <label t-if="state.remote_auth === 'basic'">Username<input class="form-control" t-model="state.username" autocomplete="off"/></label>
+                </div>
+                <div t-if="state.remote_auth === 'service_account'">
+                    <p>Enable the Google Sheets API for your project. Install google-auth on the Odoo server. Share this spreadsheet with the service account's client_email as Viewer, then upload its JSON key. The connector requests read-only Sheets access; domain-wide delegation is not used.</p>
+                    <label>Service-account JSON key<input class="form-control" type="file" accept=".json,application/json" t-on-change="onKeyFile"/></label>
+                    <p class="text-muted" t-if="state.secret">New key selected. It will be stored server-side when saved.</p>
+                </div>
+                <label t-elif="state.remote_auth !== 'none'">Secret<input class="form-control" type="password" t-model="state.secret" autocomplete="new-password" placeholder="Leave blank to keep the stored credential"/></label>
+                <p class="text-muted" t-if="state.has_secret">A credential is stored. Its value is never returned to this dialog. Entering a new secret replaces this connection's credential.</p>
+                <p class="text-muted" t-if="state.remote_auth === 'bearer'">Bearer tokens need manual replacement when they expire. Use a Google service account for unattended private Sheets refresh.</p>
+                <div t-if="state.provider === 'rest'" class="eh-remote-fields">
+                    <label>Pagination<select class="form-select" t-model="state.remote_pagination"><option value="none">Single response</option><option value="page">Numbered pages, starting at 1</option></select></label>
+                    <t t-if="state.remote_pagination === 'page'">
+                        <label>Page parameter<input class="form-control" t-model="state.remote_page_param"/></label>
+                        <label>Page size parameter<input class="form-control" t-model="state.remote_size_param"/></label>
+                        <label>Rows per page<input class="form-control" type="number" min="1" max="1000" t-model.number="state.remote_page_size"/></label>
+                        <label>Maximum pages<input class="form-control" type="number" min="1" max="10" t-model.number="state.remote_max_pages"/></label>
+                    </t>
+                </div>
+                <p class="text-muted" t-if="state.provider === 'rest'">Refresh stops on a short or empty page. Reaching the page cap rejects the refresh to prevent partial totals. Overall limits: 8 MB and 10,000 rows.</p>
+                <div class="eh-remote-fields">
+                    <label>Refresh interval in minutes<input class="form-control" type="number" min="5" max="10080" t-model.number="state.remote_refresh_minutes"/></label>
+                    <label class="eh-remote-check"><input type="checkbox" t-model="state.remote_enabled"/> Refresh on schedule</label>
+                </div>
+                <label class="eh-remote-check"><input type="checkbox" t-model="state.remote_audience_ack"/> I confirm this source is suitable for everyone who can view this dashboard.</label>
+                <div class="eh-remote-status" t-if="state.status">
+                    <p><strong>Last successful refresh: </strong><t t-esc="state.status.last_success || '—'"/></p>
+                    <p><strong>Rows in snapshot: </strong><t t-esc="state.status.rows"/></p>
+                    <p>Failed refreshes retain the last valid snapshot. Removed or incompatible columns require a corrected upstream schema or a new source.</p>
+                </div>
+            </div>
+            <t t-set-slot="footer">
+                <button class="btn btn-primary" t-on-click="save" t-att-disabled="!canSave || state.saving"><t t-if="state.saving">Refreshing…</t><t t-else="">Save and refresh</t></button>
+                <button class="btn btn-secondary" t-on-click="props.close" t-att-disabled="state.saving">Close</button>
+            </t>
+        </Dialog>
+    </t>
+</templates>

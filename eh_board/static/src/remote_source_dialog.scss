@@ -1,0 +1,10 @@
+.eh-remote-source {
+    display: grid;
+    gap: 1rem;
+    label { display: grid; gap: .35rem; font-weight: 500; }
+    p { margin-bottom: 0; }
+    .eh-remote-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+    .eh-remote-check { display: flex; align-items: center; gap: .6rem; font-weight: 400; }
+    .eh-remote-status { padding: 1rem; background: var(--bs-tertiary-bg, #f4f5f7); border-radius: .5rem; }
+    @media (max-width: 600px) { .eh-remote-fields { grid-template-columns: 1fr; } }
+}

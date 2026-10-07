@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_eh_board_open" model="ir.actions.client">
+        <field name="name">Dashboards</field>
+        <field name="tag">eh_board.board</field>
+        <field name="params" eval="{}"/>
+    </record>
+
+    <!-- The app root carries the board action directly, so clicking the app
+         opens the board (a root menu with no action renders blank). -->
+    <menuitem id="menu_eh_board_root"
+              name="Dashboards"
+              web_icon="eh_board,static/description/icon.png"
+              action="action_eh_board_open"
+              sequence="15"
+              groups="group_board_viewer"/>
+
+    <menuitem id="menu_eh_board_open"
+              name="Board"
+              parent="menu_eh_board_root"
+              action="action_eh_board_open"
+              sequence="5"/>
+
+    <menuitem id="menu_eh_board_dashboards"
+              name="Manage Dashboards"
+              parent="menu_eh_board_root"
+              action="action_eh_board_dashboard"
+              sequence="10"/>
+
+    <menuitem id="menu_eh_board_config"
+              name="Configuration"
+              parent="menu_eh_board_root"
+              sequence="90"
+              groups="group_board_builder"/>
+
+    <menuitem id="menu_eh_board_datasources"
+              name="Data Sources"
+              parent="menu_eh_board_config"
+              action="action_eh_board_datasource"
+              sequence="10"/>
+
+</odoo>

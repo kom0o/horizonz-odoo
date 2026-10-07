@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <record id="cron_refresh_remote" model="ir.cron">
+        <field name="name">Dashboard: refresh remote snapshots</field>
+        <field name="model_id" ref="model_eh_board_datasource"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_refresh_remote()</field>
+        <field name="interval_number">5</field>
+        <field name="interval_type">minutes</field>
+        <field name="user_id" ref="base.user_root"/>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="cron_capture_snapshots" model="ir.cron">
+        <field name="name">Dashboard: capture snapshots</field>
+        <field name="model_id" ref="model_eh_board_snapshot"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_capture_snapshots()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="cron_evaluate_alerts" model="ir.cron">
+        <field name="name">Dashboard: evaluate alerts</field>
+        <field name="model_id" ref="model_eh_board_alert"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_evaluate_alerts()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">hours</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="cron_send_digests" model="ir.cron">
+        <field name="name">Dashboard: send email digests</field>
+        <field name="model_id" ref="model_eh_board_dashboard"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_send_digests()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">hours</field>
+        <!-- Hourly dispatcher; each board's frequency, local hour and last-sent
+             marker decide whether anything is mailed. Fresh installs send none. -->
+        <field name="active" eval="True"/>
+    </record>
+
+</odoo>

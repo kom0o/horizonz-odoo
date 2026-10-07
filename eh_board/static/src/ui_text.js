@@ -1,0 +1,71 @@
+/** @odoo-module **/
+/* Dynamic template labels use literal translation calls for Odoo extraction.
+ * Resolve lazily, after the current user's language bundle has loaded. */
+import { _t } from "@web/core/l10n/translation";
+import { sprintf } from "@web/core/utils/strings";
+
+const LABELS = {
+    "Record %s": () => _t("Record %s"),
+    " Build dashboard": () => _t(" Build dashboard"),
+    " Building dashboard...": () => _t(" Building dashboard..."),
+    " Explain with AI": () => _t(" Explain with AI"),
+    " Writing...": () => _t(" Writing..."),
+    "%s of %s": () => _t("%s of %s"),
+    "Add to favorites": () => _t("Add to favorites"),
+    "Add widget": () => _t("Add widget"),
+    "Category %s": () => _t("Category %s"),
+    "Chart options": () => _t("Chart options"),
+    "Choose CSV or Excel file": () => _t("Choose CSV or Excel file"),
+    "Close": () => _t("Close"),
+    "Columns": () => _t("Columns"),
+    "Connect source": () => _t("Connect source"),
+    "Current layout": () => _t("Current layout"),
+    "Dashboard: %s": () => _t("Dashboard: %s"),
+    "Data for %s": () => _t("Data for %s"),
+    "Edit domain": () => _t("Edit domain"),
+    "Edit layout": () => _t("Edit layout"),
+    "Exit fullscreen": () => _t("Exit fullscreen"),
+    "Field displayed down the left side of the pivot.": () => _t("Field displayed down the left side of the pivot."),
+    "Field whose values become bars, slices, or rows. Group by Country gives one row per country.": () => _t("Field whose values become bars, slices, or rows. Group by Country gives one row per country."),
+    "Fields to display": () => _t("Fields to display"),
+    "Finish editing": () => _t("Finish editing"),
+    "Fullscreen": () => _t("Fullscreen"),
+    "Group by": () => _t("Group by"),
+    "Hide": () => _t("Hide"),
+    "Hide %s": () => _t("Hide %s"),
+    "Level %s": () => _t("Level %s"),
+    "Map": () => _t("Map"),
+    "Max groups shown. 0 shows all; 5 keeps the top 5 (bucket the rest as Others in Advanced).": () => _t("Max groups shown. 0 shows all; 5 keeps the top 5 (bucket the rest as Others in Advanced)."),
+    "Measure %s": () => _t("Measure %s"),
+    "Open matching records": () => _t("Open matching records"),
+    "Optional field displayed across the top of the pivot.": () => _t("Optional field displayed across the top of the pivot."),
+    "Pause (Space)": () => _t("Pause (Space)"),
+    "Pick fields": () => _t("Pick fields"),
+    "Pivot fields to display": () => _t("Pivot fields to display"),
+    "Play (Space)": () => _t("Play (Space)"),
+    "Polar area chart": () => _t("Polar area chart"),
+    "Radial bar chart": () => _t("Radial bar chart"),
+    "Remove %s": () => _t("Remove %s"),
+    "Remove filter %s": () => _t("Remove filter %s"),
+    "Remove from favorites": () => _t("Remove from favorites"),
+    "Rose chart": () => _t("Rose chart"),
+    "Rows": () => _t("Rows"),
+    "Rows / Columns": () => _t("Rows / Columns"),
+    "Rows shown on the card (1 to 500; default 50).": () => _t("Rows shown on the card (1 to 500; default 50)."),
+    "Rows shown on the card (1–500; default 50).": () => _t("Rows shown on the card (1–500; default 50)."),
+    "Save changes": () => _t("Save changes"),
+    "Series %s label (optional)": () => _t("Series %s label (optional)"),
+    "Show %s": () => _t("Show %s"),
+    "Slide %s": () => _t("Slide %s"),
+    "Splits each group into a second series. Country plus Stage stacks every country bar by stage.": () => _t("Splits each group into a second series. Country plus Stage stacks every country bar by stage."),
+    "Sub group by": () => _t("Sub group by"),
+    "armed": () => _t("armed"),
+    "chart": () => _t("chart"),
+    "paused": () => _t("paused"),
+    "triggered": () => _t("triggered"),
+};
+
+export function uiText(source, ...values) {
+    const text = Object.hasOwn(LABELS, source) ? LABELS[source]() : source;
+    return values.length ? sprintf(text, ...values) : text;
+}

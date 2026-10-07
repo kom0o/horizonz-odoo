@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_eh_board_dashboard" model="ir.actions.report">
+        <field name="name">Dashboard PDF</field>
+        <field name="model">eh.board.dashboard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">eh_board.report_eh_board_dashboard</field>
+        <field name="report_file">eh_board.report_eh_board_dashboard</field>
+        <field name="binding_model_id" ref="model_eh_board_dashboard"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

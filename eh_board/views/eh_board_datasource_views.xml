@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_eh_board_datasource_list" model="ir.ui.view">
+        <field name="name">eh.board.datasource.list</field>
+        <field name="model">eh.board.datasource</field>
+        <field name="arch" type="xml">
+            <list string="Data Sources">
+                <field name="name"/>
+                <field name="provider_type"/>
+                <field name="model_id"/>
+                <field name="dashboard_id" optional="hide"/>
+                <field name="domain"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_eh_board_datasource_form" model="ir.ui.view">
+        <field name="name">eh.board.datasource.form</field>
+        <field name="model">eh.board.datasource</field>
+        <field name="arch" type="xml">
+            <form string="Data Source">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="provider_type"/>
+                            <field name="dashboard_id" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="model_id"
+                                   invisible="provider_type != 'orm'"
+                                   required="provider_type == 'orm'"
+                                   options="{'no_create': True, 'no_create_edit': True}"/>
+                        </group>
+                        <group>
+                            <field name="domain" widget="domain"
+                                   options="{'model': 'model_name'}"
+                                   invisible="not model_name"/>
+                            <field name="model_name" invisible="1"/>
+                        </group>
+                    </group>
+                    <group string="Safe SQL (read-only)" invisible="provider_type != 'sql'">
+                        <field name="sql_query" placeholder="SELECT name AS label, count(*) AS n FROM res_partner GROUP BY name"
+                               required="provider_type == 'sql'"/>
+                    </group>
+                    <group string="Join two models" invisible="provider_type != 'join'"
+                           col="4">
+                        <field name="join_left_model_id" required="provider_type == 'join'" options="{'no_create': True, 'no_create_edit': True}"/>
+                        <field name="join_left_key"/>
+                        <field name="join_left_agg"/>
+                        <field name="join_left_value"/>
+                        <field name="join_left_label"/>
+                        <field name="join_right_model_id" required="provider_type == 'join'" options="{'no_create': True, 'no_create_edit': True}"/>
+                        <field name="join_right_key"/>
+                        <field name="join_right_agg"/>
+                        <field name="join_right_value"/>
+                        <field name="join_right_label"/>
+                    </group>
+                    <group string="File (CSV / Excel)" invisible="provider_type != 'file'">
+                        <group>
+                            <field name="file_data" filename="file_name"
+                                   required="provider_type == 'file'"/>
+                            <field name="file_name"/>
+                            <field name="file_kind"/>
+                        </group>
+                        <group>
+                            <button name="action_parse_file" type="object"
+                                    string="Parse file" class="btn-primary" icon="fa-refresh"/>
+                            <field name="row_count" readonly="1"/>
+                            <field name="truncated" readonly="1"
+                                   invisible="not truncated"/>
+                        </group>
+                    </group>
+                    <notebook invisible="provider_type in ('join', 'sql')">
+                        <page string="Columns" name="columns"
+                              invisible="provider_type != 'file'">
+                            <field name="column_ids" readonly="1">
+                                <list>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="label"/>
+                                    <field name="name"/>
+                                    <field name="dtype"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Measures" name="measures">
+                            <field name="measure_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="model_id" column_invisible="1"/>
+                                    <field name="datasource_id" column_invisible="1"/>
+                                    <field name="field_id"
+                                           column_invisible="parent.provider_type == 'file'"/>
+                                    <field name="column_id"
+                                           column_invisible="parent.provider_type != 'file'"/>
+                                    <field name="aggregate"/>
+                                    <field name="table_calculation"/>
+                                    <field name="formula"/>
+                                    <field name="number_format"/>
+                                    <field name="unit"/>
+                                    <field name="multiplier"/>
+                                    <field name="target_value"/>
+                                    <field name="compare_mode" optional="show"/>
+                                    <field name="target_schedule" optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_eh_board_datasource" model="ir.actions.act_window">
+        <field name="name">Data Sources</field>
+        <field name="res_model">eh.board.datasource</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

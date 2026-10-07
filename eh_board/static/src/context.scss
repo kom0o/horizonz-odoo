@@ -1,0 +1,11 @@
+.eh_board_metric_definition {
+    padding: 12px;
+    margin-bottom: 8px;
+    border: 1px solid var(--eh-border, #dce1e8);
+    border-radius: 8px;
+    background: var(--eh-bg, #f7f9fc);
+    font-size: 12px;
+    line-height: 1.5;
+    p { margin: 6px 0 0; white-space: pre-line; }
+}
+.eh_board_source_freshness { font-size: 11px; opacity: .8; margin-bottom: 6px; }

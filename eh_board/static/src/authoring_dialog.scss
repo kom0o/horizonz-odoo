@@ -1,0 +1,27 @@
+/* Copyright (C) 2026 ERP Heritage. */
+.eh_board_authoring {
+    --authoring-border: var(--border-color, #d9e1e8);
+    .eh_board_authoring_intro { font-size: 1.05rem; max-width: 68ch; }
+    .eh_board_authoring_scope { border: 1px solid var(--authoring-border); border-radius: .8rem; padding: 1rem; margin-block: 1rem; }
+    .eh_board_authoring_scope_search, .eh_board_authoring_scope_pickers, .eh_board_authoring_scope_selected { display: flex; flex-wrap: wrap; gap: .5rem; margin-block: .6rem; }
+    .eh_board_authoring_scope_search input { flex: 1 1 12rem; width: auto; }
+    .eh_board_authoring_scope_pickers label { flex: 1 1 16rem; }
+    .eh_board_authoring_catalogue { margin-block: 1rem; }
+    .eh_board_authoring_suggestions { display: flex; flex-wrap: wrap; gap: .5rem; margin-block: .75rem; }
+    .eh_board_authoring_prompt_actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; margin-block: .75rem; }
+    .eh_board_authoring_review_header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .75rem; margin-block: 1rem; }
+    .eh_board_authoring_review_header h4 { margin: 0; }
+    .eh_board_authoring_cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+    .eh_board_authoring_card { border: 1px solid var(--authoring-border); border-radius: .8rem; padding: 1rem; min-width: 0; }
+    .eh_board_authoring_select { display: flex; align-items: center; gap: .6rem; margin-block-end: .85rem; }
+    .eh_board_authoring_options { display: flex; flex-wrap: wrap; gap: .7rem; margin-block: .75rem; }
+    .eh_board_authoring_options label { flex: 1 1 7rem; font-size: .85rem; }
+    .eh_board_authoring_options select { margin-block-start: .25rem; }
+    .eh_board_authoring_definition { font-size: .88rem; margin-block: .75rem; }
+    .eh_board_authoring_preview { min-height: 230px; height: 280px; overflow: hidden; border-radius: .5rem; }
+    .eh_board_authoring_preview > * { height: 100%; }
+    .eh_board_authoring_preview_stale { opacity: .55; }
+    .eh_board_authoring_replace { border-block-start: 1px solid var(--authoring-border); margin-block-start: 1rem; padding-block-start: 1rem; }
+    .eh_board_authoring_existing { display: flex; align-items: center; gap: .5rem; margin-block: .35rem; }
+    @media (max-width: 767px) { .eh_board_authoring_cards { grid-template-columns: minmax(0, 1fr); } }
+}

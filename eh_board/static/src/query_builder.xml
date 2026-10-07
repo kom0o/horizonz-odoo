@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="eh_board.QueryBuilder">
+        <Dialog title="title" size="'xl'">
+            <div class="o_eh_query_builder">
+                <p>Compare two independently grouped models using matching keys. Each side keeps its own filters and dates. Your access rules apply to both sides.</p>
+                <div class="alert alert-danger" role="alert" t-if="state.error"><t t-esc="state.error"/></div>
+                <fieldset t-att-disabled="state.busy">
+                    <div class="eh-query-settings">
+                        <label>Analysis name<input class="form-control eh-query-name" t-model="state.name" maxlength="120" placeholder="Orders and order lines by customer"/></label>
+                        <label>Company<select class="form-select eh-query-company" t-model.number="state.company_id"><option t-foreach="state.companies" t-as="company" t-key="company.id" t-att-value="company.id"><t t-esc="company.name"/></option></select></label>
+                    </div>
+                    <div class="eh-query-sides">
+                        <section t-foreach="sides" t-as="side" t-key="side" class="eh-query-side" t-att-data-side="side">
+                            <h5><t t-esc="sideTitle(side)"/></h5>
+                            <label class="eh-query-model-label">Model</label><div class="eh_board_model_picker"><Many2XAutocomplete t-props="modelProps(side)"/></div>
+                            <p t-if="state[side].loading" class="text-muted">Loading readable fields…</p>
+                            <t t-if="state[side].model_id and !state[side].loading">
+                                <label>Matching key<select class="form-select eh-query-key" t-model="state[side].key"><option value="">Choose a field…</option><option t-foreach="fields(side, 'key')" t-as="field" t-key="field.name" t-att-value="field.name"><t t-esc="field.label"/> (<t t-esc="field.name"/>)</option></select></label>
+                                <div class="eh-query-settings">
+                                    <label>Calculation<select class="form-select eh-query-aggregate" t-att-value="state[side].aggregate" t-on-change="(ev) => this.changeAggregate(side, ev)"><option value="count">Record count</option><option value="sum">Sum</option><option value="avg">Average</option><option value="min">Minimum</option><option value="max">Maximum</option></select></label>
+                                    <label>Series label<input class="form-control eh-query-series-label" t-model="state[side].label" maxlength="80"/></label>
+                                </div>
+                                <label t-if="state[side].aggregate !== 'count'">Value field<select class="form-select eh-query-value" t-model="state[side].field"><option value="">Choose a numeric field…</option><option t-foreach="fields(side, 'numeric')" t-as="field" t-key="field.name" t-att-value="field.name"><t t-esc="field.label"/> (<t t-esc="field.name"/>)</option></select></label>
+                                <label>Date scope<select class="form-select eh-query-date-field" t-att-value="state[side].date_field" t-on-change="(ev) => this.changeDateField(side, ev)"><option value="">All dates</option><option t-foreach="fields(side, 'date')" t-as="field" t-key="field.name" t-att-value="field.name"><t t-esc="field.label"/></option></select></label>
+                                <div class="eh-query-settings" t-if="state[side].date_field"><label>From<input class="form-control eh-query-date-start" type="date" t-model="state[side].date_start"/></label><label>Through<input class="form-control eh-query-date-end" type="date" t-model="state[side].date_end"/></label></div>
+                                <div class="eh-query-filters">
+                                    <h6>Row filters · all must match</h6>
+                                    <div class="eh-query-filter" t-foreach="state[side].filters" t-as="filter" t-key="filter.id">
+                                        <select class="form-select eh-query-filter-field" aria-label="Filter field" t-att-value="filter.field" t-on-change="(ev) => this.changeFilterField(side, filter, ev)"><option value="">Choose a field…</option><option t-foreach="fields(side)" t-as="field" t-key="field.name" t-att-value="field.name"><t t-esc="field.label"/> (<t t-esc="field.name"/>)</option></select>
+                                        <select class="form-select" aria-label="Filter operator" t-model="filter.operator"><option t-foreach="filterOperators(side, filter)" t-as="op" t-key="op[0]" t-att-value="op[0]"><t t-esc="op[1]"/></option></select>
+                                        <div t-if="filterKind(side, filter) === 'many2one'" class="eh_board_model_picker"><Many2XAutocomplete t-props="relationProps(side, filter)"/></div>
+                                        <select t-elif="filterKind(side, filter) === 'selection'" class="form-select eh-query-filter-value" aria-label="Filter value" t-model="filter.value"><option value="">Choose a value…</option><option t-foreach="filterChoices(side, filter)" t-as="choice" t-key="choice[0]" t-att-value="choice[0]"><t t-esc="choice[1]"/></option></select>
+                                        <select t-elif="filterKind(side, filter) === 'boolean'" class="form-select eh-query-filter-value" aria-label="Filter value" t-model="filter.value"><option value="true">True</option><option value="false">False</option></select>
+                                        <input t-else="" class="form-control eh-query-filter-value" aria-label="Filter value" t-att-type="filterKind(side, filter) === 'date' ? 'date' : filterKind(side, filter) === 'datetime' ? 'datetime-local' : 'text'" t-model="filter.value" maxlength="240"/>
+                                        <button class="btn btn-outline-secondary" type="button" title="Remove filter" aria-label="Remove filter" t-on-click="() => this.removeFilter(side, filter)"><i class="fa fa-times"/></button>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-secondary eh-query-add-filter" type="button" t-on-click="() => this.addFilter(side)" t-att-disabled="state[side].filters.length >= 12">Add row filter</button>
+                                </div>
+                            </t>
+                        </section>
+                    </div>
+                    <div class="eh-query-settings eh-query-output">
+                        <label>Matching behavior<select class="form-select eh-query-join" t-model="state.join_type"><option value="full">All keys from either side</option><option value="left">Every left key</option><option value="inner">Only keys on both sides</option></select></label>
+                        <label>Display<select class="form-select eh-query-chart" t-model="state.chart_type"><option value="hbar">Horizontal bars</option><option value="bar">Vertical bars</option><option value="line">Line chart</option><option value="list">Grouped table</option></select></label>
+                        <label>Maximum displayed groups<input class="form-control eh-query-limit" type="number" min="1" max="100" t-model.number="state.limit"/></label>
+                    </div>
+                    <div class="eh-query-settings">
+                        <label>Optional formula · a is left, b is right<input class="form-control eh-query-formula" t-model="state.formula" maxlength="240" placeholder="a / b * 100"/></label>
+                        <label t-if="state.formula">Formula label<input class="form-control" t-model="state.formula_label" maxlength="80"/></label>
+                    </div>
+                    <p class="text-muted">Missing sides contribute zero. Unassigned keys never match each other. Division by zero returns zero with a warning. Monetary fields must use the selected company's currency; no conversion is performed. Each side is limited to 1,000 groups.</p>
+                </fieldset>
+                <section class="eh-query-preview" t-if="state.preview">
+                    <div class="alert alert-warning eh-query-stale" t-if="!previewCurrent">Settings changed. Preview again before saving.</div>
+                    <h5>Calculation preview</h5>
+                    <p><strong>Base measure unit: </strong><t t-esc="state.preview.unit"/> · <strong>Matching groups: </strong><t t-esc="state.preview.group_count"/></p>
+                    <p t-foreach="state.preview.warnings" t-as="warning" t-key="warning" class="alert alert-warning"><t t-esc="warning"/></p>
+                    <div class="table-responsive"><table class="table table-sm"><thead><tr><th>Matching key</th><th>Match</th><th t-foreach="state.preview.measures" t-as="measure" t-key="measure"><t t-esc="state.preview.measure_labels[measure]"/></th></tr></thead><tbody><tr t-foreach="state.preview.rows" t-as="row" t-key="row_index"><td><t t-esc="row.labels[0]"/></td><td><t t-esc="rowState(row)"/><span t-if="row.zero_divisor" class="badge bg-warning text-dark ms-1">Zero divisor</span></td><td t-foreach="state.preview.measures" t-as="measure" t-key="measure"><t t-esc="formatValue(row.values[measure])"/></td></tr><tr t-if="!state.preview.rows.length"><td t-att-colspan="state.preview.measures.length + 2">No matching groups. This is a valid empty result.</td></tr></tbody></table></div>
+                    <details open="open"><summary>Calculation and row scope</summary><pre class="eh-query-definition"><t t-esc="state.preview.definition"/></pre></details>
+                    <p class="text-muted">Saving creates a reusable analysis on this dashboard and one widget. Its calculation stays fixed; create another analysis to change it. Saved date ranges are independent of dashboard date filters.</p>
+                </section>
+            </div>
+            <t t-set-slot="footer">
+                <button class="btn btn-outline-primary eh-query-preview-button" t-on-click="preview" t-att-disabled="!canPreview || state.busy"><t t-if="state.busy">Working…</t><t t-else="">Preview analysis</t></button>
+                <button class="btn btn-primary eh-query-save-button" t-on-click="save" t-att-disabled="!canSave">Save analysis and widget</button>
+                <button class="btn btn-secondary" t-on-click="props.close" t-att-disabled="state.busy">Cancel</button>
+            </t>
+        </Dialog>
+    </t>
+</templates>

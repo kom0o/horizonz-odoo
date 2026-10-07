@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard Builder | ERP Heritage</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Business dashboards for Odoo Community: Sales, Receivables and Warehouse packs, optional AI authoring, 26 chart and widget types, defined metrics, Sheets and HTTPS JSON snapshots, and consistent analysis exports. Packages for Odoo 16 through 20.">
+<!-- No external fonts or CDN: the listing renders on the system font stack, so
+     the page keeps the same "nothing loads from a CDN" promise the module does. -->
+</head>
+<body style="margin:0;padding:0;background-color:#FBF8F2;color:#0E1E2B;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,system-ui,sans-serif;font-size:16px;line-height:1.6;font-weight:400;">
+
+<!-- ============================ HEADER (light) ============================ -->
+<header style="background-image:linear-gradient(135deg,#FBF8F2 0%,#F4EFE6 60%,#eef4f0 100%);color:#0E1E2B;padding:56px 24px 46px 24px;border-bottom:4px solid #D4A055;">
+  <div style="max-width:1180px;margin:0 auto;">
+    <img src="brand_logo_ink.png" alt="ERP Heritage" style="height:58px;width:auto;display:block;">
+    <div style="width:220px;height:2px;background-color:#D4A055;margin:16px 0 22px 0;"></div>
+    <span style="display:inline-block;font-family:'DM Mono',ui-monospace,monospace;font-size:0.78rem;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:#0f9c78;padding:5px 14px;border:1px solid rgba(15,156,120,0.55);border-radius:999px;background-color:#eafaf4;margin-bottom:16px;">Business Intelligence</span>
+    <h1 style="font-size:3.3rem;margin:6px 0 14px 0;font-weight:800;letter-spacing:-0.025em;color:#0E1E2B;line-height:1.02;">Dashboard Builder</h1>
+    <p style="margin:0;font-size:1.28rem;line-height:1.6;max-width:760px;color:#2C3845;font-weight:500;">Start with a business question. Preview your accessible data, create a private dashboard, and trace the definition behind each business metric.</p>
+    <p style="margin:14px 0 0 0;font-size:1.06rem;line-height:1.65;max-width:820px;color:#3A4A5C;">Sales, Receivables and Warehouse packs meet a visual builder with 26 chart and widget types. Optional AI proposes supported charts for review. Add administrator-configured Sheets or HTTPS JSON snapshots, then filter, drill and export your analysis. AI provider charges apply.</p>
+    <div style="margin-top:26px;">
+      <span style="display:inline-block;background-color:#0E1E2B;color:#FBF8F2;padding:9px 20px;border-radius:999px;font-size:1.05rem;letter-spacing:0.02em;font-family:'DM Mono',ui-monospace,monospace;margin:5px 8px 0 0;font-weight:600;">Free &middot; OPL-1</span>
+      <span style="display:inline-block;background-color:#eafaf4;border:1px solid #0f9c78;color:#0f9c78;padding:8px 16px;border-radius:999px;font-size:0.92rem;letter-spacing:0.03em;font-family:'DM Mono',ui-monospace,monospace;margin:5px 8px 0 0;font-weight:600;">One install</span>
+      <span style="display:inline-block;background-color:#fdf5e0;border:1px solid rgba(212,160,85,0.6);color:#B07E2C;padding:8px 16px;border-radius:999px;font-size:0.92rem;letter-spacing:0.03em;font-family:'DM Mono',ui-monospace,monospace;margin:5px 8px 0 0;">Odoo 16 &middot; 17 &middot; 18 &middot; 19 &middot; 20 Community</span>
+    </div>
+    <p style="margin:14px 0 0 0;font-size:0.86rem;color:#6b7684;font-family:'DM Mono',ui-monospace,monospace;">Free, no paid dependencies. Installs alongside your existing apps.</p>
+    <div style="margin-top:30px;border:1px solid rgba(212,160,85,0.4);border-radius:16px;overflow:hidden;box-shadow:0 16px 40px rgba(14,30,43,0.12);background-color:#ffffff;">
+      <img src="shot_hero.png" alt="A live sales dashboard: revenue and customer KPIs, a trend area chart, a target gauge, a revenue-and-order combo chart and a pipeline doughnut" style="display:block;width:100%;height:auto;">
+    </div>
+  </div>
+</header>
+
+<section style="padding:34px 24px;background-color:#eafaf4;">
+  <div style="max-width:1180px;margin:0 auto;">
+    <h2 style="margin:0 0 12px 0;">New in 7.1: create, compare and score</h2>
+    <p>Choose readable models and saved sources for AI proposals. Compare independently grouped models with typed filters, explicit date scopes and arithmetic previews. Build weighted KPI objectives with owners, deliberate targets and visible scoring rules.</p>
+    <p>Preview before applying. Reuse scorecards through templates and portable backups. Missing or stale values remain unavailable; business amounts and currencies are never added into a score.</p>
+    <p>Choose Sales performance, Cash and Receivables, or Warehouse operations. Preview your real accessible data and inspect the definition and company behind each metric. Optional AI creates a proposal from those supported definitions; it never applies a dashboard without review.</p>
+    <p>Administrator-configured Google Sheets and HTTPS JSON sources refresh into snapshots with visible freshness. Private Sheets support service-account authentication. Failed refreshes keep prior valid data with a stale status; no demo values replace your results.</p>
+    <p>Existing screenshots below illustrate the chart library and earlier dashboard layouts. Read the included 7.0 and 7.1 setup guides for the new workflows, limits and configuration.</p>
+  </div>
+</section>
+
+<!-- ============================ TICKER ============================ -->
+<section style="background-color:#0E1E2B;color:#FBF8F2;padding:18px 0;">
+  <div style="max-width:1180px;margin:0 auto;padding:0 24px;display:table;width:100%;table-layout:fixed;">
+    <div style="display:table-cell;font-family:'DM Mono',ui-monospace,monospace;font-size:0.78rem;letter-spacing:0.08em;text-transform:uppercase;color:#9fe9d4;padding:0 8px;vertical-align:middle;"><span style="display:inline-block;width:7px;height:7px;background-color:#1baf7a;border-radius:50%;margin-right:7px;vertical-align:middle;"></span>20+ chart types</div>
+    <div style="display:table-cell;font-family:'DM Mono',ui-monospace,monospace;font-size:0.78rem;letter-spacing:0.08em;text-transform:uppercase;color:#9fe9d4;padding:0 8px;vertical-align:middle;"><span style="display:inline-block;width:7px;height:7px;background-color:#1baf7a;border-radius:50%;margin-right:7px;vertical-align:middle;"></span>World map</div>
+    <div style="display:table-cell;font-family:'DM Mono',ui-monospace,monospace;font-size:0.78rem;letter-spacing:0.08em;text-transform:uppercase;color:#9fe9d4;padding:0 8px;vertical-align:middle;"><span style="display:inline-block;width:7px;height:7px;background-color:#1baf7a;border-radius:50%;margin-right:7px;vertical-align:middle;"></span>Pivot matrix</div>
+    <div style="display:table-cell;font-family:'DM Mono',ui-monospace,monospace;font-size:0.78rem;letter-spacing:0.08em;text-transform:uppercase;color:#9fe9d4;padding:0 8px;vertical-align:middle;"><span style="display:inline-block;width:7px;height:7px;background-color:#f7c94b;border-radius:50%;margin-right:7px;vertical-align:middle;"></span>Cross-filter &amp; drill</div>
+    <div style="display:table-cell;font-family:'DM Mono',ui-monospace,monospace;font-size:0.78rem;letter-spacing:0.08em;text-transform:uppercase;color:#9fe9d4;padding:0 8px;vertical-align:middle;"><span style="display:inline-block;width:7px;height:7px;background-color:#1baf7a;border-radius:50%;margin-right:7px;vertical-align:middle;"></span>No CDN</div>
+  </div>
+</section>
+
+<!-- ============================ WHY ============================ -->
+<section style="padding:54px 0 30px 0;background-color:#FBF8F2;">
+  <div style="max-width:1180px;margin:0 auto;padding:0 24px;">
+    <h2 style="font-size:0.9rem;text-transform:uppercase;letter-spacing:0.22em;color:#0f9c78;margin:0 0 14px 0;font-weight:500;font-family:'DM Mono',ui-monospace,monospace;">Why this dashboard</h2>
+    <h3 style="font-size:2rem;margin:0 0 16px 0;font-weight:700;color:#0E1E2B;letter-spacing:-0.01em;max-width:900px;">Useful business dashboards with visible definitions.</h3>
+    <p style="font-size:1.14rem;color:#2C3845;margin:0 0 8px 0;max-width:900px;line-height:1.7;">Odoo model aggregation runs with the viewer's access rights. Defined business packs make company, currency and date assumptions visible. Grouped reads and bounded loading reduce work; response time still depends on your database, filters and workload. Original SVG charts load without a chart CDN.</p>
+  </div>
+</section>
+
+<!-- ============================ FEATURE GRID 1 ============================ -->
+<section style="padding:8px 0 46px 0;background-color:#FBF8F2;">
+  <div style="max-width:1180px;margin:0 auto;padding:0 24px;">
+    <div style="display:table;width:100%;border-collapse:separate;border-spacing:16px;">
+      <div style="display:table-row;">
+        <div style="display:table-cell;width:33.33%;vertical-align:top;">
+          <div style="background-image:linear-gradient(160deg,#0e2a24,#123a2e);color:#FBF8F2;border:1px solid rgba(27,175,122,0.4);padding:24px;border-radius:14px;height:100%;box-sizing:border-box;">
+            <div style="font-family:'DM Mono',ui-monospace,monospace;font-size:0.74rem;letter-spacing:0.18em;color:#4fd1a8;margin-bottom:10px;">The chart catalogue</div>
+            <h3 style="font-size:1.18rem;font-weight:700;margin:0 0 8px 0;color:#FBF8F2;">Over 20 widget types, one engine</h3>
+            <p style="font-size:1.0rem;color:rgba(251,248,242,0.9);line-height:1.6;margin:0;">Bar, column, horizontal bar, line, area, pie, doughnut, radar, polar, radial, rose, funnel, pyramid, scatter, bullet, heat map, gauge, KPI tiles, a pivot matrix, a decomposition tree, a sync slicer and rich text. Each is a small registered strategy, drawn as original SVG.</p>
+          </div>
+        </div>
+        <div style="display:table-cell;width:33.33%;vertical-align:top;">
+          <div style="background-color:#eafaf4;color:#0E1E2B;border:1px solid rgba(15,156,120,0.25);padding:24px;border-radius:14px;height:100%;box-sizing:border-box;">
+            <div style="font-family:'DM Mono',ui-monospace,monospace;font-size:0.74rem;letter-spacing:0.18em;color:#0f9c78;margin-bottom:10px;">Geography that reads</div>
+            <h3 style="font-size:1.18rem;font-weight:700;margin:0 0 8px 0;color:#0E1E2B;">A real choropleth world map</h3>
+            <p style="font-size:1.0rem;color:#2C3845;line-height:1.6;margin:0;">Group by a country field and each country is shaded by the measure itself, with a gradient legend and click-through. It is an original projected SVG map, not pins on a borrowed tile layer, and it falls back to a ranked coloured list for any non-country dimension.</p>
+          </div>
+        </div>
+        <div style="display:table-cell;width:33.33%;vertical-align:top;">
+          <div style="background-color:#fdf5e0;color:#0E1E2B;border:1px solid rgba(212,160,85,0.35);padding:24px;border-radius:14px;height:100%;box-sizing:border-box;">
+            <div style="font-family:'DM Mono',ui-monospace,monospace;font-size:0.74rem;letter-spacing:0.18em;color:#B07E2C;margin-bottom:10px;">The BI gesture</div>
+            <h3 style="font-size:1.18rem;font-weight:700;margin:0 0 8px 0;color:#0E1E2B;">Cross-filter and multi-level drill</h3>
+            <p style="font-size:1.0rem;color:#2C3845;line-height:1.6;margin:0;">Click a mark and every widget re-scopes to it, or drill a chart a level deeper with a breadcrumb to climb back. A sync slicer drops a value chip that filters the whole board, and any figure opens the exact records behind it.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ SCREENSHOT: GALLERY ============================ -->
+<section style="padding:50px 0;background-color:#FBF8F2;border-top:1px solid rgba(58,74,92,0.08);">
+  <div style="max-width:1180px;margin:0 auto;padding:0 24px;">
+    <h2 style="font-size:0.9rem;text-transform:uppercase;letter-spacing:0.22em;color:#0f9c78;margin:0 0 10px 0;font-weight:500;font-family:'DM Mono',ui-monospace,monospace;text-align:center;">The full catalogue</h2>
+    <h3 style="font-size:1.8rem;margin:0 0 26px 0;font-weight:700;color:#0E1E2B;text-align:center;letter-spacing:-0.01em;">Over twenty chart and widget types, all drawn from scratch.</h3>
+    <div style="max-width:1140px;margin:0 auto;text-align:center;">
+      <img src="shot_gallery.png" alt="A gallery of chart types: bar, stacked column, line, area, pie, doughnut, radar, polar area, radial bar, rose, funnel, scatter, heat map, gauge and horizontal bar" style="display:block;width:auto;max-width:100%;max-height:600px;margin:0 auto;border:1px solid rgba(212,160,85,0.35);border-radius:12px;box-shadow:0 12px 34px rgba(14,30,43,0.10);">
+      <p style="margin:18px auto 0 auto;max-width:820px;font-size:1.02rem;color:#2C3845;"><strong style="display:block;color:#0E1E2B;font-size:1.06rem;margin-bottom:4px;">One engine, every chart</strong>Bar, column, horizontal and stacked bars, line, area, pie, doughnut, radar, polar area, radial bar, a Nightingale rose, funnel, pyramid, scatter, bullet, heat map, gauge, KPI tiles, a pivot matrix, a decomposition tree, a slicer and rich text. No charting library, no CDN, every one original SVG.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ SCREENSHOT: MAP ============================ -->
+<section style="padding:48px 0;background-color:#F4EFE6;">
+  <div style="max-width:1180px;margin:0 auto;padding:0 24px;">
+    <h2 style="font-size:0.9rem;text-transform:uppercase;letter-spacing:0.22em;color:#0f9c78;margin:0 0 10px 0;font-weight:500;font-family:'DM Mono',ui-monospace,monospace;text-align:center;">See it in action</h2>
+    <h3 style="font-size:1.7rem;margin:0 0 26px 0;font-weight:700;color:#0E1E2B;text-align:center;">Countries shaded by the measure, not by pins.</h3>
+    <div style="max-width:1000px;margin:0 auto;text-align:center;">
+      <img src="shot_map.png" alt="A world choropleth map: customers by country, each country shaded from light to deep mint with a gradient legend" style="display:block;width:auto;max-width:100%;max-height:520px;margin:0 auto;border:1px solid rgba(212,160,85,0.35);border-radius:12px;box-shadow:0 10px 30px rgba(14,30,43,0.10);">
+      <p style="margin:18px auto 0 auto;max-width:760px;font-size:1.02rem;color:#2C3845;"><strong style="display:block;color:#0E1E2B;font-size:1.06rem;margin-bottom:4px;">Choropleth map</strong>Every country is coloured by its own value with a gradient scale, hover read-out and click-through drill. The geometry is a pre-projected SVG asset, so nothing loads from an external map service.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FEATURE GRID 2 ============================ -->
+<section style="padding:50px 0 30px 0;background-color:#FBF8F2;">
+  <div style="max-width:1180px;margin:0 auto;padding:0 24px;">
+    <h2 style="font-size:0.9rem;text-transform:uppercase;letter-spacing:0.22em;color:#0f9c78;margin:0 0 14px 0;font-weight:500;font-family:'DM Mono',ui-monospace,monospace;">Bring your own data</h2>
+    <h3 style="font-size:1.9rem;margin:0 0 26px 0;font-weight:700;color:#0E1E2B;letter-spacing:-0.01em;">From any Odoo model, two models joined, a spreadsheet, or read-only SQL.</h3>
+    <div style="display:table;width:100%;border-collapse:separate;border-spacing:16px;">
+      <div style="display:table-row;">
+        <div style="display:table-cell;width:25%;vertical-align:top;">
+          <div style="background-color:#F4EFE6;color:#0E1E2B;border:1px solid rgba(58,74,92,0.14);padding:22px;border-radius:12px;height:100%;box-sizing:border-box;">
+            <div style="font-family:'DM Mono',ui-monospace,monospace;font-size:0.72rem;letter-spacing:0.16em;color:#D4A055;margin-bottom:9px;">Any model</div>
+            <h3 style="font-size:1.08rem;font-weight:700;margin:0 0 7px 0;color:#0E1E2B;">Group any Odoo model</h3>
+            <p style="font-size:0.97rem;color:#2C3845;line-height:1.55;margin:0;">Pick a model, a group-by field and a measure. Count, sum, average, min, max, distinct count, or a calculated formula over other measures.</p>
+          </div>
+        </div>
+        <div style="display:table-cell;width:25%;vertical-align:top;">
+          <div style="background-color:#F4EFE6;color:#0E1E2B;border:1px solid rgba(58,74,92,0.14);padding:22px;border-radius:12px;height:100%;box-sizing:border-box;">
+            <div style="font-family:'DM Mono',ui-monospace,monospace;font-size:0.72rem;letter-spacing:0.16em;color:#D4A055;margin-bottom:9px;">Two models</div>
+            <h3 style="font-size:1.08rem;font-weight:700;margin:0 0 7px 0;color:#0E1E2B;">Cross-model joins</h3>
+            <p style="font-size:0.97rem;color:#2C3845;line-height:1.55;margin:0;">Compare two models on a shared key, such as orders versus invoices, merged in Python so both sides stay rule-safe. No raw SQL join to write.</p>
+          </div>
+        </div>
+        <div style="display:table-cell;width:25%;vertical-align:top;">
+          <div style="background-color:#F4EFE6;color:#0E1E2B;border:1px solid rgba(58,74,92,0.14);padding:22px;border-radius:12px;height:100%;box-sizing:border-box;">
+            <div style="font-family:'DM Mono',ui-monospace,monospace;font-size:0.72rem;letter-spacing:0.16em;color:#D4A055;margin-bottom:9px;">A spreadsheet</div>
+            <h3 style="font-size:1.08rem;font-weight:700;margin:0 0 7px 0;color:#0E1E2B;">CSV and Excel files</h3>
+            <p style="font-size:0.97rem;color:#2C3845;line-height:1.55;margin:0;">Upload a CSV or Excel file and chart its columns directly. It is parsed to a light column list, never turned into a new database table, so a re-upload just refreshes.</p>
+          </div>
+        </div>
+        <div style="display:table-cell;width:25%;vertical-align:top;">
+          <div style="background-color:#F4EFE6;color:#0E1E2B;border:1px solid rgba(58,74,92,0.14);padding:22px;border-radius:12px;height:100%;box-sizing:border-box;">
+            <div style="font-family:'DM Mono',ui-monospace,monospace;font-size:0.72rem;letter-spacing:0.16em;color:#D4A055;margin-bottom:9px;">Read-only SQL</div>
+            <h3 style="font-size:1.08rem;font-weight:700;margin:0 0 7px 0;color:#0E1E2B;">Safe SQL, vaulted secrets</h3>
+            <p style="font-size:0.97rem;color:#2C3845;line-height:1.55;margin:0;">Privileged SQL on the current Odoo database, with statement checks, timeout, row bounds and rollback. Raw SQL does not inherit Odoo record rules. Configure a least-privilege database role for additional protection.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ SCREENSHOT: COMBO + PIVOT ============================ -->
+<section style="padding:44px 0;background-color:#F4EFE6;">
+  <div style="max-width:1180px;margin:0 auto;padding:0 24px;">
+    <div style="max-width:1000px;margin:0 auto 40px auto;text-align:center;">
+      <img src="shot_combo.png" alt="A combo chart: revenue as blue bars on the left axis with an order-count line in green on a second right-hand axis" style="display:block;width:auto;max-width:100%;max-height:460px;margin:0 auto;border:1px solid rgba(212,160,85,0.35);border-radius:12px;box-shadow:0 10px 30px rgba(14,30,43,0.10);">
+      <p style="margin:18px auto 0 auto;max-width:760px;font-size:1.02rem;color:#2C3845;"><strong style="display:block;color:#0E1E2B;font-size:1.06rem;margin-bottom:4px;">Combo charts with a second axis</strong>Draw one measure as bars and another as a line on its own right-hand scale, so a value and a rate read together on one chart.</p>
+    </div>
+    <div style="max-width:1000px;margin:0 auto;text-align:center;">
+      <img src="shot_pivot.png" alt="A pivot matrix: pipeline status down the rows, months across the columns, revenue in every cell with row, column and grand totals" style="display:block;width:auto;max-width:100%;max-height:460px;margin:0 auto;border:1px solid rgba(212,160,85,0.35);border-radius:12px;box-shadow:0 10px 30px rgba(14,30,43,0.10);">
+      <p style="margin:18px auto 0 auto;max-width:760px;font-size:1.02rem;color:#2C3845;"><strong style="display:block;color:#0E1E2B;font-size:1.06rem;margin-bottom:4px;">A true pivot matrix</strong>Cross-tab any two dimensions with row, column and grand totals computed database side, a heat shade per cell, and click-through on any cell. Every total is exact for any aggregate, including averages, and each value can carry an adjacent percentage of its row, column or grand total.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ SCREENSHOT: BUILDER ============================ -->
+<section style="padding:50px 0;background-color:#F4EFE6;">
+  <div style="max-width:1180px;margin:0 auto;padding:0 24px;">
+    <h2 style="font-size:0.9rem;text-transform:uppercase;letter-spacing:0.22em;color:#0f9c78;margin:0 0 10px 0;font-weight:500;font-family:'DM Mono',ui-monospace,monospace;text-align:center;">Author with a live preview</h2>
+    <h3 style="font-size:1.8rem;margin:0 0 26px 0;font-weight:700;color:#0E1E2B;text-align:center;letter-spacing:-0.01em;">Pick a type, pick a model, watch it draw itself.</h3>
+    <div style="max-width:1140px;margin:0 auto;text-align:center;">
+      <img src="shot_builder.png" alt="The widget builder: a type rail on the left, a data and display panel in the middle with fields, measures, group-by, sort and a domain matcher, and a live preview on the right" style="display:block;width:auto;max-width:100%;max-height:620px;margin:0 auto;border:1px solid rgba(212,160,85,0.35);border-radius:12px;box-shadow:0 12px 34px rgba(14,30,43,0.10);">
+      <p style="margin:18px auto 0 auto;max-width:820px;font-size:1.02rem;color:#2C3845;"><strong style="display:block;color:#0E1E2B;font-size:1.06rem;margin-bottom:4px;">A builder that explains itself</strong>Every field carries a plain example, a live preview redraws as you go, and a one-line summary reads back what you built. Pick ordered model fields for an individual-record list, or explicit pivot rows, columns and values. Data, display, actions, advanced and description tabs, drag-and-drop wells, conditional colour rules and a live record count stay in one panel.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FEATURE GRID 3 ============================ -->
+<section style="padding:50px 0 30px 0;background-color:#FBF8F2;">
+  <div style="max-width:1180px;margin:0 auto;padding:0 24px;">
+    <div style="display:table;width:100%;border-collapse:separate;border-spacing:16px;">
+      <div style="display:table-row;">
+        <div style="display:table-cell;width:33.33%;vertical-align:top;">
+          <div style="background-color:#eafaf4;color:#0E1E2B;border:1px solid rgba(15,156,120,0.25);padding:24px;border-radius:14px;height:100%;box-sizing:border-box;">
+            <div style="font-family:'DM Mono',ui-monospace,monospace;font-size:0.74rem;letter-spacing:0.18em;color:#0f9c78;margin-bottom:10px;">Watch the numbers</div>
+            <h3 style="font-size:1.18rem;font-weight:700;margin:0 0 8px 0;color:#0E1E2B;">Snapshots, alerts and a digest</h3>
+            <p style="font-size:1.0rem;color:#2C3845;line-height:1.6;margin:0;">Record each widget's headline value on a schedule to build history, raise a threshold alert that arms and re-arms cleanly, and email the whole board as a PDF to a chosen list on a cadence.</p>
+          </div>
+        </div>
+        <div style="display:table-cell;width:33.33%;vertical-align:top;">
+          <div style="background-image:linear-gradient(160deg,#0e2a24,#123a2e);color:#FBF8F2;border:1px solid rgba(27,175,122,0.4);padding:24px;border-radius:14px;height:100%;box-sizing:border-box;">
+            <div style="font-family:'DM Mono',ui-monospace,monospace;font-size:0.74rem;letter-spacing:0.18em;color:#4fd1a8;margin-bottom:10px;">Your key, your endpoint</div>
+            <h3 style="font-size:1.18rem;font-weight:700;margin:0 0 8px 0;color:#FBF8F2;">Optional bring-your-own-key AI</h3>
+            <p style="font-size:1.0rem;color:rgba(251,248,242,0.9);line-height:1.6;margin:0;">With your OpenAI or Anthropic key, request a dashboard from supported business metrics, review the plan and preview real data before applying it. Narration separately summarizes computed facts. Smart Build and deterministic suggestions need no provider key. Provider usage charges apply.</p>
+          </div>
+        </div>
+        <div style="display:table-cell;width:33.33%;vertical-align:top;">
+          <div style="background-color:#fdf5e0;color:#0E1E2B;border:1px solid rgba(212,160,85,0.35);padding:24px;border-radius:14px;height:100%;box-sizing:border-box;">
+            <div style="font-family:'DM Mono',ui-monospace,monospace;font-size:0.74rem;letter-spacing:0.18em;color:#B07E2C;margin-bottom:10px;">Ready to run</div>
+            <h3 style="font-size:1.18rem;font-weight:700;margin:0 0 8px 0;color:#0E1E2B;">Preview a business pack</h3>
+            <p style="font-size:1.0rem;color:#2C3845;line-height:1.6;margin:0;">Start with Sales performance, Cash and Receivables, or Warehouse operations. Preview accessible data and read how values are calculated, then create a private draft. Existing saved templates and seven earlier starter packs remain available.</p>
+          </div>
+        </div>
+      </div>
+      <div style="display:table-row;">
+        <div style="display:table-cell;width:33.33%;vertical-align:top;">
+          <div style="background-color:#F4EFE6;color:#0E1E2B;border:1px solid rgba(58,74,92,0.14);padding:24px;border-radius:14px;height:100%;box-sizing:border-box;">
+            <div style="font-family:'DM Mono',ui-monospace,monospace;font-size:0.74rem;letter-spacing:0.18em;color:#D4A055;margin-bottom:10px;">Present and share</div>
+            <h3 style="font-size:1.18rem;font-weight:700;margin:0 0 8px 0;color:#0E1E2B;">Presentation mode and exports</h3>
+            <p style="font-size:1.0rem;color:#2C3845;line-height:1.6;margin:0;">Play the board as a full-screen slideshow one widget at a time, or export it as vector PDF, Excel, CSV, a PNG of any chart, or the full board spec as JSON.</p>
+          </div>
+        </div>
+        <div style="display:table-cell;width:33.33%;vertical-align:top;">
+          <div style="background-color:#F4EFE6;color:#0E1E2B;border:1px solid rgba(58,74,92,0.14);padding:24px;border-radius:14px;height:100%;box-sizing:border-box;">
+            <div style="font-family:'DM Mono',ui-monospace,monospace;font-size:0.74rem;letter-spacing:0.18em;color:#D4A055;margin-bottom:10px;">Author with control</div>
+            <h3 style="font-size:1.18rem;font-weight:700;margin:0 0 8px 0;color:#0E1E2B;">A builder made for people</h3>
+            <p style="font-size:1.0rem;color:#2C3845;line-height:1.6;margin:0;">A tabbed builder with a live preview, drag-and-drop field wells, conditional colour rules, per-widget date ranges, sort and limit, and a full-text search over the model's fields. Delete asks first; discard reverts.</p>
+          </div>
+        </div>
+        <div style="display:table-cell;width:33.33%;vertical-align:top;">
+          <div style="background-color:#F4EFE6;color:#0E1E2B;border:1px solid rgba(58,74,92,0.14);padding:24px;border-radius:14px;height:100%;box-sizing:border-box;">
+            <div style="font-family:'DM Mono',ui-monospace,monospace;font-size:0.74rem;letter-spacing:0.18em;color:#D4A055;margin-bottom:10px;">Everyone, everywhere</div>
+            <h3 style="font-size:1.18rem;font-weight:700;margin:0 0 8px 0;color:#0E1E2B;">Accessible, right-to-left, translated</h3>
+            <p style="font-size:1.0rem;color:#2C3845;line-height:1.6;margin:0;">Screen-reader data tables, keyboard drill, right-to-left layouts and locale catalogs help teams use dashboards in their preferred working environment.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ SCREENSHOT: PRESENT ============================ -->
+<section style="padding:50px 0;background-color:#F4EFE6;border-top:1px solid rgba(58,74,92,0.08);">
+  <div style="max-width:1180px;margin:0 auto;padding:0 24px;">
+    <h2 style="font-size:0.9rem;text-transform:uppercase;letter-spacing:0.22em;color:#0f9c78;margin:0 0 10px 0;font-weight:500;font-family:'DM Mono',ui-monospace,monospace;text-align:center;">Show it on the big screen</h2>
+    <h3 style="font-size:1.8rem;margin:0 0 26px 0;font-weight:700;color:#0E1E2B;text-align:center;letter-spacing:-0.01em;">Press Play and the board presents itself.</h3>
+    <div style="max-width:1000px;margin:0 auto;text-align:center;">
+      <img src="shot_present.png" alt="Presentation mode: one widget spotlighted full-screen with a play, pause, previous and next control bar and slide progress at the bottom" style="display:block;width:auto;max-width:100%;max-height:520px;margin:0 auto;border:1px solid rgba(212,160,85,0.35);border-radius:12px;box-shadow:0 12px 34px rgba(14,30,43,0.10);">
+      <p style="margin:18px auto 0 auto;max-width:760px;font-size:1.02rem;color:#2C3845;"><strong style="display:block;color:#0E1E2B;font-size:1.06rem;margin-bottom:4px;">A real slideshow, and a kiosk</strong>Spotlight each widget in turn with play, pause and manual steps, or leave it auto-rotating on a wall display. It opens over whatever you were doing and closes right back to it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ BUILT RIGHT (dark) ============================ -->
+<section style="padding:54px 0;background-image:linear-gradient(135deg,#0a221c,#0e2a24);color:#FBF8F2;">
+  <div style="max-width:1180px;margin:0 auto;padding:0 24px;">
+    <h2 style="font-size:0.9rem;text-transform:uppercase;letter-spacing:0.22em;color:#4fd1a8;margin:0 0 14px 0;font-weight:500;font-family:'DM Mono',ui-monospace,monospace;">Built right</h2>
+    <h3 style="font-size:1.9rem;margin:0 0 26px 0;font-weight:700;color:#FBF8F2;">Fast, safe and self-contained by design.</h3>
+    <div style="display:table;width:100%;border-collapse:separate;border-spacing:18px;">
+      <div style="display:table-row;">
+        <div style="display:table-cell;width:33.33%;vertical-align:top;">
+          <div style="background-color:rgba(255,255,255,0.04);border:1px solid rgba(27,175,122,0.28);padding:24px;border-radius:12px;height:100%;box-sizing:border-box;">
+            <div style="font-family:'DM Mono',ui-monospace,monospace;font-size:0.76rem;letter-spacing:0.2em;color:#4fd1a8;margin-bottom:10px;">Grouped, not looped</div>
+            <h3 style="font-size:1.12rem;font-weight:600;margin:0 0 8px 0;color:#FBF8F2;">Grouped in the database</h3>
+            <p style="font-size:1.0rem;color:rgba(251,248,242,0.86);line-height:1.6;margin:0;">Aggregation is pushed to the database with bounded grouped reads, never a full recordset loaded into Python and folded in a loop. A board over a large ledger stays quick, and no single read can run unbounded.</p>
+          </div>
+        </div>
+        <div style="display:table-cell;width:33.33%;vertical-align:top;">
+          <div style="background-color:rgba(255,255,255,0.04);border:1px solid rgba(27,175,122,0.28);padding:24px;border-radius:12px;height:100%;box-sizing:border-box;">
+            <div style="font-family:'DM Mono',ui-monospace,monospace;font-size:0.76rem;letter-spacing:0.2em;color:#4fd1a8;margin-bottom:10px;">Your rules, always</div>
+            <h3 style="font-size:1.12rem;font-weight:600;margin:0 0 8px 0;color:#FBF8F2;">Record-rule and company safe</h3>
+            <p style="font-size:1.0rem;color:rgba(251,248,242,0.86);line-height:1.6;margin:0;">Odoo ORM figures use the viewer's record rules and company access. Dashboards support owner, group and named-user audiences. SQL remains privileged; remote snapshots require administrator approval for the dashboard audience and do not inherit source-model record rules.</p>
+          </div>
+        </div>
+        <div style="display:table-cell;width:33.33%;vertical-align:top;">
+          <div style="background-color:rgba(255,255,255,0.04);border:1px solid rgba(27,175,122,0.28);padding:24px;border-radius:12px;height:100%;box-sizing:border-box;">
+            <div style="font-family:'DM Mono',ui-monospace,monospace;font-size:0.76rem;letter-spacing:0.2em;color:#4fd1a8;margin-bottom:10px;">Nothing external</div>
+            <h3 style="font-size:1.12rem;font-weight:600;margin:0 0 8px 0;color:#FBF8F2;">Original OWL and SVG, no CDN</h3>
+            <p style="font-size:1.0rem;color:rgba(251,248,242,0.86);line-height:1.6;margin:0;">The grid, the charts and the map are all built from scratch, with no third-party charting bundle and nothing loaded from a content delivery network. It depends only on the web framework, so it installs everywhere.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ EVERYTHING INCLUDED ============================ -->
+<section style="padding:54px 0;background-color:#FBF8F2;">
+  <div style="max-width:1180px;margin:0 auto;padding:0 24px;">
+    <h2 style="font-size:0.9rem;text-transform:uppercase;letter-spacing:0.22em;color:#0f9c78;margin:0 0 14px 0;font-weight:500;font-family:'DM Mono',ui-monospace,monospace;">Everything included</h2>
+    <h3 style="font-size:1.9rem;margin:0 0 28px 0;font-weight:700;color:#0E1E2B;letter-spacing:-0.01em;">Free. No editions, no add-ons, no paid dependencies.</h3>
+    <div style="display:table;width:100%;table-layout:fixed;border-spacing:0;">
+      <div style="display:table-cell;width:25%;vertical-align:top;padding-right:18px;">
+        <div style="font-family:'DM Mono',ui-monospace,monospace;font-size:0.72rem;letter-spacing:0.16em;color:#B07E2C;text-transform:uppercase;margin-bottom:12px;">Charts and widgets</div>
+        <div style="font-size:0.98rem;color:#2C3845;line-height:1.9;">
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Bar, column and stacked</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Line and area</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Pie and doughnut</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Radar</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Polar, radial and rose</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Funnel and pyramid</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Scatter and bullet</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Heat map and gauge</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>KPI tiles with trends</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>World choropleth map</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Pivot / cross-tab matrix</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Decomposition tree</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Combo second axis</div>
+        </div>
+      </div>
+      <div style="display:table-cell;width:25%;vertical-align:top;padding-right:18px;">
+        <div style="font-family:'DM Mono',ui-monospace,monospace;font-size:0.72rem;letter-spacing:0.16em;color:#B07E2C;text-transform:uppercase;margin-bottom:12px;">Data and sources</div>
+        <div style="font-size:0.98rem;color:#2C3845;line-height:1.9;">
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Any Odoo model</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Cross-model joins</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Calculated measures</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>CSV and Excel files</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Safe read-only SQL</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Credential vault</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Six vertical templates</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Save any board as one</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Count, sum, average</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Min, max, distinct count</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Targets and comparisons</div>
+        </div>
+      </div>
+      <div style="display:table-cell;width:25%;vertical-align:top;padding-right:18px;">
+        <div style="font-family:'DM Mono',ui-monospace,monospace;font-size:0.72rem;letter-spacing:0.16em;color:#B07E2C;text-transform:uppercase;margin-bottom:12px;">Explore and watch</div>
+        <div style="font-size:0.98rem;color:#2C3845;line-height:1.9;">
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Cross-filter</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Multi-level drill-down</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Breadcrumb to climb back</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Sync slicer</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Global date filter</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Conditional formatting</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Record click-through</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Snapshot history</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Threshold alerts</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Emailed PDF digest</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Offline smart insights</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Bring-your-own-key AI</div>
+        </div>
+      </div>
+      <div style="display:table-cell;width:25%;vertical-align:top;">
+        <div style="font-family:'DM Mono',ui-monospace,monospace;font-size:0.72rem;letter-spacing:0.16em;color:#B07E2C;text-transform:uppercase;margin-bottom:12px;">Share and trust</div>
+        <div style="font-size:0.98rem;color:#2C3845;line-height:1.9;">
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Presentation slideshow</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Kiosk auto-rotation</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Per-dashboard sharing</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Chart palettes</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Dark and light theme</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Vector PDF and Excel</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>CSV, PNG and JSON</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Record-rule safe</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Screen-reader table</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Right-to-left aware</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Twenty languages</div>
+          <div><span style="color:#0f9c78;font-weight:700;margin-right:8px;">&#10003;</span>Odoo 16 to 20</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ BOUNDARIES (honest) ============================ -->
+<section style="padding:50px 0;background-color:#FBF8F2;border-top:1px solid rgba(58,74,92,0.1);">
+  <div style="max-width:1180px;margin:0 auto;padding:0 24px;">
+    <h2 style="font-size:0.9rem;text-transform:uppercase;letter-spacing:0.22em;color:#2C3845;margin:0 0 14px 0;font-weight:500;font-family:'DM Mono',ui-monospace,monospace;">Honest boundaries</h2>
+    <h3 style="font-size:1.6rem;margin:0 0 18px 0;font-weight:600;color:#0E1E2B;">What it does, and what it does not.</h3>
+    <div style="background-color:#F4EFE6;border:1px solid rgba(58,74,92,0.14);border-radius:14px;padding:26px;max-width:940px;">
+      <p style="font-size:1.04rem;line-height:1.7;color:#2C3845;margin:0 0 12px 0;">Optional authoring sends your prompt and permitted metric definitions to the configured provider; narration sends computed facts. Raw rows and stored credentials are excluded from content payloads. The provider receives its authentication key. Authoring cannot run arbitrary SQL or Python, and a proposal must be reviewed before applying it.</p>
+      <p style="font-size:1.04rem;line-height:1.7;color:#2C3845;margin:0 0 12px 0;">The file source reads CSV and Excel columns for charting; it is not a two-way sync back to your files. Reading Excel needs the openpyxl library on your server, while CSV needs nothing extra.</p>
+      <p style="font-size:1.04rem;line-height:1.7;color:#2C3845;margin:0;">Sales packs exclude foreign-currency orders. Receivables show current residuals, not historical as-of balances or forecasts. Warehouse packs count transfer documents, including returns. Each pack requires its matching app and access rights. Remote sources refresh on a schedule; external database connectors and anonymous chart publishing are not included.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ VERSION BAND (dark) ============================ -->
+<section style="padding:48px 0;background-color:#0E1E2B;color:#FBF8F2;text-align:center;">
+  <div style="max-width:1180px;margin:0 auto;padding:0 24px;">
+    <h2 style="font-size:0.9rem;text-transform:uppercase;letter-spacing:0.22em;color:#E8C887;margin:0 0 12px 0;font-weight:500;font-family:'DM Mono',ui-monospace,monospace;">Packages for five Odoo versions</h2>
+    <h3 style="font-size:1.7rem;margin:0 0 22px 0;font-weight:700;color:#FBF8F2;">Runs on Odoo 16, 17, 18, 19 and 20 Community.</h3>
+    <div>
+      <span style="display:inline-block;background-color:rgba(27,175,122,0.14);border:1px solid rgba(27,175,122,0.5);color:#9fe9d4;padding:8px 18px;border-radius:999px;font-family:'DM Mono',ui-monospace,monospace;font-size:0.95rem;margin:5px;">Odoo 16.0</span>
+      <span style="display:inline-block;background-color:rgba(27,175,122,0.14);border:1px solid rgba(27,175,122,0.5);color:#9fe9d4;padding:8px 18px;border-radius:999px;font-family:'DM Mono',ui-monospace,monospace;font-size:0.95rem;margin:5px;">Odoo 17.0</span>
+      <span style="display:inline-block;background-color:rgba(27,175,122,0.14);border:1px solid rgba(27,175,122,0.5);color:#9fe9d4;padding:8px 18px;border-radius:999px;font-family:'DM Mono',ui-monospace,monospace;font-size:0.95rem;margin:5px;">Odoo 18.0</span>
+      <span style="display:inline-block;background-color:rgba(27,175,122,0.14);border:1px solid rgba(27,175,122,0.5);color:#9fe9d4;padding:8px 18px;border-radius:999px;font-family:'DM Mono',ui-monospace,monospace;font-size:0.95rem;margin:5px;">Odoo 19.0</span>
+      <span style="display:inline-block;background-color:rgba(27,175,122,0.14);border:1px solid rgba(27,175,122,0.5);color:#9fe9d4;padding:8px 18px;border-radius:999px;font-family:ui-monospace,monospace;font-size:0.95rem;margin:5px;">Odoo 20.0</span>
+    </div>
+    <p style="font-size:1.02rem;color:rgba(251,248,242,0.78);margin:24px auto 0 auto;max-width:720px;line-height:1.65;">Free, with no paid dependencies to pull in behind it. Install it, open the Dashboards menu, and a live welcome board is already waiting.</p>
+  </div>
+</section>
+
+<!-- ============================ FOOTER ============================ -->
+<footer style="background-color:#08201b;color:#FBF8F2;padding:36px 24px;border-top:4px solid #D4A055;">
+  <div style="max-width:1180px;margin:0 auto;text-align:center;">
+    <div style="margin-bottom:10px;">
+      <img src="mark_white.png" alt="ERP Heritage" style="height:40px;width:auto;display:inline-block;vertical-align:middle;">
+    </div>
+    <div style="font-family:'DM Mono',ui-monospace,monospace;font-size:0.86rem;letter-spacing:0.22em;text-transform:uppercase;color:#E8C887;margin-bottom:8px;">ERP Heritage</div>
+    <p style="font-size:0.98rem;color:rgba(251,248,242,0.82);margin:0 0 6px 0;">Dashboard Builder is a self-contained business-intelligence module. Support and questions: info@erpheritage.com.au</p>
+    <p style="font-size:0.82rem;color:rgba(251,248,242,0.5);margin:0 0 10px 0;font-family:'DM Mono',ui-monospace,monospace;">Free &middot; OPL-1 &middot; Odoo 16 to 20 Community</p>
+    <!-- EH_SEO_START -->
+    <p style="font-size:0.82rem;color:rgba(251,248,242,0.55);margin:0;">Developed by <span style="color:#E8C887;">ERP Heritage</span> &bull; info@erpheritage.com.au</p>
+    <!-- EH_SEO_END -->
+  </div>
+</footer>
+
+</body>
+</html>

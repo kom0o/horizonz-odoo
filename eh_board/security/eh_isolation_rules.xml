@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- A dashboard is visible when it is scoped to one of the user's
+         allowed companies (or to no company at all). Global: applies to
+         everyone, AND-ed with the group rules below. Multi-company safe. -->
+    <record id="eh_board_dashboard_company_rule" model="ir.rule">
+        <field name="name">Dashboard: multi-company</field>
+        <field name="model_id" ref="model_eh_board_dashboard"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', ('company_ids', '=', False), ('company_ids', 'in', company_ids)]</field>
+    </record>
+
+    <!-- Viewer visibility: a plain Viewer only sees a dashboard they own, one
+         shared with them, or one that is PUBLISHED and either unrestricted or
+         scoped to one of their groups. This stops every draft leaking to every
+         viewer. Non-global (scoped to the Viewer group) so it is OR-ed with the
+         Builder rule below - Builders/Admins are not restricted by it. -->
+    <record id="eh_board_dashboard_viewer_rule" model="ir.rule">
+        <field name="name">Dashboard: viewer visibility</field>
+        <field name="model_id" ref="model_eh_board_dashboard"/>
+        <field name="global" eval="False"/>
+        <field name="groups" eval="[(4, ref('group_board_viewer'))]"/>
+        <field name="domain_force">['|', ('owner_id', '=', user.id), '|', ('shared_user_ids', 'in', [user.id]), '&amp;', ('state', '=', 'published'), '|', ('group_ids', '=', False), ('group_ids', 'in', user.groups_id.ids)]</field>
+    </record>
+
+    <!-- Builders and Admins maintain every board (subject only to the global
+         company rule). Because non-global rules are OR-ed per group and a
+         Builder is also a Viewer, this lifts the viewer restriction for them -
+         so an admin is never locked out of a board they must manage. -->
+    <record id="eh_board_dashboard_builder_rule" model="ir.rule">
+        <field name="name">Dashboard: builder full access</field>
+        <field name="model_id" ref="model_eh_board_dashboard"/>
+        <field name="global" eval="False"/>
+        <field name="groups" eval="[(4, ref('group_board_builder'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+
+    <!-- GLOBAL multi-company rules on every child model. The dashboard rule
+         above scopes the parent, but record rules do not inherit across models,
+         so without these a Builder in company A could read company B's stored
+         figures (snapshots, alerts) and config directly. AND-ed with the group
+         rules below, and mirrors the parent's company scope via the dashboard. -->
+    <record id="eh_board_item_company_rule" model="ir.rule">
+        <field name="name">Item: multi-company</field>
+        <field name="model_id" ref="model_eh_board_item"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', ('dashboard_id.company_ids', '=', False), ('dashboard_id.company_ids', 'in', company_ids)]</field>
+    </record>
+    <record id="eh_board_filter_company_rule" model="ir.rule">
+        <field name="name">Filter: multi-company</field>
+        <field name="model_id" ref="model_eh_board_filter"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', ('dashboard_id.company_ids', '=', False), ('dashboard_id.company_ids', 'in', company_ids)]</field>
+    </record>
+    <record id="eh_board_layout_company_rule" model="ir.rule">
+        <field name="name">Layout: multi-company</field>
+        <field name="model_id" ref="model_eh_board_layout_version"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', ('dashboard_id.company_ids', '=', False), ('dashboard_id.company_ids', 'in', company_ids)]</field>
+    </record>
+    <record id="eh_board_snapshot_company_rule" model="ir.rule">
+        <field name="name">Snapshot: multi-company</field>
+        <field name="model_id" ref="model_eh_board_snapshot"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', ('dashboard_id.company_ids', '=', False), ('dashboard_id.company_ids', 'in', company_ids)]</field>
+    </record>
+    <record id="eh_board_alert_company_rule" model="ir.rule">
+        <field name="name">Alert: multi-company</field>
+        <field name="model_id" ref="model_eh_board_alert"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', ('dashboard_id.company_ids', '=', False), ('dashboard_id.company_ids', 'in', company_ids)]</field>
+    </record>
+    <record id="eh_board_drill_company_rule" model="ir.rule">
+        <field name="name">Drill: multi-company</field>
+        <field name="model_id" ref="model_eh_board_drill"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', ('item_id.dashboard_id.company_ids', '=', False), ('item_id.dashboard_id.company_ids', 'in', company_ids)]</field>
+    </record>
+    <record id="eh_board_datasource_company_rule" model="ir.rule">
+        <field name="name">Data source: multi-company</field>
+        <field name="model_id" ref="model_eh_board_datasource"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', '&amp;', ('dashboard_id', '!=', False), '|', ('dashboard_id.company_ids', '=', False), ('dashboard_id.company_ids', 'in', company_ids), '&amp;', ('item_ids', '!=', False), '|', ('item_ids.dashboard_id.company_ids', '=', False), ('item_ids.dashboard_id.company_ids', 'in', company_ids)]</field>
+    </record>
+    <record id="eh_board_measure_company_rule" model="ir.rule">
+        <field name="name">Measure: multi-company</field>
+        <field name="model_id" ref="model_eh_board_measure"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', '&amp;', ('datasource_id.dashboard_id', '!=', False), '|', ('datasource_id.dashboard_id.company_ids', '=', False), ('datasource_id.dashboard_id.company_ids', 'in', company_ids), '&amp;', ('datasource_id.item_ids', '!=', False), '|', ('datasource_id.item_ids.dashboard_id.company_ids', '=', False), ('datasource_id.item_ids.dashboard_id.company_ids', 'in', company_ids)]</field>
+    </record>
+    <record id="eh_board_source_column_company_rule" model="ir.rule">
+        <field name="name">Source column: multi-company</field>
+        <field name="model_id" ref="model_eh_board_source_column"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', '&amp;', ('datasource_id.dashboard_id', '!=', False), '|', ('datasource_id.dashboard_id.company_ids', '=', False), ('datasource_id.dashboard_id.company_ids', 'in', company_ids), '&amp;', ('datasource_id.item_ids', '!=', False), '|', ('datasource_id.item_ids.dashboard_id.company_ids', '=', False), ('datasource_id.item_ids.dashboard_id.company_ids', 'in', company_ids)]</field>
+    </record>
+
+    <!-- Child records inherit their dashboard's visibility for plain Viewers,
+         so a widget's config never leaks from a board they cannot open. The
+         actual figures are already record-rule-safe (aggregated as the user);
+         this closes the config surface too. Builders see all. -->
+    <record id="eh_board_item_viewer_rule" model="ir.rule">
+        <field name="name">Item: viewer visibility</field>
+        <field name="model_id" ref="model_eh_board_item"/>
+        <field name="global" eval="False"/>
+        <field name="groups" eval="[(4, ref('group_board_viewer'))]"/>
+        <field name="domain_force">['|', ('dashboard_id.owner_id', '=', user.id), '|', ('dashboard_id.shared_user_ids', 'in', [user.id]), '&amp;', ('dashboard_id.state', '=', 'published'), '|', ('dashboard_id.group_ids', '=', False), ('dashboard_id.group_ids', 'in', user.groups_id.ids)]</field>
+    </record>
+    <record id="eh_board_item_builder_rule" model="ir.rule">
+        <field name="name">Item: builder full access</field>
+        <field name="model_id" ref="model_eh_board_item"/>
+        <field name="global" eval="False"/>
+        <field name="groups" eval="[(4, ref('group_board_builder'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+
+    <record id="eh_board_filter_viewer_rule" model="ir.rule">
+        <field name="name">Filter: viewer visibility</field>
+        <field name="model_id" ref="model_eh_board_filter"/>
+        <field name="global" eval="False"/>
+        <field name="groups" eval="[(4, ref('group_board_viewer'))]"/>
+        <field name="domain_force">['|', ('dashboard_id.owner_id', '=', user.id), '|', ('dashboard_id.shared_user_ids', 'in', [user.id]), '&amp;', ('dashboard_id.state', '=', 'published'), '|', ('dashboard_id.group_ids', '=', False), ('dashboard_id.group_ids', 'in', user.groups_id.ids)]</field>
+    </record>
+    <record id="eh_board_filter_builder_rule" model="ir.rule">
+        <field name="name">Filter: builder full access</field>
+        <field name="model_id" ref="model_eh_board_filter"/>
+        <field name="global" eval="False"/>
+        <field name="groups" eval="[(4, ref('group_board_builder'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+
+    <record id="eh_board_layout_viewer_rule" model="ir.rule">
+        <field name="name">Layout: viewer visibility</field>
+        <field name="model_id" ref="model_eh_board_layout_version"/>
+        <field name="global" eval="False"/>
+        <field name="groups" eval="[(4, ref('group_board_viewer'))]"/>
+        <field name="domain_force">['|', ('dashboard_id.owner_id', '=', user.id), '|', ('dashboard_id.shared_user_ids', 'in', [user.id]), '&amp;', ('dashboard_id.state', '=', 'published'), '|', ('dashboard_id.group_ids', '=', False), ('dashboard_id.group_ids', 'in', user.groups_id.ids)]</field>
+    </record>
+    <record id="eh_board_layout_builder_rule" model="ir.rule">
+        <field name="name">Layout: builder full access</field>
+        <field name="model_id" ref="model_eh_board_layout_version"/>
+        <field name="global" eval="False"/>
+        <field name="groups" eval="[(4, ref('group_board_builder'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+
+    <record id="eh_board_drill_viewer_rule" model="ir.rule">
+        <field name="name">Drill: viewer visibility</field>
+        <field name="model_id" ref="model_eh_board_drill"/>
+        <field name="global" eval="False"/>
+        <field name="groups" eval="[(4, ref('group_board_viewer'))]"/>
+        <field name="domain_force">['|', ('item_id.dashboard_id.owner_id', '=', user.id), '|', ('item_id.dashboard_id.shared_user_ids', 'in', [user.id]), '&amp;', ('item_id.dashboard_id.state', '=', 'published'), '|', ('item_id.dashboard_id.group_ids', '=', False), ('item_id.dashboard_id.group_ids', 'in', user.groups_id.ids)]</field>
+    </record>
+    <record id="eh_board_drill_builder_rule" model="ir.rule">
+        <field name="name">Drill: builder full access</field>
+        <field name="model_id" ref="model_eh_board_drill"/>
+        <field name="global" eval="False"/>
+        <field name="groups" eval="[(4, ref('group_board_builder'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+
+    <!-- Sources and their measures/columns are shared configuration models, but
+         Viewer ACLs must not mean "read every source in database". A Viewer may
+         read them only through at least one dashboard item they may itself read.
+         Raw file rows remain additionally blocked at method level. -->
+    <record id="eh_board_datasource_viewer_rule" model="ir.rule">
+        <field name="name">Data source: visible dashboard only</field>
+        <field name="model_id" ref="model_eh_board_datasource"/>
+        <field name="global" eval="False"/>
+        <field name="groups" eval="[(4, ref('group_board_viewer'))]"/>
+        <field name="domain_force">['|', ('item_ids.dashboard_id.owner_id', '=', user.id), '|', ('item_ids.dashboard_id.shared_user_ids', 'in', [user.id]), '&amp;', ('item_ids.dashboard_id.state', '=', 'published'), '|', ('item_ids.dashboard_id.group_ids', '=', False), ('item_ids.dashboard_id.group_ids', 'in', user.groups_id.ids)]</field>
+    </record>
+    <record id="eh_board_datasource_builder_rule" model="ir.rule">
+        <field name="name">Data source: builder full access</field>
+        <field name="model_id" ref="model_eh_board_datasource"/>
+        <field name="global" eval="False"/>
+        <field name="groups" eval="[(4, ref('group_board_builder'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+    <record id="eh_board_measure_viewer_rule" model="ir.rule">
+        <field name="name">Measure: visible dashboard only</field>
+        <field name="model_id" ref="model_eh_board_measure"/>
+        <field name="global" eval="False"/>
+        <field name="groups" eval="[(4, ref('group_board_viewer'))]"/>
+        <field name="domain_force">['|', ('datasource_id.item_ids.dashboard_id.owner_id', '=', user.id), '|', ('datasource_id.item_ids.dashboard_id.shared_user_ids', 'in', [user.id]), '&amp;', ('datasource_id.item_ids.dashboard_id.state', '=', 'published'), '|', ('datasource_id.item_ids.dashboard_id.group_ids', '=', False), ('datasource_id.item_ids.dashboard_id.group_ids', 'in', user.groups_id.ids)]</field>
+    </record>
+    <record id="eh_board_measure_builder_rule" model="ir.rule">
+        <field name="name">Measure: builder full access</field>
+        <field name="model_id" ref="model_eh_board_measure"/>
+        <field name="global" eval="False"/>
+        <field name="groups" eval="[(4, ref('group_board_builder'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+    <record id="eh_board_source_column_viewer_rule" model="ir.rule">
+        <field name="name">Source column: visible dashboard only</field>
+        <field name="model_id" ref="model_eh_board_source_column"/>
+        <field name="global" eval="False"/>
+        <field name="groups" eval="[(4, ref('group_board_viewer'))]"/>
+        <field name="domain_force">['|', ('datasource_id.item_ids.dashboard_id.owner_id', '=', user.id), '|', ('datasource_id.item_ids.dashboard_id.shared_user_ids', 'in', [user.id]), '&amp;', ('datasource_id.item_ids.dashboard_id.state', '=', 'published'), '|', ('datasource_id.item_ids.dashboard_id.group_ids', '=', False), ('datasource_id.item_ids.dashboard_id.group_ids', 'in', user.groups_id.ids)]</field>
+    </record>
+    <record id="eh_board_source_column_builder_rule" model="ir.rule">
+        <field name="name">Source column: builder full access</field>
+        <field name="model_id" ref="model_eh_board_source_column"/>
+        <field name="global" eval="False"/>
+        <field name="groups" eval="[(4, ref('group_board_builder'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+
+    <!-- Snapshots persist the actual recorded KPI values; scope them exactly
+         like the item so a Viewer cannot read the history of a board they can't
+         open (including other users' drafts and other companies). -->
+    <record id="eh_board_snapshot_viewer_rule" model="ir.rule">
+        <field name="name">Snapshot: viewer visibility</field>
+        <field name="model_id" ref="model_eh_board_snapshot"/>
+        <field name="global" eval="False"/>
+        <field name="groups" eval="[(4, ref('group_board_viewer'))]"/>
+        <field name="domain_force">['|', ('dashboard_id.owner_id', '=', user.id), '|', ('dashboard_id.shared_user_ids', 'in', [user.id]), '&amp;', ('dashboard_id.state', '=', 'published'), '|', ('dashboard_id.group_ids', '=', False), ('dashboard_id.group_ids', 'in', user.groups_id.ids)]</field>
+    </record>
+    <record id="eh_board_snapshot_builder_rule" model="ir.rule">
+        <field name="name">Snapshot: builder full access</field>
+        <field name="model_id" ref="model_eh_board_snapshot"/>
+        <field name="global" eval="False"/>
+        <field name="groups" eval="[(4, ref('group_board_builder'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+
+    <!-- Alerts persist last_value / threshold (live KPI figures). Same scope. -->
+    <record id="eh_board_alert_viewer_rule" model="ir.rule">
+        <field name="name">Alert: viewer visibility</field>
+        <field name="model_id" ref="model_eh_board_alert"/>
+        <field name="global" eval="False"/>
+        <field name="groups" eval="[(4, ref('group_board_viewer'))]"/>
+        <field name="domain_force">['|', ('dashboard_id.owner_id', '=', user.id), '|', ('dashboard_id.shared_user_ids', 'in', [user.id]), '&amp;', ('dashboard_id.state', '=', 'published'), '|', ('dashboard_id.group_ids', '=', False), ('dashboard_id.group_ids', 'in', user.groups_id.ids)]</field>
+    </record>
+    <record id="eh_board_alert_builder_rule" model="ir.rule">
+        <field name="name">Alert: builder full access</field>
+        <field name="model_id" ref="model_eh_board_alert"/>
+        <field name="global" eval="False"/>
+        <field name="groups" eval="[(4, ref('group_board_builder'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+
+</odoo>
