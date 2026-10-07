@@ -8,14 +8,17 @@ import { download } from "@web/core/network/download";
  * Sends a request to `/xlsx_reports` with the action data payload
  * and triggers a file download on completion.
  */
-registry.category("ir.actions.report handlers").add("xlsx", async (action) => {
-    if (action.report_type === 'xlsx') {
-        BlockUI;
-        await download({
-            url: '/xlsx_reports',
-            data: action.data,
-            complete: () => unblockUI,
-            error: (error) => self.call('crash_manager', 'rpc_error', error),
-        });
-    }
-});
+const reportHandlersRegistry = registry.category("ir.actions.report handlers");
+if (!reportHandlersRegistry.contains("xlsx")) {
+    reportHandlersRegistry.add("xlsx", async (action) => {
+        if (action.report_type === 'xlsx') {
+            BlockUI;
+            await download({
+                url: '/xlsx_reports',
+                data: action.data,
+                complete: () => unblockUI,
+                error: (error) => self.call('crash_manager', 'rpc_error', error),
+            });
+        }
+    });
+}
