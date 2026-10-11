@@ -50,6 +50,11 @@
                                            options="{'no_create': True, 'no_create_edit': True}"/>
                                     <field name="category_ids"
                                            invisible="1"/>
+                                    <field name="target_type"/>
+                                    <field name="min_qty"
+                                           invisible="target_type not in ('quantity', 'both', 'either')"/>
+                                    <field name="min_amount"
+                                           invisible="target_type not in ('amount', 'both', 'either')"/>
                                     <field name="commission_amount_type"/>
                                     <field name="percentage"
                                            invisible="commission_amount_type == 'fixed'"/>

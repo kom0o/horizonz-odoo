@@ -187,3 +187,79 @@ class TestCommissionPlan(TransactionCase):
             user_commission_name
         )
         self.assertEqual(commission_list[0], 50.0)
+
+    def test_product_wise_commission_targets(self):
+        """Test product wise commission with minimum quantity and amount targets"""
+        # 1. Target quantity: required 15, sold 10 -> not eligible (0.0)
+        commission_plan_qty = self.env['crm.commission'].create({
+            'name': 'Product Target Qty Plan',
+            'type': 'product',
+            'date_from': date.today() - timedelta(days=30),
+            'date_to': date.today() + timedelta(days=30),
+            'product_comm_ids': [(0, 0, {
+                'product_id': self.Product.id,
+                'target_type': 'quantity',
+                'min_qty': 15.0,
+                'commission_amount_type': 'percentage',
+                'percentage': 10.0,
+            })]
+        })
+        sale_order = self.env['sale.order'].create({
+            'partner_id': self.Partner.id,
+            'user_id': self.Salesperson.id,
+            'order_line': [(0, 0, {
+                'product_id': self.Product.id,
+                'product_uom_qty': 10,
+                'price_unit': 100.0,
+            })]
+        })
+        sale_order.action_confirm()
+        wizard = self.env['commission.report'].create({
+            'salesperson_ids': [(4, self.Salesperson.id)],
+        })
+        comm_list_1 = []
+        wizard._calculate_product_commission(
+            sale_order.order_line, [], comm_list_1, [],
+            self.Salesperson, commission_plan_qty, []
+        )
+        self.assertEqual(comm_list_1[0], 0.0)
+
+        # 2. Target quantity: required 10, sold 10 -> eligible (100.0)
+        commission_plan_qty.product_comm_ids[0].min_qty = 10.0
+        comm_list_2 = []
+        wizard._calculate_product_commission(
+            sale_order.order_line, [], comm_list_2, [],
+            self.Salesperson, commission_plan_qty, []
+        )
+        self.assertEqual(comm_list_2[0], 100.0)
+
+        # 3. Target amount: required 1500, sold 1000 -> not eligible (0.0)
+        commission_plan_amt = self.env['crm.commission'].create({
+            'name': 'Product Target Amt Plan',
+            'type': 'product',
+            'date_from': date.today() - timedelta(days=30),
+            'date_to': date.today() + timedelta(days=30),
+            'product_comm_ids': [(0, 0, {
+                'product_id': self.Product.id,
+                'target_type': 'amount',
+                'min_amount': 1500.0,
+                'commission_amount_type': 'percentage',
+                'percentage': 10.0,
+            })]
+        })
+        comm_list_3 = []
+        wizard._calculate_product_commission(
+            sale_order.order_line, [], comm_list_3, [],
+            self.Salesperson, commission_plan_amt, []
+        )
+        self.assertEqual(comm_list_3[0], 0.0)
+
+        # 4. Target amount: required 1000, sold 1000 -> eligible (100.0)
+        commission_plan_amt.product_comm_ids[0].min_amount = 1000.0
+        comm_list_4 = []
+        wizard._calculate_product_commission(
+            sale_order.order_line, [], comm_list_4, [],
+            self.Salesperson, commission_plan_amt, []
+        )
+        self.assertEqual(comm_list_4[0], 100.0)
+

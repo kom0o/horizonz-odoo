@@ -19,7 +19,7 @@
 #    If not, see <http://www.gnu.org/licenses/>.
 #
 #############################################################################
-from odoo import api, fields, models
+from odoo import api, exceptions, fields, models, _
 
 
 class CommissionProduct(models.Model):
@@ -39,6 +39,19 @@ class CommissionProduct(models.Model):
                                     compute="_onchange_category_id")
     product_id = fields.Many2one('product.product', string='Product',
                                  help='Select the product')
+    target_type = fields.Selection([
+        ('none', 'None'),
+        ('quantity', 'Minimum Quantity Sold'),
+        ('amount', 'Minimum Untaxed Amount Sold'),
+        ('both', 'Both (Quantity and Amount)'),
+        ('either', 'Either (Quantity or Amount)'),
+    ], string='Target Type', default='none',
+        help='Target requirement to be eligible for commission')
+    min_qty = fields.Float(string='Minimum Quantity Sold', default=0.0,
+                           help='Minimum quantity sold required to be eligible for commission')
+    min_amount = fields.Monetary(string='Minimum Untaxed Amount Sold', default=0.0,
+                                currency_field='currency_id',
+                                help='Minimum untaxed amount sold required to be eligible for commission')
     commission_amount_type = fields.Selection([('percentage', 'Percentage'),
                                                ('fixed', 'Fixed Amount')],
                                               string="Amount Type",
@@ -56,6 +69,30 @@ class CommissionProduct(models.Model):
                                   help='Currency of the company')
     commission_id = fields.Many2one("crm.commission", string='Commission',
                                     help='Select The Crm Commission')
+
+    @api.constrains('min_qty', 'min_amount')
+    def _check_targets(self):
+        """Ensure minimum targets are not negative"""
+        for rec in self:
+            if rec.min_qty < 0:
+                raise exceptions.ValidationError(
+                    _("The Minimum Quantity Sold cannot be negative."))
+            if rec.min_amount < 0:
+                raise exceptions.ValidationError(
+                    _("The Minimum Untaxed Amount Sold cannot be negative."))
+
+    def check_eligibility(self, total_qty, total_amount):
+        """Check if sales meet the target requirements for commission eligibility"""
+        self.ensure_one()
+        if self.target_type == 'quantity':
+            return total_qty >= self.min_qty
+        elif self.target_type == 'amount':
+            return total_amount >= self.min_amount
+        elif self.target_type == 'both':
+            return total_qty >= self.min_qty and total_amount >= self.min_amount
+        elif self.target_type == 'either':
+            return total_qty >= self.min_qty or total_amount >= self.min_amount
+        return True
 
     @api.depends('category_id')
     def _onchange_category_id(self):

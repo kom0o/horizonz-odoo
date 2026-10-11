@@ -328,17 +328,23 @@ class CommissionReport(models.TransientModel):
                 lambda rec: rec.product_id == rule.product_id or
                             rec.product_id.categ_id.id == rule.category_id.id)
             total_price = sum(product_order_line.mapped('price_subtotal'))
-            product_commission = (total_price * rule.percentage) / 100 if \
-                rule.commission_amount_type == 'percentage' else \
-                rule.fixed_amount
+            total_qty = sum(product_order_line.mapped('product_uom_qty'))
+            is_eligible = rule.check_eligibility(total_qty, total_price)
+            if is_eligible:
+                product_commission = (total_price * rule.percentage) / 100 if \
+                    rule.commission_amount_type == 'percentage' else \
+                    rule.fixed_amount
+                commission_amount = (
+                    rule.amount if product_commission > rule.amount and
+                                   rule.commission_amount_type == 'percentage'
+                    else product_commission
+                )
+            else:
+                commission_amount = 0.0
             total_list.append(total_price)
             user_commission_name.append(commission_id.name)
             user_commission_salesperson.append(user.name)
-            commission_list.append(
-                rule.amount if product_commission > rule.amount and
-                               rule.commission_amount_type == 'percentage'
-                else product_commission
-            )
+            commission_list.append(commission_amount)
 
     def _calculate_graduated_commission(self,
                                         commission_list,
@@ -431,21 +437,27 @@ class CommissionReport(models.TransientModel):
                         total_price = sum(
                             product_order_line.mapped('price_subtotal')
                         )
-                        product_commission = (
-                                                     total_price * rules.percentage
-                                             ) / 100 if \
-                            rules.commission_amount_type == 'percentage' else \
-                            rules.fixed_amount
+                        total_qty = sum(product_order_line.mapped('product_uom_qty'))
+                        is_eligible = rules.check_eligibility(total_qty, total_price)
+                        if is_eligible:
+                            product_commission = (
+                                                         total_price * rules.percentage
+                                                 ) / 100 if \
+                                rules.commission_amount_type == 'percentage' else \
+                                rules.fixed_amount
+                            commission_amount = (
+                                rules.amount if product_commission > rules.amount
+                                                and rules.commission_amount_type == 'percentage'
+                                else product_commission
+                            )
+                        else:
+                            commission_amount = 0.0
                         commission_total.append(total_price)
                         commission_name.append(commissions_id.name)
                         commission_salesperson.append(team_user.name)
                         commission_sales_team.append(
                             team_user.sale_team_id.name)
-                        commission.append(
-                            rules.amount if product_commission > rules.amount
-                                            and rules.commission_amount_type == 'percentage'
-                            else product_commission
-                        )
+                        commission.append(commission_amount)
                 if commissions_id.type == 'revenue' and (
                         commissions_id.revenue_type == 'graduated'):
                     for rules in commissions_id.revenue_grd_comm_ids:
