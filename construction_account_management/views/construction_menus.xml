@@ -4,7 +4,7 @@
     <menuitem id="menu_construction_root"
               name="Construction Billing"
               sequence="45"
-              web_icon="fa fa-building-o,#2A3F54,#FFFFFF"
+              web_icon="construction_account_management,static/description/icon.png"
               groups="group_construction_billing_user"/>
 
     <!-- Main Navigation Submenus -->
