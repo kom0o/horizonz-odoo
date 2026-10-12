@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Top Level App Menu -->
+    <menuitem id="menu_construction_root"
+              name="Construction Billing"
+              sequence="45"
+              web_icon="fa fa-building-o,#2A3F54,#FFFFFF"
+              groups="group_construction_billing_user"/>
+
+    <!-- Main Navigation Submenus -->
+    <menuitem id="menu_construction_projects"
+              name="Projects &amp; Sites"
+              parent="menu_construction_root"
+              action="action_construction_project"
+              sequence="10"/>
+
+    <menuitem id="menu_construction_clients"
+              name="Clients &amp; Employers"
+              parent="menu_construction_root"
+              action="action_construction_clients"
+              sequence="20"/>
+
+    <menuitem id="menu_construction_invoices"
+              name="Invoices &amp; Claims"
+              parent="menu_construction_root"
+              action="action_construction_invoices"
+              sequence="30"/>
+
+    <menuitem id="menu_construction_payments"
+              name="Customer Receipts"
+              parent="menu_construction_root"
+              action="action_construction_payments"
+              sequence="40"/>
+
+    <menuitem id="menu_construction_due"
+              name="Due &amp; Overdue Amounts"
+              parent="menu_construction_root"
+              action="action_construction_due_invoices"
+              sequence="50"/>
+</odoo>

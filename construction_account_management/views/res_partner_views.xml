@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Partner Form Extension -->
+    <record id="view_partner_form_construction_inherit" model="ir.ui.view">
+        <field name="name">res.partner.form.construction.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+                <button name="action_view_construction_projects" type="object" class="oe_stat_button"
+                        icon="fa-building-o" invisible="not is_construction_client and construction_project_count == 0">
+                    <field name="construction_project_count" widget="statinfo" string="Sites/Projects"/>
+                </button>
+                <button name="action_view_construction_invoices" type="object" class="oe_stat_button"
+                        icon="fa-pencil-square-o" invisible="not is_construction_client">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value"><field name="total_construction_invoiced" widget="monetary" options="{'currency_field': 'currency_id'}"/></span>
+                        <span class="o_stat_text">Invoiced</span>
+                    </div>
+                </button>
+                <button name="action_view_construction_due" type="object" class="oe_stat_button"
+                        icon="fa-money" invisible="not is_construction_client">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value text-danger"><field name="total_construction_due" widget="monetary" options="{'currency_field': 'currency_id'}"/></span>
+                        <span class="o_stat_text">Due Amount</span>
+                    </div>
+                </button>
+            </div>
+
+            <xpath expr="//notebook" position="inside">
+                <page string="Construction &amp; Contracts" name="construction_contracts">
+                    <group>
+                        <group string="Construction Profile">
+                            <field name="is_construction_client"/>
+                            <field name="partner_construction_type" invisible="not is_construction_client"/>
+                            <field name="construction_cr_number" invisible="not is_construction_client"/>
+                            <field name="credit_limit_amount" widget="monetary" options="{'currency_field': 'currency_id'}" invisible="not is_construction_client"/>
+                        </group>
+                        <group string="Financial Summary" invisible="not is_construction_client">
+                            <field name="total_construction_invoiced" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="total_construction_paid" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="total_construction_due" widget="monetary" options="{'currency_field': 'currency_id'}" decoration-danger="total_construction_due &gt; 0"/>
+                            <field name="total_retention_held" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                        </group>
+                    </group>
+                    <field name="construction_project_ids" readonly="1" invisible="not is_construction_client">
+                        <list string="Client Projects">
+                            <field name="code"/>
+                            <field name="name"/>
+                            <field name="contract_value"/>
+                            <field name="total_invoiced"/>
+                            <field name="total_due" decoration-danger="total_due &gt; 0"/>
+                            <field name="state" widget="badge"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Filter and Action for Construction Clients -->
+    <record id="action_construction_clients" model="ir.actions.act_window">
+        <field name="name">Construction Clients &amp; Employers</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('is_construction_client', '=', True)]</field>
+        <field name="context">{
+            'default_is_construction_client': True,
+            'default_customer_rank': 1,
+            'default_is_company': True
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Register a new Construction Client / Contractor
+            </p>
+            <p>
+                Manage employers, main contractors, credit limits, and project financials.
+            </p>
+        </field>
+    </record>
+</odoo>

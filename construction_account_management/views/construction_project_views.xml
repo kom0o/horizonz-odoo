@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Construction Project Form View -->
+    <record id="view_construction_project_form" model="ir.ui.view">
+        <field name="name">construction.project.form</field>
+        <field name="model">construction.project</field>
+        <field name="arch" type="xml">
+            <form string="Construction Project / Site">
+                <header>
+                    <button name="action_in_progress" string="Start Construction" type="object"
+                            class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="action_snagging" string="Handover &amp; Snagging" type="object"
+                            class="oe_highlight" invisible="state != 'in_progress'"/>
+                    <button name="action_done" string="Complete &amp; Close" type="object"
+                            class="oe_highlight" invisible="state != 'snagging'"/>
+                    <button name="action_draft" string="Reset to Draft" type="object"
+                            invisible="state not in ('cancel', 'done')"/>
+                    <button name="action_cancel" string="Cancel Contract" type="object"
+                            invisible="state in ('done', 'cancel')"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,in_progress,snagging,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_invoices" type="object" class="oe_stat_button" icon="fa-pencil-square-o">
+                            <field name="invoice_count" widget="statinfo" string="Invoices"/>
+                        </button>
+                        <button name="action_view_payments" type="object" class="oe_stat_button" icon="fa-money">
+                            <field name="payment_count" widget="statinfo" string="Receipts"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <span class="o_form_label">Project Code</span>
+                        <h1>
+                            <field name="code" readonly="1"/>
+                        </h1>
+                        <label for="name" string="Project Name"/>
+                        <h2>
+                            <field name="name" placeholder="e.g. Al-Noor Commercial Tower"/>
+                        </h2>
+                    </div>
+                    <group>
+                        <group string="Contract &amp; Client">
+                            <field name="partner_id" context="{'default_is_construction_client': True}"/>
+                            <field name="contract_value" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="currency_id" groups="base.group_multi_currency"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Schedule &amp; Costing">
+                            <field name="analytic_account_id"/>
+                            <field name="retention_percentage"/>
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                        </group>
+                    </group>
+                    <group string="Financial Performance &amp; Outstanding Receivables" class="oe_subtotal_footer_separator">
+                        <group>
+                            <field name="total_invoiced" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="total_paid" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                        </group>
+                        <group>
+                            <field name="total_due" widget="monetary" options="{'currency_field': 'currency_id'}" decoration-danger="total_due &gt; 0"/>
+                            <field name="total_retention_withheld" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Invoices &amp; Progress Claims" name="invoices">
+                            <field name="invoice_ids" readonly="1">
+                                <list string="Claims &amp; Invoices" decoration-info="state == 'draft'" decoration-danger="payment_state == 'not_paid' and invoice_date_due and invoice_date_due &lt; current_date">
+                                    <field name="name"/>
+                                    <field name="billing_type"/>
+                                    <field name="wcc_reference"/>
+                                    <field name="invoice_date"/>
+                                    <field name="invoice_date_due"/>
+                                    <field name="amount_untaxed"/>
+                                    <field name="retention_amount"/>
+                                    <field name="amount_total"/>
+                                    <field name="amount_residual" string="Due Balance"/>
+                                    <field name="payment_state" widget="badge"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Customer Payments" name="payments">
+                            <field name="payment_ids" readonly="1">
+                                <list string="Customer Payments">
+                                    <field name="name"/>
+                                    <field name="date"/>
+                                    <field name="payment_nature"/>
+                                    <field name="journal_id"/>
+                                    <field name="amount" widget="monetary"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Contract Terms &amp; Scope" name="notes">
+                            <field name="notes" placeholder="Enter terms, scope of work, warranty agreements..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Construction Project List View -->
+    <record id="view_construction_project_tree" model="ir.ui.view">
+        <field name="name">construction.project.list</field>
+        <field name="model">construction.project</field>
+        <field name="arch" type="xml">
+            <list string="Construction Projects &amp; Sites" decoration-muted="state == 'cancel'" decoration-success="state == 'done'">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="contract_value" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="total_invoiced" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="total_paid" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="total_due" widget="monetary" options="{'currency_field': 'currency_id'}" decoration-danger="total_due &gt; 0"/>
+                <field name="total_retention_withheld" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'snagging'"
+                       decoration-primary="state == 'in_progress'"
+                       decoration-success="state == 'done'"/>
+                <field name="currency_id" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Construction Project Kanban View -->
+    <record id="view_construction_project_kanban" model="ir.ui.view">
+        <field name="name">construction.project.kanban</field>
+        <field name="model">construction.project</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" sample="1">
+                <field name="id"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="partner_id"/>
+                <field name="contract_value"/>
+                <field name="total_due"/>
+                <field name="total_invoiced"/>
+                <field name="currency_id"/>
+                <field name="state"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click p-3">
+                            <div class="o_kanban_record_top mb-2">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title"><field name="name"/></strong>
+                                    <div class="text-muted"><field name="code"/> - <field name="partner_id"/></div>
+                                </div>
+                            </div>
+                            <div class="o_kanban_record_body">
+                                <div><strong>Contract: </strong><field name="contract_value" widget="monetary" options="{'currency_field': 'currency_id'}"/></div>
+                                <div><strong>Invoiced: </strong><field name="total_invoiced" widget="monetary" options="{'currency_field': 'currency_id'}"/></div>
+                                <div>
+                                    <strong class="text-danger">Due Balance: </strong>
+                                    <field name="total_due" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Construction Project Search View -->
+    <record id="view_construction_project_search" model="ir.ui.view">
+        <field name="name">construction.project.search</field>
+        <field name="model">construction.project</field>
+        <field name="arch" type="xml">
+            <search string="Search Construction Projects">
+                <field name="name" string="Project" filter_domain="['|', ('name', 'ilike', self), ('code', 'ilike', self)]"/>
+                <field name="partner_id" string="Client"/>
+                <filter name="in_progress" string="Under Construction" domain="[('state', '=', 'in_progress')]"/>
+                <filter name="has_due" string="Has Due Amount" domain="[('total_due', '&gt;', 0)]"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter name="group_partner" string="Client" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action for Construction Projects -->
+    <record id="action_construction_project" model="ir.actions.act_window">
+        <field name="name">Construction Projects &amp; Sites</field>
+        <field name="res_model">construction.project</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="search_view_id" ref="view_construction_project_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first Construction Site / Project!
+            </p>
+            <p>
+                Track client contracts, progress billings, work completion certificates, retention deductions, and outstanding receivables in one place.
+            </p>
+        </field>
+    </record>
+</odoo>

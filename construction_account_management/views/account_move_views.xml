@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Account Move Form Extension -->
+    <record id="view_move_form_construction_inherit" model="ir.ui.view">
+        <field name="name">account.move.form.construction.inherit</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="is_construction_bill" invisible="move_type not in ('out_invoice', 'out_refund')"/>
+                <field name="construction_project_id"
+                       invisible="not is_construction_bill"
+                       options="{'no_create_edit': False}"/>
+            </xpath>
+
+            <xpath expr="//notebook" position="inside">
+                <page string="Construction Billing &amp; Retention" name="construction_billing_tab" invisible="not is_construction_bill">
+                    <group>
+                        <group string="Milestone &amp; Certification">
+                            <field name="billing_type"/>
+                            <field name="wcc_reference"/>
+                            <field name="work_completion_pct"/>
+                        </group>
+                        <group string="Retention &amp; Net Claim">
+                            <field name="retention_pct"/>
+                            <field name="retention_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="net_claim_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="days_overdue" invisible="days_overdue == 0" decoration-danger="days_overdue &gt; 0"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Action for Construction Invoices & Claims -->
+    <record id="action_construction_invoices" model="ir.actions.act_window">
+        <field name="name">Invoices &amp; Progress Claims</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('move_type', '=', 'out_invoice'), '|', ('is_construction_bill', '=', True), ('construction_project_id', '!=', False)]</field>
+        <field name="context">{
+            'default_move_type': 'out_invoice',
+            'default_is_construction_bill': True,
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Issue a new Construction Progress Invoice / Claim
+            </p>
+            <p>
+                Bill clients based on work completion certificates (WCC), apply retention withholdings, and track receivables.
+            </p>
+        </field>
+    </record>
+
+    <!-- Action for Due Amounts & Overdue Receivables -->
+    <record id="action_construction_due_invoices" model="ir.actions.act_window">
+        <field name="name">Due &amp; Overdue Invoices</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[
+            ('move_type', '=', 'out_invoice'),
+            ('state', '=', 'posted'),
+            ('amount_residual', '&gt;', 0),
+            '|',
+            ('is_construction_bill', '=', True),
+            ('construction_project_id', '!=', False)
+        ]</field>
+        <field name="context">{
+            'default_move_type': 'out_invoice',
+            'default_is_construction_bill': True,
+            'search_default_open': 1,
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                All outstanding construction balances are cleared!
+            </p>
+            <p>
+                Unpaid customer claims, due dates, and aging balances will appear here.
+            </p>
+        </field>
+    </record>
+</odoo>

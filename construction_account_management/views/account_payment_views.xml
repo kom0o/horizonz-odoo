@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Account Payment Form Extension -->
+    <record id="view_account_payment_form_construction_inherit" model="ir.ui.view">
+        <field name="name">account.payment.form.construction.inherit</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="construction_project_id"
+                       invisible="partner_type != 'customer'"
+                       options="{'no_create_edit': False}"/>
+                <field name="payment_nature" invisible="partner_type != 'customer'"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Action for Construction Customer Payments -->
+    <record id="action_construction_payments" model="ir.actions.act_window">
+        <field name="name">Customer Receipts &amp; Payments</field>
+        <field name="res_model">account.payment</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('partner_type', '=', 'customer'), ('construction_project_id', '!=', False)]</field>
+        <field name="context">{
+            'default_partner_type': 'customer',
+            'default_payment_type': 'inbound',
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Register a new customer payment for a construction site
+            </p>
+            <p>
+                Allocate customer receipts to mobilization advances, progress billings, or retention releases.
+            </p>
+        </field>
+    </record>
+</odoo>
