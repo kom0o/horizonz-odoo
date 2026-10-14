@@ -18,9 +18,9 @@ class MrpWorkcenter(models.Model):
         ('block', 'Concrete Blocks (بلك أسمنتي)'),
         ('cement', 'Cement Tiles (بلاط أسمنتي)'),
     ], string='Line Category / نوع الخط', default='terrazzo')
-    capacity_ids = fields.One2many('mrp.line.capacity', 'workcenter_id', string='Product Norms & Capacities / معايير الطاقات الإنتاجية')
-    capacity_count = fields.Integer(string='Configured Products', compute='_compute_capacity_count')
+    tile_capacity_ids = fields.One2many('mrp.line.capacity', 'workcenter_id', string='Product Norms & Capacities / معايير الطاقات الإنتاجية')
+    tile_capacity_count = fields.Integer(string='Configured Products', compute='_compute_tile_capacity_count')
 
-    def _compute_capacity_count(self):
+    def _compute_tile_capacity_count(self):
         for rec in self:
-            rec.capacity_count = len(rec.capacity_ids)
+            rec.tile_capacity_count = len(rec.tile_capacity_ids)

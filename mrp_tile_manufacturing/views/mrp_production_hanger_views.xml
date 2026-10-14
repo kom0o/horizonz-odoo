@@ -45,7 +45,7 @@
                                     <field name="name"/>
                                     <field name="line_manufacturer"/>
                                     <field name="line_type"/>
-                                    <field name="capacity_count"/>
+                                    <field name="tile_capacity_count"/>
                                 </list>
                             </field>
                         </page>

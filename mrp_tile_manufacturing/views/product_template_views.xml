@@ -5,20 +5,22 @@
         <field name="model">product.template</field>
         <field name="inherit_id" ref="product.product_template_only_form_view"/>
         <field name="arch" type="xml">
-            <xpath expr="//page[@name='general_information']//group[1]" position="after">
-                <group string="Tile &amp; Concrete Specs / مواصفات البلاط والمنتجات الأسمنتية">
+            <xpath expr="//page[@name='general_information']" position="after">
+                <page string="Tile Manufacturing Specs / مواصفات البلاط والأسمنتي" name="tile_specs">
                     <group>
-                        <field name="is_tile_product"/>
-                        <field name="tile_group_id" invisible="not is_tile_product"/>
-                        <field name="tile_size" invisible="not is_tile_product" placeholder="e.g. 20×20, 25×25, 30×30"/>
-                        <field name="tile_color" invisible="not is_tile_product" placeholder="e.g. أبيض, رصاصي"/>
+                        <group string="Tile Classification / تصنيف البلاط">
+                            <field name="is_tile_product"/>
+                            <field name="tile_group_id" invisible="not is_tile_product"/>
+                            <field name="tile_size" invisible="not is_tile_product" placeholder="e.g. 20×20, 25×25, 30×30, 40×40"/>
+                            <field name="tile_color" invisible="not is_tile_product" placeholder="e.g. أبيض, رصاصي, أسود, أحمر"/>
+                        </group>
+                        <group string="Logistics &amp; Dimensions / السعات اللوجستية والمقاييس" invisible="not is_tile_product">
+                            <field name="units_per_sqm"/>
+                            <field name="triala_capacity_sqm"/>
+                            <field name="crane_capacity_sqm"/>
+                        </group>
                     </group>
-                    <group invisible="not is_tile_product">
-                        <field name="units_per_sqm"/>
-                        <field name="triala_capacity_sqm"/>
-                        <field name="crane_capacity_sqm"/>
-                    </group>
-                </group>
+                </page>
             </xpath>
         </field>
     </record>
