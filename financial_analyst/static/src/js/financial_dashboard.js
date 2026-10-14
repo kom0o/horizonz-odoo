@@ -687,7 +687,21 @@ async function init(){
     COLS.forEach(c=>D[c]=INITIAL_DB[c]||{});
     try{localStorage.setItem(LS_LOCAL,JSON.stringify(D))}catch(e){}
   }
-  setSave("وضع محلي: محفوظ على هذا الجهاز");
+  if(window.OdooPayload){
+    const op = window.OdooPayload;
+    if(op.companies && Object.keys(op.companies).length) D.companies = Object.assign({}, D.companies, op.companies);
+    if(op.periods && Object.keys(op.periods).length) D.periods = Object.assign({}, D.periods, op.periods);
+    if(op.issues && Object.keys(op.issues).length) D.issues = Object.assign({}, D.issues, op.issues);
+    if(op.assignees && Object.keys(op.assignees).length) D.assignees = Object.assign({}, D.assignees, op.assignees);
+    if(op.activeCompanyId) UI.cid = op.activeCompanyId;
+    if(op.activePeriodCode && UI.cid) {
+      if(!UI.sel) UI.sel = {};
+      UI.sel[UI.cid] = op.activePeriodCode;
+    }
+    setSave("متصل بنظام أودو المالي — قراءة مباشرة ولحظية");
+  } else {
+    setSave("وضع محلي: محفوظ على هذا الجهاز");
+  }
   if(!SAMPLE) SAMPLE = geminiSample;
   ensureCompany();
   renderShell();
