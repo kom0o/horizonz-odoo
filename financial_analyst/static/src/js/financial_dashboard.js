@@ -664,7 +664,6 @@ function persist(col,id,obj){
           if(res && res.id){
             obj.id = res.id;
             if(D.periods[id]) D.periods[id].id = res.id;
-            if(res.code && res.code !== id) D.periods[res.code] = D.periods[id] || obj;
           }
           setSave("تم الحفظ في أودو بنجاح ✓");
         }).catch(err => {
@@ -711,33 +710,30 @@ async function init(){
   }
   MODE="local";
   if(!DOWN)DOWN={save:async({filename,data})=>{const b=data instanceof Blob?data:new Blob([data]);const u=URL.createObjectURL(b);const a=document.createElement("a");a.href=u;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}};
+  try{const raw=localStorage.getItem(LS_LOCAL);if(raw){const d=JSON.parse(raw);COLS.forEach(c=>D[c]=d[c]||{})}}catch(e){}
+  try{const old=localStorage.getItem(LS_OLD);if(old&&!Object.keys(D.companies).length){const o=JSON.parse(old);if(o&&o.periods&&Object.keys(o.periods).length)LEGACY=o}}catch(e){}
+  const initSrc = (typeof INITIAL_DB !== "undefined" && (INITIAL_DB.collections || INITIAL_DB)) || {};
+  if(!Object.keys(D.companies||{}).length && initSrc.companies){
+    COLS.forEach(c=>D[c]=initSrc[c]||{});
+    try{localStorage.setItem(LS_LOCAL,JSON.stringify(D))}catch(e){}
+  }
+  if(false){
+    COLS.forEach(c=>D[c]=INITIAL_DB[c]||{});
+    try{localStorage.setItem(LS_LOCAL,JSON.stringify(D))}catch(e){}
+  }
   if(window.OdooPayload){
     const op = window.OdooPayload;
-    // Odoo backend is single source of truth - do not merge stale mock localStorage
-    D.companies = Object.assign({}, op.companies || {});
-    D.periods = Object.assign({}, op.periods || {});
-    D.issues = Object.assign({}, op.issues || {});
-    D.assignees = Object.assign({}, op.assignees || {});
+    if(op.companies && Object.keys(op.companies).length) D.companies = Object.assign({}, D.companies, op.companies);
+    if(op.periods && Object.keys(op.periods).length) D.periods = Object.assign({}, D.periods, op.periods);
+    if(op.issues && Object.keys(op.issues).length) D.issues = Object.assign({}, D.issues, op.issues);
+    if(op.assignees && Object.keys(op.assignees).length) D.assignees = Object.assign({}, D.assignees, op.assignees);
     if(op.activeCompanyId) UI.cid = op.activeCompanyId;
     if(op.activePeriodCode && UI.cid) {
       if(!UI.sel) UI.sel = {};
       UI.sel[UI.cid] = op.activePeriodCode;
     }
-    try{
-      localStorage.removeItem(LS_LOCAL);
-      localStorage.removeItem(LS_OLD);
-      // clean mock selections
-      if(UI.sel && UI.sel["c1"]) delete UI.sel["c1"];
-    }catch(e){}
     setSave("متصل بنظام أودو المالي — قراءة مباشرة ولحظية");
   } else {
-    try{const raw=localStorage.getItem(LS_LOCAL);if(raw){const d=JSON.parse(raw);COLS.forEach(c=>D[c]=d[c]||{})}}catch(e){}
-    try{const old=localStorage.getItem(LS_OLD);if(old&&!Object.keys(D.companies).length){const o=JSON.parse(old);if(o&&o.periods&&Object.keys(o.periods).length)LEGACY=o}}catch(e){}
-    const initSrc = (typeof INITIAL_DB !== "undefined" && (INITIAL_DB.collections || INITIAL_DB)) || {};
-    if(!Object.keys(D.companies||{}).length && initSrc.companies){
-      COLS.forEach(c=>D[c]=initSrc[c]||{});
-      try{localStorage.setItem(LS_LOCAL,JSON.stringify(D))}catch(e){}
-    }
     setSave("وضع محلي: محفوظ على هذا الجهاز");
   }
   if(!SAMPLE) SAMPLE = geminiSample;
@@ -4284,16 +4280,7 @@ $("#xFile").onchange=e=>{const f=e.target.files[0];e.target.value="";const k=XK_
       if(k==="is"||k==="bs"){await saveReport(k,raw,f.name,log);continue}
       const r=await handleSheet(raw,log);if(r)last=r;if(k==="tb"&&r)await saveReport("tb",raw,f.name,log,true)}
     if(!hit)log.push(UPK[k]?.tpl?`الملف لا يحتوي على «${UPK[k].n}» بالأعمدة المطلوبة. ارفع تقرير النظام كما هو، أو نزّل «نموذج» من نفس البطاقة واملأه.`:`هذا الملف ليس «${UPK[k].n}». تأكد أنك اخترت الملف الصحيح من Odoo ورفعته من البطاقة المناسبة.`);
-    if(last){
-      UI.sel[UI.cid]=last;
-      saveUI();
-      editingId=last;
-      toast("تم استيراد وحفظ البيانات المرفوعة بنجاح في أودو!");
-      renderAll();
-    } else if(hit && (k==="is"||k==="bs")){
-      toast("تم حفظ تقرير " + (UPK[k]?.n || "") + " بنجاح!");
-      renderAll();
-    }
+    if(last){UI.sel[UI.cid]=last;saveUI();editingId=last}
     $("#upLog").textContent=log.join("\n");renderData();if(editingId)openEditor(editingId)};
   fr.readAsArrayBuffer(f)};
 
