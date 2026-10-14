@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="view_financial_period_tree" model="ir.ui.view">
-        <field name="name">financial.analyst.period.tree</field>
+        <field name="name">financial.analyst.period.list</field>
         <field name="model">financial.analyst.period</field>
         <field name="arch" type="xml">
-            <tree string="الفترات المالية" decoration-success="state == 'audited'" decoration-info="state == 'synced'" decoration-muted="state == 'closed'">
+            <list string="الفترات المالية" decoration-success="state == 'audited'" decoration-info="state == 'synced'" decoration-muted="state == 'closed'">
                 <field name="code"/>
                 <field name="name"/>
                 <field name="company_id" groups="base.group_multi_company"/>
@@ -18,7 +18,7 @@
                 <field name="altman_z_score" widget="float" options="{'digits': [16, 2]}"/>
                 <field name="altman_z_status" widget="badge" decoration-success="altman_z_status == 'safe'" decoration-warning="altman_z_status == 'grey'" decoration-danger="altman_z_status == 'danger'"/>
                 <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-primary="state == 'synced'" decoration-success="state == 'audited'"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -142,51 +142,51 @@
 
                         <page string="مبيعات الأصناف" name="sales_breakdown">
                             <field name="sales_line_ids">
-                                <tree editable="bottom">
+                                <list editable="bottom">
                                     <field name="code"/>
                                     <field name="item"/>
                                     <field name="terms"/>
                                     <field name="qty"/>
                                     <field name="price"/>
                                     <field name="value" sum="الإجمالي"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
 
                         <page string="مشتريات واستهلاك المواد الخام" name="materials_breakdown">
                             <field name="material_line_ids">
-                                <tree editable="bottom">
+                                <list editable="bottom">
                                     <field name="code"/>
                                     <field name="item"/>
                                     <field name="qty"/>
                                     <field name="used"/>
                                     <field name="value" sum="الإجمالي"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
 
                         <page string="أداء المندوبين" name="reps_breakdown">
                             <field name="rep_line_ids">
-                                <tree editable="bottom">
+                                <list editable="bottom">
                                     <field name="rep"/>
                                     <field name="invoices"/>
                                     <field name="customers"/>
                                     <field name="qty"/>
                                     <field name="value" sum="الإجمالي"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
 
                         <page string="الشركات الشقيقة" name="ic_breakdown">
                             <field name="intercompany_line_ids">
-                                <tree editable="bottom">
+                                <list editable="bottom">
                                     <field name="name"/>
                                     <field name="rec_trade"/>
                                     <field name="rec_non_trade"/>
                                     <field name="pay_trade"/>
                                     <field name="pay_non_trade"/>
                                     <field name="net_balance" sum="الصافي"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
 
@@ -202,7 +202,7 @@
     <record id="action_financial_period" model="ir.actions.act_window">
         <field name="name">الفترات المالية</field>
         <field name="res_model">financial.analyst.period</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 أنشئ أول فترة مالية أو اضغط "مزامنة الحسابات" لقراءة البيانات مباشرة من Odoo!

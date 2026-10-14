@@ -2,10 +2,10 @@
 <odoo>
     <!-- KPI Targets -->
     <record id="view_financial_kpi_target_tree" model="ir.ui.view">
-        <field name="name">financial.analyst.kpi.target.tree</field>
+        <field name="name">financial.analyst.kpi.target.list</field>
         <field name="model">financial.analyst.kpi.target</field>
         <field name="arch" type="xml">
-            <tree string="مستهدفات المؤشرات" editable="bottom">
+            <list string="مستهدفات المؤشرات" editable="bottom">
                 <field name="sequence" widget="handle"/>
                 <field name="kpi_code"/>
                 <field name="name"/>
@@ -14,22 +14,22 @@
                 <field name="direction"/>
                 <field name="target_value"/>
                 <field name="company_id" groups="base.group_multi_company"/>
-            </tree>
+            </list>
         </field>
     </record>
 
     <record id="action_financial_kpi_target" model="ir.actions.act_window">
         <field name="name">المستهدفات والتوصيات</field>
         <field name="res_model">financial.analyst.kpi.target</field>
-        <field name="view_mode">tree</field>
+        <field name="view_mode">list</field>
     </record>
 
     <!-- Assignees -->
     <record id="view_financial_assignee_tree" model="ir.ui.view">
-        <field name="name">financial.analyst.assignee.tree</field>
+        <field name="name">financial.analyst.assignee.list</field>
         <field name="model">financial.analyst.assignee</field>
         <field name="arch" type="xml">
-            <tree string="أصحاب الاختصاص" editable="bottom">
+            <list string="أصحاب الاختصاص" editable="bottom">
                 <field name="name"/>
                 <field name="title"/>
                 <field name="department"/>
@@ -38,13 +38,13 @@
                 <field name="groups_str"/>
                 <field name="odoo_alias"/>
                 <field name="active"/>
-            </tree>
+            </list>
         </field>
     </record>
 
     <record id="action_financial_assignee" model="ir.actions.act_window">
         <field name="name">أصحاب الاختصاص</field>
         <field name="res_model">financial.analyst.assignee</field>
-        <field name="view_mode">tree</field>
+        <field name="view_mode">list</field>
     </record>
 </odoo>

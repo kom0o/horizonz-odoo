@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="view_financial_issue_tree" model="ir.ui.view">
-        <field name="name">financial.analyst.issue.tree</field>
+        <field name="name">financial.analyst.issue.list</field>
         <field name="model">financial.analyst.issue</field>
         <field name="arch" type="xml">
-            <tree string="الإحالات وخطط التحسين" decoration-danger="status == 'open' and due_date &lt; current_date" decoration-warning="status == 'open'" decoration-success="status == 'closed'">
+            <list string="الإحالات وخطط التحسين" decoration-danger="status == 'open' and due_date &lt; current_date" decoration-warning="status == 'open'" decoration-success="status == 'closed'">
                 <field name="name"/>
                 <field name="company_id" groups="base.group_multi_company"/>
                 <field name="period_id"/>
@@ -16,7 +16,7 @@
                 <field name="priority" widget="badge" decoration-danger="priority == 'urgent'" decoration-warning="priority == 'high'" decoration-info="priority == 'med'"/>
                 <field name="due_date"/>
                 <field name="status" widget="badge" decoration-danger="status == 'open'" decoration-warning="status == 'in_progress'" decoration-success="status == 'closed'" decoration-primary="status == 'reopened'"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -133,7 +133,7 @@
     <record id="action_financial_issue" model="ir.actions.act_window">
         <field name="name">الإحالات وخطط التحسين</field>
         <field name="res_model">financial.analyst.issue</field>
-        <field name="view_mode">kanban,tree,form</field>
+        <field name="view_mode">kanban,list,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 لا توجد إحالات مسجلة حتى الآن! يمكنك إنشاء إحالة جديدة من لوحة المؤشرات عند ظهور مؤشر أحمر خارج المستهدف.
