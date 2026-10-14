@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="kpi_target_grossMargin" model="financial.analyst.kpi.target">
+            <field name="kpi_code">grossMargin</field>
+            <field name="name">هامش الربح الإجمالي</field>
+            <field name="group_code">prof</field>
+            <field name="unit">%</field>
+            <field name="direction">up</field>
+            <field name="target_value">27.0</field>
+            <field name="sequence">0</field>
+        </record>
+        <record id="kpi_target_ebitdaMargin" model="financial.analyst.kpi.target">
+            <field name="kpi_code">ebitdaMargin</field>
+            <field name="name">هامش EBITDA</field>
+            <field name="group_code">prof</field>
+            <field name="unit">%</field>
+            <field name="direction">up</field>
+            <field name="target_value">16.0</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="kpi_target_operatingMargin" model="financial.analyst.kpi.target">
+            <field name="kpi_code">operatingMargin</field>
+            <field name="name">هامش الربح التشغيلي</field>
+            <field name="group_code">prof</field>
+            <field name="unit">%</field>
+            <field name="direction">up</field>
+            <field name="target_value">13.0</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="kpi_target_netMargin" model="financial.analyst.kpi.target">
+            <field name="kpi_code">netMargin</field>
+            <field name="name">هامش صافي الربح</field>
+            <field name="group_code">prof</field>
+            <field name="unit">%</field>
+            <field name="direction">up</field>
+            <field name="target_value">12.0</field>
+            <field name="sequence">30</field>
+        </record>
+        <record id="kpi_target_roa" model="financial.analyst.kpi.target">
+            <field name="kpi_code">roa</field>
+            <field name="name">العائد على الأصول (سنوي)</field>
+            <field name="group_code">prof</field>
+            <field name="unit">%</field>
+            <field name="direction">up</field>
+            <field name="target_value">8.0</field>
+            <field name="sequence">40</field>
+        </record>
+        <record id="kpi_target_roe" model="financial.analyst.kpi.target">
+            <field name="kpi_code">roe</field>
+            <field name="name">العائد على حقوق الملكية (سنوي)</field>
+            <field name="group_code">prof</field>
+            <field name="unit">%</field>
+            <field name="direction">up</field>
+            <field name="target_value">12.0</field>
+            <field name="sequence">50</field>
+        </record>
+        <record id="kpi_target_cogsRatio" model="financial.analyst.kpi.target">
+            <field name="kpi_code">cogsRatio</field>
+            <field name="name">نسبة تكلفة المبيعات للإيرادات</field>
+            <field name="group_code">exp</field>
+            <field name="unit">%</field>
+            <field name="direction">down</field>
+            <field name="target_value">74.0</field>
+            <field name="sequence">60</field>
+        </record>
+        <record id="kpi_target_opexRatio" model="financial.analyst.kpi.target">
+            <field name="kpi_code">opexRatio</field>
+            <field name="name">نسبة المصروفات التشغيلية للإيرادات</field>
+            <field name="group_code">exp</field>
+            <field name="unit">%</field>
+            <field name="direction">down</field>
+            <field name="target_value">18.0</field>
+            <field name="sequence">70</field>
+        </record>
+        <record id="kpi_target_finCostRatio" model="financial.analyst.kpi.target">
+            <field name="kpi_code">finCostRatio</field>
+            <field name="name">نسبة تكاليف التمويل للإيرادات</field>
+            <field name="group_code">exp</field>
+            <field name="unit">%</field>
+            <field name="direction">down</field>
+            <field name="target_value">3.0</field>
+            <field name="sequence">80</field>
+        </record>
+        <record id="kpi_target_expenseGrowth" model="financial.analyst.kpi.target">
+            <field name="kpi_code">expenseGrowth</field>
+            <field name="name">نمو إجمالي المصروفات</field>
+            <field name="group_code">exp</field>
+            <field name="unit">%</field>
+            <field name="direction">down</field>
+            <field name="target_value">0.0</field>
+            <field name="sequence">90</field>
+        </record>
+        <record id="kpi_target_revenueGrowth" model="financial.analyst.kpi.target">
+            <field name="kpi_code">revenueGrowth</field>
+            <field name="name">نمو الإيرادات</field>
+            <field name="group_code">grow</field>
+            <field name="unit">%</field>
+            <field name="direction">up</field>
+            <field name="target_value">5.0</field>
+            <field name="sequence">100</field>
+        </record>
+        <record id="kpi_target_grossProfitGrowth" model="financial.analyst.kpi.target">
+            <field name="kpi_code">grossProfitGrowth</field>
+            <field name="name">نمو مجمل الربح</field>
+            <field name="group_code">grow</field>
+            <field name="unit">%</field>
+            <field name="direction">up</field>
+            <field name="target_value">5.0</field>
+            <field name="sequence">110</field>
+        </record>
+        <record id="kpi_target_netProfitGrowth" model="financial.analyst.kpi.target">
+            <field name="kpi_code">netProfitGrowth</field>
+            <field name="name">نمو صافي الربح</field>
+            <field name="group_code">grow</field>
+            <field name="unit">%</field>
+            <field name="direction">up</field>
+            <field name="target_value">5.0</field>
+            <field name="sequence">120</field>
+        </record>
+        <record id="kpi_target_currentRatio" model="financial.analyst.kpi.target">
+            <field name="kpi_code">currentRatio</field>
+            <field name="name">نسبة التداول</field>
+            <field name="group_code">liq</field>
+            <field name="unit">x</field>
+            <field name="direction">up</field>
+            <field name="target_value">1.5</field>
+            <field name="sequence">130</field>
+        </record>
+        <record id="kpi_target_quickRatio" model="financial.analyst.kpi.target">
+            <field name="kpi_code">quickRatio</field>
+            <field name="name">نسبة السيولة السريعة</field>
+            <field name="group_code">liq</field>
+            <field name="unit">x</field>
+            <field name="direction">up</field>
+            <field name="target_value">1.0</field>
+            <field name="sequence">140</field>
+        </record>
+        <record id="kpi_target_cashRatio" model="financial.analyst.kpi.target">
+            <field name="kpi_code">cashRatio</field>
+            <field name="name">نسبة النقدية</field>
+            <field name="group_code">liq</field>
+            <field name="unit">x</field>
+            <field name="direction">up</field>
+            <field name="target_value">0.3</field>
+            <field name="sequence">150</field>
+        </record>
+        <record id="kpi_target_workingCapital" model="financial.analyst.kpi.target">
+            <field name="kpi_code">workingCapital</field>
+            <field name="name">رأس المال العامل</field>
+            <field name="group_code">liq</field>
+            <field name="unit">%</field>
+            <field name="direction">up</field>
+            <field name="target_value">0.0</field>
+            <field name="sequence">160</field>
+        </record>
+        <record id="kpi_target_debtToEquity" model="financial.analyst.kpi.target">
+            <field name="kpi_code">debtToEquity</field>
+            <field name="name">الديون إلى حقوق الملكية</field>
+            <field name="group_code">prof</field>
+            <field name="unit">x</field>
+            <field name="direction">down</field>
+            <field name="target_value">1.0</field>
+            <field name="sequence">170</field>
+        </record>
+        <record id="kpi_target_debtRatio" model="financial.analyst.kpi.target">
+            <field name="kpi_code">debtRatio</field>
+            <field name="name">نسبة المطلوبات إلى الأصول</field>
+            <field name="group_code">prof</field>
+            <field name="unit">%</field>
+            <field name="direction">down</field>
+            <field name="target_value">50.0</field>
+            <field name="sequence">180</field>
+        </record>
+        <record id="kpi_target_salesPriceChange" model="financial.analyst.kpi.target">
+            <field name="kpi_code">salesPriceChange</field>
+            <field name="name">التغير في متوسط أسعار البيع</field>
+            <field name="group_code">prof</field>
+            <field name="unit">%</field>
+            <field name="direction">up</field>
+            <field name="target_value">0.0</field>
+            <field name="sequence">190</field>
+        </record>
+        <record id="kpi_target_matPriceChange" model="financial.analyst.kpi.target">
+            <field name="kpi_code">matPriceChange</field>
+            <field name="name">التغير في متوسط أسعار شراء المواد الخام</field>
+            <field name="group_code">prof</field>
+            <field name="unit">%</field>
+            <field name="direction">down</field>
+            <field name="target_value">0.0</field>
+            <field name="sequence">200</field>
+        </record>
+        <record id="kpi_target_debtRatioAdj" model="financial.analyst.kpi.target">
+            <field name="kpi_code">debtRatioAdj</field>
+            <field name="name">المطلوبات إلى الأصول (معدّلة: جاري الشركاء كحقوق ملكية)</field>
+            <field name="group_code">prof</field>
+            <field name="unit">%</field>
+            <field name="direction">down</field>
+            <field name="target_value">50.0</field>
+            <field name="sequence">210</field>
+        </record>
+        <record id="kpi_target_debtToEquityAdj" model="financial.analyst.kpi.target">
+            <field name="kpi_code">debtToEquityAdj</field>
+            <field name="name">الديون إلى حقوق الملكية (معدّلة بجاري الشركاء)</field>
+            <field name="group_code">prof</field>
+            <field name="unit">x</field>
+            <field name="direction">down</field>
+            <field name="target_value">1.0</field>
+            <field name="sequence">220</field>
+        </record>
+        <record id="kpi_target_partnersToEquity" model="financial.analyst.kpi.target">
+            <field name="kpi_code">partnersToEquity</field>
+            <field name="name">جاري الشركاء إلى حقوق الملكية</field>
+            <field name="group_code">prof</field>
+            <field name="unit">%</field>
+            <field name="direction">down</field>
+            <field name="target_value">50.0</field>
+            <field name="sequence">230</field>
+        </record>
+        <record id="kpi_target_zScore" model="financial.analyst.kpi.target">
+            <field name="kpi_code">zScore</field>
+            <field name="name">مؤشر الفشل المالي (Altman Z)</field>
+            <field name="group_code">prof</field>
+            <field name="unit">%</field>
+            <field name="direction">up</field>
+            <field name="target_value">2.9</field>
+            <field name="sequence">240</field>
+        </record>
+        <record id="kpi_target_capitalAdequacy" model="financial.analyst.kpi.target">
+            <field name="kpi_code">capitalAdequacy</field>
+            <field name="name">كفاية رأس المال (حقوق الملكية إلى الأصول)</field>
+            <field name="group_code">prof</field>
+            <field name="unit">%</field>
+            <field name="direction">up</field>
+            <field name="target_value">30.0</field>
+            <field name="sequence">250</field>
+        </record>
+        <record id="kpi_target_accLosses" model="financial.analyst.kpi.target">
+            <field name="kpi_code">accLosses</field>
+            <field name="name">الخسائر المتراكمة إلى رأس المال</field>
+            <field name="group_code">prof</field>
+            <field name="unit">%</field>
+            <field name="direction">down</field>
+            <field name="target_value">50.0</field>
+            <field name="sequence">260</field>
+        </record>
+        <record id="kpi_target_interestCoverage" model="financial.analyst.kpi.target">
+            <field name="kpi_code">interestCoverage</field>
+            <field name="name">تغطية الفوائد</field>
+            <field name="group_code">prof</field>
+            <field name="unit">x</field>
+            <field name="direction">up</field>
+            <field name="target_value">3.0</field>
+            <field name="sequence">270</field>
+        </record>
+        <record id="kpi_target_netDebtEbitda" model="financial.analyst.kpi.target">
+            <field name="kpi_code">netDebtEbitda</field>
+            <field name="name">صافي الدين إلى EBITDA (سنوي)</field>
+            <field name="group_code">prof</field>
+            <field name="unit">x</field>
+            <field name="direction">down</field>
+            <field name="target_value">3.0</field>
+            <field name="sequence">280</field>
+        </record>
+        <record id="kpi_target_assetTurnover" model="financial.analyst.kpi.target">
+            <field name="kpi_code">assetTurnover</field>
+            <field name="name">معدل دوران الأصول (سنوي)</field>
+            <field name="group_code">prof</field>
+            <field name="unit">x</field>
+            <field name="direction">up</field>
+            <field name="target_value">1.0</field>
+            <field name="sequence">290</field>
+        </record>
+        <record id="kpi_target_inventoryTurnover" model="financial.analyst.kpi.target">
+            <field name="kpi_code">inventoryTurnover</field>
+            <field name="name">معدل دوران المخزون (دون قطع الغيار والمواد الخام) — سنوي</field>
+            <field name="group_code">prof</field>
+            <field name="unit">x</field>
+            <field name="direction">up</field>
+            <field name="target_value">4.0</field>
+            <field name="sequence">300</field>
+        </record>
+        <record id="kpi_target_dso" model="financial.analyst.kpi.target">
+            <field name="kpi_code">dso</field>
+            <field name="name">متوسط فترة التحصيل</field>
+            <field name="group_code">prof</field>
+            <field name="unit">%</field>
+            <field name="direction">down</field>
+            <field name="target_value">35.0</field>
+            <field name="sequence">310</field>
+        </record>
+        <record id="kpi_target_dio" model="financial.analyst.kpi.target">
+            <field name="kpi_code">dio</field>
+            <field name="name">متوسط فترة بقاء المخزون (دون قطع الغيار والمواد الخام)</field>
+            <field name="group_code">prof</field>
+            <field name="unit">%</field>
+            <field name="direction">down</field>
+            <field name="target_value">40.0</field>
+            <field name="sequence">320</field>
+        </record>
+        <record id="kpi_target_dpo" model="financial.analyst.kpi.target">
+            <field name="kpi_code">dpo</field>
+            <field name="name">متوسط فترة السداد للموردين</field>
+            <field name="group_code">prof</field>
+            <field name="unit">%</field>
+            <field name="direction">up</field>
+            <field name="target_value">90.0</field>
+            <field name="sequence">330</field>
+        </record>
+        <record id="kpi_target_ccc" model="financial.analyst.kpi.target">
+            <field name="kpi_code">ccc</field>
+            <field name="name">دورة التحويل النقدي</field>
+            <field name="group_code">prof</field>
+            <field name="unit">%</field>
+            <field name="direction">down</field>
+            <field name="target_value">60.0</field>
+            <field name="sequence">340</field>
+        </record>
+        <record id="kpi_target_sparesRatio" model="financial.analyst.kpi.target">
+            <field name="kpi_code">sparesRatio</field>
+            <field name="name">نسبة قطع الغيار إلى إجمالي المخزون</field>
+            <field name="group_code">spares</field>
+            <field name="unit">%</field>
+            <field name="direction">down</field>
+            <field name="target_value">20.0</field>
+            <field name="sequence">350</field>
+        </record>
+        <record id="kpi_target_sparesDeadPct" model="financial.analyst.kpi.target">
+            <field name="kpi_code">sparesDeadPct</field>
+            <field name="name">نسبة قطع الغيار البطيئة والراكدة</field>
+            <field name="group_code">spares</field>
+            <field name="unit">%</field>
+            <field name="direction">down</field>
+            <field name="target_value">15.0</field>
+            <field name="sequence">360</field>
+        </record>
+        <record id="kpi_target_sparesCover" model="financial.analyst.kpi.target">
+            <field name="kpi_code">sparesCover</field>
+            <field name="name">أشهر تغطية قطع الغيار</field>
+            <field name="group_code">spares</field>
+            <field name="unit">%</field>
+            <field name="direction">down</field>
+            <field name="target_value">12.0</field>
+            <field name="sequence">370</field>
+        </record>
+        <record id="kpi_target_sparesWorkCover" model="financial.analyst.kpi.target">
+            <field name="kpi_code">sparesWorkCover</field>
+            <field name="name">أشهر تغطية المخزن العامل</field>
+            <field name="group_code">spares</field>
+            <field name="unit">%</field>
+            <field name="direction">down</field>
+            <field name="target_value">12.0</field>
+            <field name="sequence">380</field>
+        </record>
+        <record id="kpi_target_sparesProvCover" model="financial.analyst.kpi.target">
+            <field name="kpi_code">sparesProvCover</field>
+            <field name="name">تغطية مخصص التقادم للراكد</field>
+            <field name="group_code">spares</field>
+            <field name="unit">%</field>
+            <field name="direction">up</field>
+            <field name="target_value">100.0</field>
+            <field name="sequence">390</field>
+        </record>
+        <record id="kpi_target_sparesChange" model="financial.analyst.kpi.target">
+            <field name="kpi_code">sparesChange</field>
+            <field name="name">التغير في رصيد قطع الغيار</field>
+            <field name="group_code">spares</field>
+            <field name="unit">%</field>
+            <field name="direction">down</field>
+            <field name="target_value">0.0</field>
+            <field name="sequence">400</field>
+        </record>
+        <record id="kpi_target_icNonTradeToEquity" model="financial.analyst.kpi.target">
+            <field name="kpi_code">icNonTradeToEquity</field>
+            <field name="name">الأرصدة المدينة بالإنابة للشقيقة إلى حقوق الملكية</field>
+            <field name="group_code">ic</field>
+            <field name="unit">%</field>
+            <field name="direction">down</field>
+            <field name="target_value">10.0</field>
+            <field name="sequence">410</field>
+        </record>
+        <record id="kpi_target_icNetToAssets" model="financial.analyst.kpi.target">
+            <field name="kpi_code">icNetToAssets</field>
+            <field name="name">صافي المركز مع الشركات الشقيقة إلى إجمالي الأصول</field>
+            <field name="group_code">ic</field>
+            <field name="unit">%</field>
+            <field name="direction">down</field>
+            <field name="target_value">10.0</field>
+            <field name="sequence">420</field>
+        </record>
+        <record id="kpi_target_icNonTradeChange" model="financial.analyst.kpi.target">
+            <field name="kpi_code">icNonTradeChange</field>
+            <field name="name">التغير في الأرصدة المدينة بالإنابة للشقيقة</field>
+            <field name="group_code">ic</field>
+            <field name="unit">%</field>
+            <field name="direction">down</field>
+            <field name="target_value">0.0</field>
+            <field name="sequence">430</field>
+        </record>
+        <record id="kpi_target_ocfRatio" model="financial.analyst.kpi.target">
+            <field name="kpi_code">ocfRatio</field>
+            <field name="name">التدفق التشغيلي إلى الالتزامات المتداولة (سنوي)</field>
+            <field name="group_code">cf</field>
+            <field name="unit">x</field>
+            <field name="direction">up</field>
+            <field name="target_value">0.5</field>
+            <field name="sequence">440</field>
+        </record>
+        <record id="kpi_target_cashQuality" model="financial.analyst.kpi.target">
+            <field name="kpi_code">cashQuality</field>
+            <field name="name">جودة الأرباح (التدفق التشغيلي ÷ صافي الربح)</field>
+            <field name="group_code">cf</field>
+            <field name="unit">x</field>
+            <field name="direction">up</field>
+            <field name="target_value">1.0</field>
+            <field name="sequence">450</field>
+        </record>
+        <record id="kpi_target_fcf" model="financial.analyst.kpi.target">
+            <field name="kpi_code">fcf</field>
+            <field name="name">التدفق النقدي الحر</field>
+            <field name="group_code">cf</field>
+            <field name="unit">%</field>
+            <field name="direction">up</field>
+            <field name="target_value">0.0</field>
+            <field name="sequence">460</field>
+        </record>
+    </data>
+</odoo>

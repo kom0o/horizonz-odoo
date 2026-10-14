@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="module_category_financial_analyst" model="ir.module.category">
+            <field name="name">المحلل المالي</field>
+            <field name="description">إدارة لوحة المؤشرات، المقارنات، والتحليل المالي المتقدم</field>
+            <field name="sequence">25</field>
+        </record>
+
+        <record id="group_financial_analyst_user" model="res.groups">
+            <field name="name">مستخدم المحلل المالي</field>
+            <field name="category_id" ref="module_category_financial_analyst"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <record id="group_financial_analyst_manager" model="res.groups">
+            <field name="name">مدير التحليل المالي</field>
+            <field name="category_id" ref="module_category_financial_analyst"/>
+            <field name="implied_ids" eval="[(4, ref('group_financial_analyst_user'))]"/>
+        </record>
+
+        <record id="group_financial_analyst_admin" model="res.groups">
+            <field name="name">مدير النظام المالي الكامل</field>
+            <field name="category_id" ref="module_category_financial_analyst"/>
+            <field name="implied_ids" eval="[(4, ref('group_financial_analyst_manager'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+
+        <!-- Multi-Company Record Rules -->
+        <record id="financial_period_company_rule" model="ir.rule">
+            <field name="name">Financial Period Multi-Company</field>
+            <field name="model_id" ref="model_financial_analyst_period"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+
+        <record id="financial_issue_company_rule" model="ir.rule">
+            <field name="name">Financial Issue Multi-Company</field>
+            <field name="model_id" ref="model_financial_analyst_issue"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+    </data>
+</odoo>

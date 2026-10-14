@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Client Action for Interactive Dashboard -->
+    <record id="action_financial_dashboard" model="ir.actions.client">
+        <field name="name">لوحة المؤشرات — المحلل المالي</field>
+        <field name="tag">financial_analyst.dashboard_action</field>
+        <field name="target">main</field>
+    </record>
+
+    <!-- Top Root Menu -->
+    <menuitem id="menu_financial_analyst_root"
+              name="المحلل المالي"
+              sequence="15"
+              web_icon="financial_analyst,static/description/icon.png"
+              groups="financial_analyst.group_financial_analyst_user"/>
+
+    <!-- Main Dashboard Action Menu -->
+    <menuitem id="menu_financial_analyst_dashboard"
+              name="لوحة المؤشرات"
+              parent="menu_financial_analyst_root"
+              action="action_financial_dashboard"
+              sequence="10"/>
+
+    <!-- Periods Menu -->
+    <menuitem id="menu_financial_analyst_periods"
+              name="الفترات المالية"
+              parent="menu_financial_analyst_root"
+              action="action_financial_period"
+              sequence="20"/>
+
+    <!-- Issues Menu -->
+    <menuitem id="menu_financial_analyst_issues"
+              name="الإحالات وخطط التحسين"
+              parent="menu_financial_analyst_root"
+              action="action_financial_issue"
+              sequence="30"/>
+
+    <!-- Configuration Menu -->
+    <menuitem id="menu_financial_analyst_config"
+              name="التهيئة والضبط"
+              parent="menu_financial_analyst_root"
+              sequence="90"
+              groups="financial_analyst.group_financial_analyst_manager"/>
+
+    <menuitem id="menu_financial_kpi_targets"
+              name="المستهدفات والتوصيات"
+              parent="menu_financial_analyst_config"
+              action="action_financial_kpi_target"
+              sequence="10"/>
+
+    <menuitem id="menu_financial_assignees"
+              name="أصحاب الاختصاص"
+              parent="menu_financial_analyst_config"
+              action="action_financial_assignee"
+              sequence="20"/>
+
+    <menuitem id="menu_financial_settings"
+              name="إعدادات الذكاء الاصطناعي (Gemini)"
+              parent="menu_financial_analyst_config"
+              action="action_financial_analyst_settings"
+              sequence="30"
+              groups="financial_analyst.group_financial_analyst_admin"/>
+</odoo>

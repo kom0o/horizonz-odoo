@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_financial_issue_tree" model="ir.ui.view">
+        <field name="name">financial.analyst.issue.tree</field>
+        <field name="model">financial.analyst.issue</field>
+        <field name="arch" type="xml">
+            <tree string="الإحالات وخطط التحسين" decoration-danger="status == 'open' and due_date &lt; current_date" decoration-warning="status == 'open'" decoration-success="status == 'closed'">
+                <field name="name"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="period_id"/>
+                <field name="kpi_name"/>
+                <field name="current_value"/>
+                <field name="target_value"/>
+                <field name="cause"/>
+                <field name="assignee_id"/>
+                <field name="priority" widget="badge" decoration-danger="priority == 'urgent'" decoration-warning="priority == 'high'" decoration-info="priority == 'med'"/>
+                <field name="due_date"/>
+                <field name="status" widget="badge" decoration-danger="status == 'open'" decoration-warning="status == 'in_progress'" decoration-success="status == 'closed'" decoration-primary="status == 'reopened'"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_financial_issue_kanban" model="ir.ui.view">
+        <field name="name">financial.analyst.issue.kanban</field>
+        <field name="model">financial.analyst.issue</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="status" class="o_kanban_small_column">
+                <field name="name"/>
+                <field name="kpi_name"/>
+                <field name="current_value"/>
+                <field name="target_value"/>
+                <field name="priority"/>
+                <field name="due_date"/>
+                <field name="assignee_id"/>
+                <field name="status"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_global_click oe_kanban_card">
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title"><field name="kpi_name"/></strong>
+                                    <small class="text-muted"><field name="name"/> — <field name="period_id"/></small>
+                                </div>
+                                <span t-attf-class="badge rounded-pill #{record.priority.raw_value == 'urgent' ? 'bg-danger' : (record.priority.raw_value == 'high' ? 'bg-warning' : 'bg-info')}">
+                                    <field name="priority"/>
+                                </span>
+                            </div>
+                            <div class="o_kanban_record_body my-2">
+                                <div><strong>القيمة: </strong><span class="text-danger fw-bold"><field name="current_value"/></span> (المستهدف: <field name="target_value"/>)</div>
+                                <div class="text-truncate text-muted"><field name="cause"/></div>
+                            </div>
+                            <div class="o_kanban_record_bottom">
+                                <div class="oe_kanban_bottom_left">
+                                    <span class="text-muted"><i class="fa fa-clock-o"/> <field name="due_date"/></span>
+                                </div>
+                                <div class="oe_kanban_bottom_right">
+                                    <span class="badge bg-secondary"><field name="assignee_id"/></span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_financial_issue_form" model="ir.ui.view">
+        <field name="name">financial.analyst.issue.form</field>
+        <field name="model">financial.analyst.issue</field>
+        <field name="arch" type="xml">
+            <form string="إحالة وخطة تحسين المؤشر">
+                <header>
+                    <button name="action_close" type="object" string="إغلاق الإحالة" class="oe_highlight btn-success" invisible="status == 'closed'"/>
+                    <button name="action_reopen" type="object" string="إعادة فتح الإحالة" class="btn-warning" invisible="status != 'closed'"/>
+                    <field name="status" widget="statusbar" statusbar_visible="open,in_progress,closed"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="رقم الإحالة"/>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                        <h3>
+                            <field name="kpi_name"/> (<field name="kpi_code"/>)
+                        </h3>
+                    </div>
+                    <group>
+                        <group string="بيانات المؤشر والفترة">
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="period_id"/>
+                            <field name="current_value"/>
+                            <field name="target_value"/>
+                            <field name="new_target"/>
+                            <field name="direction"/>
+                        </group>
+                        <group string="التكليف والمسؤولية">
+                            <field name="assignee_id"/>
+                            <field name="assignee_email"/>
+                            <field name="user_id"/>
+                            <field name="priority" widget="priority"/>
+                            <field name="due_date"/>
+                        </group>
+                    </group>
+
+                    <group string="تشخيص المشكلة">
+                        <field name="cause"/>
+                        <field name="cause_other" invisible="cause != 'أخرى'"/>
+                        <field name="is_recurred"/>
+                        <field name="recur_count" invisible="not is_recurred"/>
+                        <field name="recur_details" invisible="not is_recurred"/>
+                    </group>
+
+                    <group string="خطة التحسين التنفيذية">
+                        <field name="plan" placeholder="الخطوات الإجرائية المطلوبة، المسؤول، ومؤشرات المتابعة..."/>
+                    </group>
+
+                    <group string="سجل الإغلاق وإعادة الفتح" invisible="status == 'open'">
+                        <field name="closed_by_id" readonly="1"/>
+                        <field name="closed_at" readonly="1"/>
+                        <field name="reopen_count" readonly="1"/>
+                        <field name="reopen_reason" invisible="not reopen_reason"/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_financial_issue" model="ir.actions.act_window">
+        <field name="name">الإحالات وخطط التحسين</field>
+        <field name="res_model">financial.analyst.issue</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                لا توجد إحالات مسجلة حتى الآن! يمكنك إنشاء إحالة جديدة من لوحة المؤشرات عند ظهور مؤشر أحمر خارج المستهدف.
+            </p>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_financial_analyst" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.financial.analyst</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="90"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="المحلل المالي" string="المحلل المالي" name="financial_analyst">
+                    <block title="المحلل الذكي (Google Gemini AI)" name="gemini_settings">
+                        <setting id="gemini_api_key_setting" help="أدخل مفتاح Google Gemini API لتشغيل التحليل السردي المالي الآلي واقتراح خطط التحسين">
+                            <field name="financial_analyst_gemini_api_key" password="True"/>
+                        </setting>
+                        <setting id="gemini_model_setting" help="النموذج المستخدم (الافتراضي gemini-2.5-flash)">
+                            <field name="financial_analyst_gemini_model"/>
+                        </setting>
+                        <setting id="gemini_base_url_setting" help="رابط واجهة برمجة تطبيقات Gemini">
+                            <field name="financial_analyst_gemini_base_url"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_financial_analyst_settings" model="ir.actions.act_window">
+        <field name="name">إعدادات المحلل المالي والذكاء الاصطناعي</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+        <field name="context">{'module' : 'financial_analyst'}</field>
+    </record>
+</odoo>

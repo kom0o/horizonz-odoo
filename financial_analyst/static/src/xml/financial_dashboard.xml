@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+    <t t-name="financial_analyst.DashboardAction">
+        <div class="financial-analyst-root" t-ref="dashboardRoot" dir="rtl">
+            <header class="top">
+                <div class="top-in">
+                    <div class="top-row">
+                        <div class="brand">
+                            <button type="button" class="home-flag" id="homeFlag" title="الصفحة الرئيسية" aria-label="الصفحة الرئيسية"></button>
+                            <img id="brandLogo" alt="شعار المديفر" hidden="1"/>
+                            <div class="bt">المحلل المالي<small>لوحة المؤشرات والتحليل المالي المتقدم</small></div>
+                        </div>
+                        <select class="cosel" id="coSel" aria-label="الشركة"></select>
+                        <button type="button" class="btn sm primary" id="btnSyncAccounting" title="مزامنة القيود مباشرة من شجرة الحسابات في أودو" style="background:#0C4DA2; color:#fff; border-radius:6px; font-weight:600; padding:4px 12px; margin:0 8px; border:none; cursor:pointer;">
+                            ⚡ مزامنة من الحسابات
+                        </button>
+                        <span class="save-state" id="saveState"></span>
+                        <button type="button" class="hbtn fs-btn" id="fsBtn" title="ملء الشاشة" aria-label="ملء الشاشة">⛶</button>
+                        <div class="me" id="meBox"></div>
+                    </div>
+                    <nav class="tabs" role="tablist" id="tabs"></nav>
+                </div>
+            </header>
+            <main>
+                <div id="revNav"></div>
+                <section class="view" id="v-dash"></section>
+                <section class="view" id="v-compare"></section>
+                <section class="view" id="v-prices"></section>
+                <section class="view" id="v-reps"></section>
+                <section class="view" id="v-cashflow"></section>
+                <section class="view" id="v-ic"></section>
+                <section class="view" id="v-spares"></section>
+                <section class="view" id="v-tbrev"></section>
+                <section class="view" id="v-issues"></section>
+                <section class="view" id="v-data">
+                    <div class="grid2">
+                        <div>
+                            <div class="panel">
+                                <h2>الفترات المسجلة</h2>
+                                <p class="hint" id="plistHint"></p>
+                                <div class="plist" id="plist"></div>
+                                <div class="row-actions"><button class="btn primary" id="newPeriod">فترة جديدة</button></div>
+                            </div>
+                            <div class="panel" id="upPanel">
+                                <h2>رفع ملفات الفترة</h2>
+                                <p class="hint">اختر الفترة لترى ما رُفع لها (✓ أخضر) وما لم يُرفع (✗ أحمر)، ثم ارفع كل ملف من بطاقته كما صدّرته من Odoo.</p>
+                                <div class="fgrid" style="margin-bottom:10px">
+                                    <div class="field"><label for="upYear">السنة</label><input type="number" id="upYear"/></div>
+                                    <div class="field"><label for="upMonth">الشهر (أو السنة كاملة)</label><select id="upMonth"></select></div>
+                                </div>
+                                <div id="xUp" class="xk-list"></div>
+                                <input type="file" id="xFile" accept=".xlsx,.xls,.csv" hidden="1"/>
+                                <div class="log" id="upLog"></div>
+                                <details class="up-more"><summary>رفع أي ملف بالسحب والإفلات</summary>
+                                <div class="drop" id="drop" tabindex="0" role="button">اسحب الملف هنا أو اضغط للاختيار<br/><small>يتعرّف البرنامج على نوع الملف تلقائيًا · xlsx · xls · csv</small></div>
+                                <input type="file" id="file" accept=".xlsx,.xls,.csv" hidden="1"/></details>
+                                <div class="row-actions"><button class="btn sm" id="dlTemplate">تنزيل نماذج الملفات المكمّلة في ملف واحد</button></div>
+                            </div>
+                        </div>
+                        <div class="panel" id="editor"></div>
+                    </div>
+                </section>
+                <section class="view" id="v-stmts"></section>
+                <section class="view" id="v-trend">
+                    <div class="panel">
+                        <h2>اتجاه المؤشرات عبر الفترات</h2>
+                        <p class="hint" id="trHint">كل دائرة مؤشر، وكل لون فيها فترة. مرّر المؤشر على لون الفترة لترى قيمتها وحالتها، والرقم في الوسط قيمة آخر فترة.</p>
+                        <div class="fgrid" style="margin-bottom:14px">
+                            <div class="field"><label for="trView">طريقة العرض</label><select id="trView"><option value="donut">دوائر لكل المؤشرات</option><option value="line">خط زمني لمؤشر واحد</option></select></div>
+                            <div class="field"><label for="trType">نوع الفترات</label><select id="trType"><option value="m">شهرية</option><option value="a">سنوية</option></select></div>
+                            <div class="field" id="trGrpBox"><label for="trGrp">المجموعة</label><select id="trGrp"></select></div>
+                            <div class="field" id="trKpiBox" hidden="1"><label for="trKpi">المؤشر</label><select id="trKpi"></select></div>
+                        </div>
+                        <div id="trDonuts"></div>
+                        <div class="chart-box" id="trLineBox" hidden="1"><canvas id="trChart"></canvas></div>
+                        <p class="hint" id="trNote" style="margin-top:10px"></p>
+                    </div>
+                </section>
+                <section class="view" id="v-rates"></section>
+                <section class="view" id="v-companies"></section>
+                <section class="view" id="v-members"></section>
+                <section class="view" id="v-assignees"></section>
+                <section class="view" id="v-kpi">
+                    <div class="panel">
+                        <h2>المستهدفات والتوصيات</h2>
+                        <p class="hint">المستهدف العام ينطبق على كل الشركات، ويمكنك تخصيص مستهدفات وتوصيات لشركة بعينها.</p>
+                        <div class="filters">
+                            <div class="field"><label for="kScope">نطاق الإعدادات</label><select id="kScope"></select></div>
+                            <button class="btn sm danger" id="resetScope">مسح تخصيصات هذا النطاق</button>
+                        </div>
+                        <div class="tbl-wrap"><table class="kt" id="ktable"></table></div>
+                    </div>
+                    <div class="panel">
+                        <h2>أسباب المشكلات</h2>
+                        <p class="hint">القائمة التي تظهر عند إحالة مؤشر أحمر. سطر لكل سبب.</p>
+                        <div class="fgrid" id="causesBox" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))"></div>
+                        <div class="row-actions"><button class="btn primary" id="saveCauses">حفظ الأسباب</button></div>
+                    </div>
+                </section>
+            </main>
+            <dialog id="dlg"></dialog>
+            <div class="toast" id="toast" role="status"></div>
+        </div>
+    </t>
+</templates>

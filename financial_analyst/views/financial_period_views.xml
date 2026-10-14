@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_financial_period_tree" model="ir.ui.view">
+        <field name="name">financial.analyst.period.tree</field>
+        <field name="model">financial.analyst.period</field>
+        <field name="arch" type="xml">
+            <tree string="الفترات المالية" decoration-success="state == 'audited'" decoration-info="state == 'synced'" decoration-muted="state == 'closed'">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="revenue" sum="الإجمالي"/>
+                <field name="gp" sum="الإجمالي"/>
+                <field name="ni" sum="الإجمالي"/>
+                <field name="gross_margin"/>
+                <field name="net_margin"/>
+                <field name="altman_z_score" widget="float" options="{'digits': [16, 2]}"/>
+                <field name="altman_z_status" widget="badge" decoration-success="altman_z_status == 'safe'" decoration-warning="altman_z_status == 'grey'" decoration-danger="altman_z_status == 'danger'"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-primary="state == 'synced'" decoration-success="state == 'audited'"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_financial_period_form" model="ir.ui.view">
+        <field name="name">financial.analyst.period.form</field>
+        <field name="model">financial.analyst.period</field>
+        <field name="arch" type="xml">
+            <form string="الفترة المالية">
+                <header>
+                    <button name="action_open_dashboard" type="object" string="فتح لوحة المؤشرات التفاعلية" class="oe_highlight btn-primary" icon="fa-dashboard"/>
+                    <button name="action_sync_from_accounting" type="object" string="مزامنة مباشرة من الحسابات" class="btn-secondary" icon="fa-refresh" confirm="هل تريد قراءة كافة القيود المرحلة وميزان المراجعة لهذه الفترة وتحديث المؤشرات؟"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,synced,audited,closed"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" icon="fa-exclamation-triangle" type="action" name="%(financial_analyst.action_financial_issue)d" context="{'search_default_period_id': id}">
+                            <field name="open_issue_count" widget="statinfo" string="إحالات مفتوحة"/>
+                        </button>
+                        <button class="oe_stat_button" icon="fa-signal">
+                            <field name="altman_z_score" widget="statinfo" string="Altman Z-Score"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name" string="اسم الفترة"/>
+                        <h1>
+                            <field name="name" placeholder="مثلاً: سبتمبر 2026"/>
+                        </h1>
+                        <label for="code" string="رمز الفترة"/>
+                        <h3>
+                            <field name="code" placeholder="2026-09"/>
+                        </h3>
+                    </div>
+                    <group>
+                        <group name="meta_left">
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="period_type"/>
+                            <field name="year"/>
+                            <field name="month" invisible="period_type == 'year'"/>
+                        </group>
+                        <group name="meta_right">
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                            <field name="comparison_period_id" domain="[('company_id', '=', company_id), ('id', '!=', id)]"/>
+                            <field name="is_opening_period"/>
+                            <field name="tb_synced_at" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="أبرز المؤشرات والـ Z-Score" name="kpis_summary">
+                            <group col="4">
+                                <field name="revenue"/>
+                                <field name="gross_margin"/>
+                                <field name="gp"/>
+                                <field name="net_margin"/>
+                                <field name="ebitda"/>
+                                <field name="current_ratio"/>
+                                <field name="ni"/>
+                                <field name="debt_ratio"/>
+                                <field name="altman_z_score"/>
+                                <field name="altman_z_status" widget="badge" decoration-success="altman_z_status == 'safe'" decoration-warning="altman_z_status == 'grey'" decoration-danger="altman_z_status == 'danger'"/>
+                                <field name="working_capital"/>
+                                <field name="fcf"/>
+                            </group>
+                        </page>
+
+                        <page string="البيانات المالية الأساسية (الأرقام التفصيلية)" name="base_numbers">
+                            <group string="قائمة الدخل">
+                                <group>
+                                    <field name="revenue"/>
+                                    <field name="sl_gross"/>
+                                    <field name="sl_disc"/>
+                                    <field name="trade_rev"/>
+                                    <field name="cogs"/>
+                                    <field name="trade_cogs"/>
+                                </group>
+                                <group>
+                                    <field name="opex"/>
+                                    <field name="depreciation"/>
+                                    <field name="interest"/>
+                                    <field name="tax"/>
+                                    <field name="other_income"/>
+                                </group>
+                            </group>
+                            <group string="قائمة المركز المالي">
+                                <group string="الأصول">
+                                    <field name="cash"/>
+                                    <field name="receivables"/>
+                                    <field name="inventory"/>
+                                    <field name="other_ca"/>
+                                    <field name="non_current"/>
+                                    <field name="total_assets" class="oe_subtotal_footer_separator"/>
+                                </group>
+                                <group string="المطلوبات وحقوق الملكية">
+                                    <field name="payables"/>
+                                    <field name="other_cl"/>
+                                    <field name="short_debt"/>
+                                    <field name="long_debt"/>
+                                    <field name="partners"/>
+                                    <field name="other_ncl"/>
+                                    <field name="capital"/>
+                                    <field name="retained"/>
+                                    <field name="equity" class="oe_subtotal_footer_separator"/>
+                                </group>
+                            </group>
+                            <group string="قطع الغيار والتدفقات">
+                                <group>
+                                    <field name="spares"/>
+                                    <field name="spares_dead"/>
+                                    <field name="spares_prov"/>
+                                    <field name="spares_issued"/>
+                                </group>
+                                <group>
+                                    <field name="ocf"/>
+                                    <field name="capex"/>
+                                    <field name="fcf"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="مبيعات الأصناف" name="sales_breakdown">
+                            <field name="sales_line_ids">
+                                <tree editable="bottom">
+                                    <field name="code"/>
+                                    <field name="item"/>
+                                    <field name="terms"/>
+                                    <field name="qty"/>
+                                    <field name="price"/>
+                                    <field name="value" sum="الإجمالي"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                        <page string="مشتريات واستهلاك المواد الخام" name="materials_breakdown">
+                            <field name="material_line_ids">
+                                <tree editable="bottom">
+                                    <field name="code"/>
+                                    <field name="item"/>
+                                    <field name="qty"/>
+                                    <field name="used"/>
+                                    <field name="value" sum="الإجمالي"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                        <page string="أداء المندوبين" name="reps_breakdown">
+                            <field name="rep_line_ids">
+                                <tree editable="bottom">
+                                    <field name="rep"/>
+                                    <field name="invoices"/>
+                                    <field name="customers"/>
+                                    <field name="qty"/>
+                                    <field name="value" sum="الإجمالي"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                        <page string="الشركات الشقيقة" name="ic_breakdown">
+                            <field name="intercompany_line_ids">
+                                <tree editable="bottom">
+                                    <field name="name"/>
+                                    <field name="rec_trade"/>
+                                    <field name="rec_non_trade"/>
+                                    <field name="pay_trade"/>
+                                    <field name="pay_non_trade"/>
+                                    <field name="net_balance" sum="الصافي"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                        <page string="تقرير المحلل الذكي (Gemini)" name="ai_narrative_tab">
+                            <field name="ai_narrative" placeholder="تقرير تحليلي مالي مفصل صادر عن الذكاء الاصطناعي..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_financial_period" model="ir.actions.act_window">
+        <field name="name">الفترات المالية</field>
+        <field name="res_model">financial.analyst.period</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                أنشئ أول فترة مالية أو اضغط "مزامنة الحسابات" لقراءة البيانات مباشرة من Odoo!
+            </p>
+        </field>
+    </record>
+</odoo>
