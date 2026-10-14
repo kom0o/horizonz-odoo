@@ -683,39 +683,24 @@ class FinancialPeriod(models.Model):
         periods = self.search(domain, order='year desc, month desc, id desc')
         
         if not periods:
-            # إنشاء فترة أولى افتراضية للشهر الحالي إذا لم تكن موجودة
+            # إنشاء فترة للشهر الحالي ومزامنتها تلقائياً من الحسابات إن وجدت قيود
             today = fields.Date.today()
+            import calendar
+            last_day = calendar.monthrange(today.year, today.month)[1]
             first_period = self.create({
                 'company_id': active_company.id,
-                'name': 'سبتمبر 2026',
-                'code': '2026-09',
-                'year': 2026,
-                'month': 9,
+                'name': f'فترة {today.year}-{today.month:02d}',
+                'code': f'{today.year}-{today.month:02d}',
+                'year': today.year,
+                'month': today.month,
                 'period_type': 'month',
-                'date_from': date(2026, 9, 1),
-                'date_to': date(2026, 9, 30),
-                'revenue': 4788543.51,
-                'cogs': 3119915.80,
-                'opex': 848254.73,
-                'depreciation': 292631.10,
-                'tax': 60000.0,
-                'cash': 8615955.67,
-                'receivables': 471143.30,
-                'inventory': 22596433.87,
-                'other_ca': 42432667.56,
-                'non_current': 21930535.52,
-                'payables': 5994426.35,
-                'other_cl': 18608107.45,
-                'partners': 9464385.50,
-                'other_ncl': 15118637.53,
-                'capital': 20000000.0,
-                'retained': 26325564.59,
-                'spares': 27373525.17,
-                'spares_dead': 6045460.59,
-                'spares_prov': 11083499.19,
-                'spares_purch': 308436.44,
-                'spares_issued': 284029.64,
+                'date_from': date(today.year, today.month, 1),
+                'date_to': date(today.year, today.month, last_day),
             })
+            try:
+                first_period.action_sync_from_accounting()
+            except Exception:
+                pass
             periods = first_period
 
         periods_data = {}
@@ -849,6 +834,204 @@ class FinancialPeriod(models.Model):
         }
 
     # --- API Helper Methods for Web Dashboard ---
+    @api.model
+    def api_save_period(self, vals):
+        """
+        حفظ أو تحديث فترة مالية مباشرة من بيانات الإكسل المرفوع أو الإدخال اليدوي باللوحة
+        """
+        company_id = int(vals.get('companyId', self.env.company.id))
+        year = int(vals.get('year', fields.Date.today().year))
+        month = int(vals.get('month', 0))
+        code = vals.get('code') or (f"{year}-{month:02d}" if month else f"{year}-A")
+        
+        import calendar
+        if month and 1 <= month <= 12:
+            last_day = calendar.monthrange(year, month)[1]
+            date_from = date(year, month, 1)
+            date_to = date(year, month, last_day)
+            p_type = 'month'
+        else:
+            date_from = date(year, 1, 1)
+            date_to = date(year, 12, 31)
+            p_type = 'year'
+
+        period = self.search([
+            ('company_id', '=', company_id),
+            '|', ('code', '=', code),
+            '&', ('year', '=', year), ('month', '=', month)
+        ], limit=1)
+
+        d = vals.get('data', {})
+
+        field_mapping = {
+            'revenue': 'revenue',
+            'cogs': 'cogs',
+            'opex': 'opex',
+            'depreciation': 'depreciation',
+            'tax': 'tax',
+            'interest': 'interest',
+            'otherIncome': 'other_income',
+            'other_income': 'other_income',
+            'cash': 'cash',
+            'receivables': 'receivables',
+            'inventory': 'inventory',
+            'otherCA': 'other_ca',
+            'other_ca': 'other_ca',
+            'nonCurrent': 'non_current',
+            'non_current': 'non_current',
+            'payables': 'payables',
+            'otherCL': 'other_cl',
+            'other_cl': 'other_cl',
+            'shortDebt': 'short_debt',
+            'short_debt': 'short_debt',
+            'longDebt': 'long_debt',
+            'long_debt': 'long_debt',
+            'partners': 'partners',
+            'otherNCL': 'other_ncl',
+            'other_ncl': 'other_ncl',
+            'capital': 'capital',
+            'retained': 'retained',
+            'equity': 'equity',
+            'spares': 'spares',
+            'sparesDead': 'spares_dead',
+            'spares_dead': 'spares_dead',
+            'sparesProv': 'spares_prov',
+            'spares_prov': 'spares_prov',
+            'sparesPurch': 'spares_purch',
+            'spares_purch': 'spares_purch',
+            'sparesIssued': 'spares_issued',
+            'spares_issued': 'spares_issued',
+            'sparesAdj': 'spares_adj',
+            'spares_adj': 'spares_adj',
+            'ocf': 'ocf',
+            'capex': 'capex',
+            'fcf': 'fcf',
+            'sl_gross': 'sl_gross',
+            'sl_disc': 'sl_disc',
+            'sl_trade': 'sl_trade',
+            'trade_rev': 'trade_rev',
+            'trade_cogs': 'trade_cogs',
+        }
+
+        period_vals = {
+            'company_id': company_id,
+            'year': year,
+            'month': month,
+            'code': code,
+            'period_type': p_type,
+            'date_from': date_from,
+            'date_to': date_to,
+        }
+
+        if vals.get('name'):
+            period_vals['name'] = vals.get('name')
+
+        for src_k, dst_f in field_mapping.items():
+            if src_k in d and d[src_k] is not None and d[src_k] != '':
+                try:
+                    period_vals[dst_f] = float(d[src_k])
+                except (ValueError, TypeError):
+                    pass
+
+        if period:
+            period.write(period_vals)
+        else:
+            period = self.create(period_vals)
+
+        # تحديث سطور تفصيل المبيعات
+        if 'sales' in d and isinstance(d['sales'], list):
+            period.sales_line_ids.unlink()
+            sales_commands = []
+            for s in d['sales']:
+                if s and (s.get('item') or s.get('code')):
+                    sales_commands.append((0, 0, {
+                        'code': s.get('code') or '',
+                        'item': s.get('item') or '',
+                        'terms': s.get('terms') or 'credit',
+                        'qty': float(s.get('qty', 0.0) or 0.0),
+                        'price': float(s.get('price', 0.0) or 0.0),
+                        'value': float(s.get('value', 0.0) or 0.0),
+                    }))
+            if sales_commands:
+                period.sales_line_ids = sales_commands
+
+        # تحديث سطور تفصيل المواد الخام
+        if 'mats' in d and isinstance(d['mats'], list):
+            period.material_line_ids.unlink()
+            mat_commands = []
+            for m in d['mats']:
+                if m and (m.get('item') or m.get('code')):
+                    mat_commands.append((0, 0, {
+                        'code': m.get('code') or '',
+                        'item': m.get('item') or '',
+                        'qty': float(m.get('qty', 0.0) or 0.0),
+                        'used': float(m.get('used', 0.0) or 0.0),
+                        'value': float(m.get('value', 0.0) or 0.0),
+                    }))
+            if mat_commands:
+                period.material_line_ids = mat_commands
+
+        # تحديث أداء المندوبين
+        if 'reps' in d and isinstance(d['reps'], list):
+            period.rep_line_ids.unlink()
+            rep_commands = []
+            for r in d['reps']:
+                if r and r.get('rep'):
+                    rep_commands.append((0, 0, {
+                        'rep': r.get('rep') or '',
+                        'qty': float(r.get('qty', 0.0) or 0.0),
+                        'value': float(r.get('value', 0.0) or 0.0),
+                        'invoices': int(r.get('invoices', 0) or 0),
+                        'customers': int(r.get('customers', 0) or 0),
+                    }))
+            if rep_commands:
+                period.rep_line_ids = rep_commands
+
+        # تحديث الشركات الشقيقة
+        if 'ic' in d and isinstance(d['ic'], list):
+            period.intercompany_line_ids.unlink()
+            ic_commands = []
+            for ic in d['ic']:
+                if ic and ic.get('name'):
+                    ic_commands.append((0, 0, {
+                        'name': ic.get('name') or '',
+                        'rec_trade': float(ic.get('recTrade', 0.0) or 0.0),
+                        'rec_non_trade': float(ic.get('recNonTrade', 0.0) or 0.0),
+                        'pay_trade': float(ic.get('payTrade', 0.0) or 0.0),
+                        'pay_non_trade': float(ic.get('payNonTrade', 0.0) or 0.0),
+                        'net_balance': float(ic.get('net', 0.0) or 0.0),
+                    }))
+            if ic_commands:
+                period.intercompany_line_ids = ic_commands
+
+        return {
+            'success': True,
+            'id': period.id,
+            'code': period.code,
+            'name': period.name,
+            'year': period.year,
+            'month': period.month,
+            'company': str(period.company_id.id),
+        }
+
+    @api.model
+    def api_delete_period(self, period_code, company_id=None):
+        company_id = int(company_id or self.env.company.id)
+        if "__" in str(period_code):
+            cid_part, p_code = str(period_code).split("__", 1)
+            company_id = int(cid_part)
+        else:
+            p_code = str(period_code)
+
+        period = self.search([
+            ('company_id', '=', company_id),
+            ('code', '=', p_code)
+        ], limit=1)
+        if period:
+            period.unlink()
+            return {'success': True}
+        return {'success': False, 'error': 'Period not found'}
+
     @api.model
     def api_save_issue(self, vals):
         company_id = int(vals.get('companyId', self.env.company.id))

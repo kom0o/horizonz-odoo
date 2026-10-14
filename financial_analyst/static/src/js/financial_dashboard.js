@@ -646,6 +646,40 @@ function persist(col,id,obj){
         status: obj.status,
       }]).catch(err => console.warn('Odoo issue sync failed:', err));
     }catch(e){}
+  } else if(window.OdooORM && col === "periods"){
+    if(obj){
+      try{
+        setSave("جارٍ الحفظ في أودو…");
+        window.OdooORM.call('financial.analyst.period', 'api_save_period', [{
+          companyId: obj.company || UI.cid,
+          id: obj.id,
+          code: obj.code || (typeof pid === "function" ? pid(obj.year, obj.month) : `${obj.year}-${String(obj.month).padStart(2,"0")}`),
+          year: obj.year,
+          month: obj.month,
+          name: obj.name || (typeof plabel === "function" ? plabel(obj) : `فترة ${obj.year}-${obj.month}`),
+          data: obj.data || {},
+          note: obj.note || '',
+          state: obj.state || 'draft',
+        }]).then(res => {
+          if(res && res.id){
+            obj.id = res.id;
+            if(D.periods[id]) D.periods[id].id = res.id;
+          }
+          setSave("تم الحفظ في أودو بنجاح ✓");
+        }).catch(err => {
+          console.warn('Odoo period sync failed:', err);
+          setSave("تعذر الحفظ في أودو");
+        });
+      }catch(e){
+        console.warn(e);
+      }
+    } else {
+      try{
+        window.OdooORM.call('financial.analyst.period', 'api_delete_period', [id, UI.cid])
+          .then(()=>setSave("تم حذف الفترة من أودو"))
+          .catch(err=>console.warn('Odoo period delete failed:', err));
+      }catch(e){}
+    }
   }
 
   if(MODE!=="db"){try{localStorage.setItem(LS_LOCAL,JSON.stringify(D))}catch(e){}setSave("محفوظ على هذا الجهاز");return Promise.resolve()}
@@ -1055,21 +1089,33 @@ function setupOdooHooks(){
         toast("محرك Odoo غير متصل");
         return;
       }
-      const p = periodDoc(UI.cid, UI.sel[UI.cid]);
-      if(!p || !p.id){
+      const selCode = UI.sel[UI.cid];
+      const p = periodDoc(UI.cid, selCode);
+      const periodId = (p && p.id) ? p.id : null;
+      if(!periodId && !selCode){
         toast("اختر فترة مسجلة أولاً لمزامنتها");
         return;
       }
       toast("جارٍ قراءة قيود اليومية وميزان المراجعة من أودو…");
       try{
-        await window.OdooORM.call('financial.analyst.period', 'action_sync_from_accounting', [p.id]);
+        if(periodId){
+          await window.OdooORM.call('financial.analyst.period', 'action_sync_from_accounting', [periodId]);
+        } else {
+          const saved = await window.OdooORM.call('financial.analyst.period', 'api_save_period', [{
+            companyId: UI.cid,
+            code: selCode,
+          }]);
+          if(saved && saved.id){
+            await window.OdooORM.call('financial.analyst.period', 'action_sync_from_accounting', [saved.id]);
+          }
+        }
         toast("تمت مزامنة الحسابات بنجاح!");
-        const refreshed = await window.OdooORM.call('financial.analyst.period', 'get_dashboard_payload', [p.code, UI.cid]);
+        const refreshed = await window.OdooORM.call('financial.analyst.period', 'get_dashboard_payload', [selCode, UI.cid]);
         if(refreshed){
-          D.companies = refreshed.companies;
-          D.periods = refreshed.periods;
-          D.issues = refreshed.issues;
-          D.assignees = refreshed.assignees;
+          D.companies = Object.assign({}, D.companies, refreshed.companies);
+          D.periods = Object.assign({}, D.periods, refreshed.periods);
+          D.issues = Object.assign({}, D.issues, refreshed.issues);
+          D.assignees = Object.assign({}, D.assignees, refreshed.assignees);
           renderAll();
         }
       }catch(err){
@@ -3397,7 +3443,13 @@ async function handleBook(wb,fname){
     if(rk==="tb"&&r)await saveReport("tb",raw,fname,log,true)}
   if(!log.length)log.push("لم يُعثر على بيانات. تأكد أنك تستخدم قالب البرنامج وأن الأرقام مدخلة.");
   else log.push("راجع البنود في المحرر وأكمل الناقص يدويًا.");
-  if(last){UI.sel[UI.cid]=last;saveUI();editingId=last}
+  if(last){
+    UI.sel[UI.cid]=last;
+    saveUI();
+    editingId=last;
+    toast("تم استيراد وحفظ البيانات المرفوعة بنجاح في أودو!");
+    renderAll();
+  }
   $("#upLog").textContent=log.join("\n");renderData();if(editingId)openEditor(editingId);
 }
 function readFile(file){if(!file)return;if(typeof XLSX==="undefined"){$("#upLog").textContent="تعذّر تحميل قارئ ملفات Excel. أعد تحميل الصفحة.";return}
