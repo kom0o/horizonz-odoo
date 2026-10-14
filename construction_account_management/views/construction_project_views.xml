@@ -143,7 +143,7 @@
                 <field name="currency_id"/>
                 <field name="state"/>
                 <templates>
-                    <t t-name="kanban-box">
+                    <t t-name="card">
                         <div class="oe_kanban_global_click p-3">
                             <div class="o_kanban_record_top mb-2">
                                 <div class="o_kanban_record_headings">
