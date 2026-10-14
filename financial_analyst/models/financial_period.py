@@ -15,8 +15,8 @@ class FinancialPeriod(models.Model):
     _description = 'Financial Analysis Period'
     _order = 'year desc, month desc, id desc'
 
-    name = fields.Char(string='اسم الفترة', required=True, compute='_compute_name', store=True, readonly=False)
-    code = fields.Char(string='رمز الفترة', required=True, compute='_compute_code', store=True, readonly=False, index=True)
+    name = fields.Char(string='اسم الفترة', compute='_compute_name', store=True, readonly=False)
+    code = fields.Char(string='رمز الفترة', compute='_compute_code', store=True, readonly=False, index=True)
     company_id = fields.Many2one('res.company', string='الشركة', required=True, default=lambda self: self.env.company, index=True)
     currency_id = fields.Many2one(related='company_id.currency_id', string='العملة')
 
@@ -177,6 +177,27 @@ class FinancialPeriod(models.Model):
     raw_tb_json = fields.Text(string='بيانات ميزان المراجعة الخام (JSON)')
 
     # --- Computes & Constraints ---
+    @api.model_create_multi
+    def create(self, vals_list):
+        month_names = {
+            1: 'يناير', 2: 'فبراير', 3: 'مارس', 4: 'أبريل',
+            5: 'مايو', 6: 'يونيو', 7: 'يوليو', 8: 'أغسطس',
+            9: 'سبتمبر', 10: 'أكتوبر', 11: 'نوفمبر', 12: 'ديسمبر'
+        }
+        for vals in vals_list:
+            year = vals.get('year') or fields.Date.today().year
+            month = vals.get('month', fields.Date.today().month)
+            ptype = vals.get('period_type', 'month')
+            if not vals.get('code'):
+                vals['code'] = f"{year}-00" if (ptype == 'year' or month == 0) else f"{year}-{month:02d}"
+            if not vals.get('name'):
+                if ptype == 'year' or month == 0:
+                    vals['name'] = f"سنة {year}"
+                else:
+                    m_name = month_names.get(month, f"شهر {month}")
+                    vals['name'] = f"{m_name} {year}"
+        return super().create(vals_list)
+
     @api.depends('year', 'month', 'period_type')
     def _compute_code(self):
         for rec in self:
@@ -666,11 +687,13 @@ class FinancialPeriod(models.Model):
             today = fields.Date.today()
             first_period = self.create({
                 'company_id': active_company.id,
-                'year': today.year,
-                'month': today.month,
+                'name': 'سبتمبر 2026',
+                'code': '2026-09',
+                'year': 2026,
+                'month': 9,
                 'period_type': 'month',
-                'date_from': date(today.year, today.month, 1),
-                'date_to': today,
+                'date_from': date(2026, 9, 1),
+                'date_to': date(2026, 9, 30),
                 'revenue': 4788543.51,
                 'cogs': 3119915.80,
                 'opex': 848254.73,

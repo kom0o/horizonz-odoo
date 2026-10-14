@@ -42,7 +42,7 @@
         'web.assets_backend': [
             'financial_analyst/static/src/lib/chart.umd.min.js',
             'financial_analyst/static/src/lib/xlsx.full.min.js',
-            'financial_analyst/static/src/css/financial_dashboard.css',
+            'financial_analyst/static/src/css/financial_dashboard.scss',
             'financial_analyst/static/src/xml/financial_dashboard.xml',
             'financial_analyst/static/src/js/financial_dashboard.js',
         ],

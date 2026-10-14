@@ -6,11 +6,20 @@ import { useService } from "@web/core/utils/hooks";
 
 export class FinancialDashboardAction extends Component {
     static template = "financial_analyst.DashboardAction";
+    static props = ["*"];
 
     setup() {
         this.orm = useService("orm");
         this.notification = useService("notification");
         this.rootRef = useRef("dashboardRoot");
+
+        if (typeof document !== "undefined" && !document.getElementById("ibm-plex-arabic-font")) {
+            const link = document.createElement("link");
+            link.id = "ibm-plex-arabic-font";
+            link.rel = "stylesheet";
+            link.href = "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap";
+            document.head.appendChild(link);
+        }
 
         onWillStart(async () => {
             const pCode = this.props.action && this.props.action.params && this.props.action.params.period_code;
