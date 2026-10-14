@@ -812,9 +812,17 @@ class FinancialPeriod(models.Model):
                 'companies': [str(c.id) for c in a.company_ids],
             }
 
-        # 5. إعدادات Gemini
+        # 5. إعدادات الذكاء الاصطناعي (Gemini & Claude)
         ir_config = env['ir.config_parameter'].sudo()
-        gemini_cfg = {
+        ai_cfg = {
+            'provider': ir_config.get_param('financial_analyst.ai_provider', 'gemini'),
+            'geminiKey': ir_config.get_param('financial_analyst.gemini_api_key', ''),
+            'geminiModel': ir_config.get_param('financial_analyst.gemini_model', 'gemini-2.5-flash'),
+            'geminiBaseUrl': ir_config.get_param('financial_analyst.gemini_base_url', 'https://generativelanguage.googleapis.com'),
+            'claudeKey': ir_config.get_param('financial_analyst.claude_api_key', ''),
+            'claudeModel': ir_config.get_param('financial_analyst.claude_model', 'claude-3-7-sonnet-latest'),
+            'claudeBaseUrl': ir_config.get_param('financial_analyst.claude_base_url', 'https://api.anthropic.com'),
+            # For backward compatibility
             'apiKey': ir_config.get_param('financial_analyst.gemini_api_key', ''),
             'model': ir_config.get_param('financial_analyst.gemini_model', 'gemini-2.5-flash'),
             'baseUrl': ir_config.get_param('financial_analyst.gemini_base_url', 'https://generativelanguage.googleapis.com'),
@@ -829,11 +837,107 @@ class FinancialPeriod(models.Model):
             'activePeriodCode': selected_code,
             'issues': issues_data,
             'assignees': assignees_data,
-            'geminiCfg': gemini_cfg,
+            'aiCfg': ai_cfg,
+            'geminiCfg': ai_cfg,
             'isAdmin': env.user.has_group('base.group_system') or env.user.has_group('financial_analyst.group_financial_analyst_admin'),
         }
 
     # --- API Helper Methods for Web Dashboard ---
+    @api.model
+    def api_save_ai_config(self, vals):
+        """
+        حفظ إعدادات مزودات الذكاء الاصطناعي (Google Gemini و Anthropic Claude)
+        """
+        ir_config = self.env['ir.config_parameter'].sudo()
+        if 'provider' in vals:
+            ir_config.set_param('financial_analyst.ai_provider', vals['provider'])
+        if 'geminiKey' in vals:
+            ir_config.set_param('financial_analyst.gemini_api_key', vals['geminiKey'])
+        if 'geminiModel' in vals:
+            ir_config.set_param('financial_analyst.gemini_model', vals['geminiModel'])
+        if 'claudeKey' in vals:
+            ir_config.set_param('financial_analyst.claude_api_key', vals['claudeKey'])
+        if 'claudeModel' in vals:
+            ir_config.set_param('financial_analyst.claude_model', vals['claudeModel'])
+        return {'success': True}
+
+    @api.model
+    def api_ai_generate(self, payload):
+        """
+        Server-side fallback for AI generation (Gemini / Claude) to bypass any browser CORS or network restrictions
+        """
+        import json
+        import urllib.request
+        import urllib.error
+
+        provider = payload.get('provider', 'gemini')
+        model = payload.get('model', '')
+        api_key = payload.get('apiKey', '')
+        messages = payload.get('messages', [])
+
+        if not api_key:
+            return {'error': 'Missing API Key'}
+
+        if provider == 'claude':
+            model = model or 'claude-3-7-sonnet-latest'
+            url = 'https://api.anthropic.com/v1/messages'
+            req_body = json.dumps({
+                'model': model,
+                'max_tokens': payload.get('maxTokens', 4096),
+                'temperature': 0.35,
+                'messages': messages,
+            }).encode('utf-8')
+            req = urllib.request.Request(url, data=req_body, headers={
+                'Content-Type': 'application/json',
+                'x-api-key': api_key,
+                'anthropic-version': '2023-06-01',
+            })
+            try:
+                with urllib.request.urlopen(req, timeout=60) as resp:
+                    data = json.loads(resp.read().decode('utf-8'))
+                    text = "".join(b.get('text', '') for b in data.get('content', []))
+                    return {'text': text}
+            except urllib.error.HTTPError as e:
+                err_text = e.read().decode('utf-8')
+                try:
+                    err_json = json.loads(err_text)
+                    return {'error': err_json.get('error', {}).get('message', str(e))}
+                except Exception:
+                    return {'error': f"HTTP {e.code}: {e.reason}"}
+            except Exception as e:
+                return {'error': str(e)}
+
+        else:  # Gemini
+            model = model or 'gemini-2.5-flash'
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+            contents = []
+            for m in messages:
+                role = 'model' if m.get('role') == 'assistant' else 'user'
+                contents.append({'role': role, 'parts': [{'text': m.get('content', '')}]})
+            req_body = json.dumps({
+                'contents': contents,
+                'generationConfig': {'maxOutputTokens': payload.get('maxTokens', 4096), 'temperature': 0.35}
+            }).encode('utf-8')
+            req = urllib.request.Request(url, data=req_body, headers={'Content-Type': 'application/json'})
+            try:
+                with urllib.request.urlopen(req, timeout=60) as resp:
+                    data = json.loads(resp.read().decode('utf-8'))
+                    candidates = data.get('candidates', [])
+                    if candidates:
+                        parts = candidates[0].get('content', {}).get('parts', [])
+                        text = parts[0].get('text', '') if parts else ''
+                        return {'text': text}
+                    return {'text': ''}
+            except urllib.error.HTTPError as e:
+                err_text = e.read().decode('utf-8')
+                try:
+                    err_json = json.loads(err_text)
+                    return {'error': err_json.get('error', {}).get('message', str(e))}
+                except Exception:
+                    return {'error': f"HTTP {e.code}: {e.reason}"}
+            except Exception as e:
+                return {'error': str(e)}
+
     @api.model
     def api_save_period(self, vals):
         """
