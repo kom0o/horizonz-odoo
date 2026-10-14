@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_mrp_breakdown_cause_tree" model="ir.ui.view">
+        <field name="name">mrp.breakdown.cause.list</field>
+        <field name="model">mrp.breakdown.cause</field>
+        <field name="arch" type="xml">
+            <list string="Breakdown Causes / أسباب التوقف والأعطال">
+                <field name="legacy_code"/>
+                <field name="name"/>
+                <field name="part_type"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_mrp_breakdown_cause_form" model="ir.ui.view">
+        <field name="name">mrp.breakdown.cause.form</field>
+        <field name="model">mrp.breakdown.cause</field>
+        <field name="arch" type="xml">
+            <form string="Breakdown Cause / سبب العطل">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. كسر بسلسلة الفنجر كار"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="legacy_code"/>
+                            <field name="part_type"/>
+                        </group>
+                        <group>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+                    <group string="Technical Description / التوصيف الفني">
+                        <field name="description" placeholder="Corrective actions or standard troubleshooting steps..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_mrp_breakdown_cause_search" model="ir.ui.view">
+        <field name="name">mrp.breakdown.cause.search</field>
+        <field name="model">mrp.breakdown.cause</field>
+        <field name="arch" type="xml">
+            <search string="Search Causes">
+                <field name="name"/>
+                <field name="legacy_code"/>
+                <field name="part_type"/>
+                <filter string="Press (المكبس)" name="filter_press" domain="[('part_type','=','press')]"/>
+                <filter string="Grinder (الجلاية)" name="filter_grinder" domain="[('part_type','=','grinder')]"/>
+                <filter string="Finger Car (الفنجر كار)" name="filter_finger_car" domain="[('part_type','=','finger_car')]"/>
+                <filter string="Mixer (الخلاطة)" name="filter_mixer" domain="[('part_type','=','mixer')]"/>
+                <filter string="Electrical (كهرباء)" name="filter_electric" domain="[('part_type','=','electric')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Machine Part" name="group_part" context="{'group_by':'part_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_mrp_breakdown_cause" model="ir.actions.act_window">
+        <field name="name">Machine Breakdown Causes / كتالوج أسباب الأعطال والتوقفات</field>
+        <field name="res_model">mrp.breakdown.cause</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_mrp_breakdown_cause_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Manage all 187 pre-configured breakdown and stoppage causes.
+            </p>
+        </field>
+    </record>
+</odoo>

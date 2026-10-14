@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="hanger_1" model="mrp.production.hanger">
+            <field name="code">H01</field>
+            <field name="name">صالة رقم 1</field>
+        </record>
+        <record id="hanger_2" model="mrp.production.hanger">
+            <field name="code">H02</field>
+            <field name="name">صالة رقم 2</field>
+        </record>
+        <record id="hanger_3" model="mrp.production.hanger">
+            <field name="code">H03</field>
+            <field name="name">صالة رقم 3</field>
+        </record>
+        <record id="hanger_4" model="mrp.production.hanger">
+            <field name="code">H04</field>
+            <field name="name">صالة رقم 4</field>
+        </record>
+        <record id="hanger_5" model="mrp.production.hanger">
+            <field name="code">H05</field>
+            <field name="name">صالة رقم 5</field>
+        </record>
+        <record id="hanger_6" model="mrp.production.hanger">
+            <field name="code">H21</field>
+            <field name="name">صالة رقم 21</field>
+        </record>
+        <record id="hanger_7" model="mrp.production.hanger">
+            <field name="code">H22</field>
+            <field name="name">صالة رقم 22</field>
+        </record>
+        <record id="hanger_8" model="mrp.production.hanger">
+            <field name="code">H23</field>
+            <field name="name">صالة رقم 23</field>
+        </record>
+        <record id="hanger_9" model="mrp.production.hanger">
+            <field name="code">H31</field>
+            <field name="name">صالة رقم 31</field>
+        </record>
+        <record id="hanger_10" model="mrp.production.hanger">
+            <field name="code">H33</field>
+            <field name="name">صالة رقم 33</field>
+        </record>
+        <record id="hanger_11" model="mrp.production.hanger">
+            <field name="code">H32</field>
+            <field name="name">صالة رقم 32 الخرج</field>
+        </record>
+        <record id="hanger_20" model="mrp.production.hanger">
+            <field name="code">HAZ</field>
+            <field name="name">صالة مصنع بلك العزيزية</field>
+        </record>
+        <record id="hanger_30" model="mrp.production.hanger">
+            <field name="code">HKH</field>
+            <field name="name">صالة بلك الخرج</field>
+        </record>
+        <record id="hanger_40" model="mrp.production.hanger">
+            <field name="code">HMD</field>
+            <field name="name">مصنع المديفر للمنتجات الأسمنتية</field>
+        </record>
+        <record id="hanger_50" model="mrp.production.hanger">
+            <field name="code">HSO</field>
+            <field name="name">صالة مصنع بلاط الجنوب</field>
+        </record>
+        <record id="hanger_60" model="mrp.production.hanger">
+            <field name="code">HQS</field>
+            <field name="name">صالة مصنع القصيم</field>
+        </record>
+    </data>
+</odoo>

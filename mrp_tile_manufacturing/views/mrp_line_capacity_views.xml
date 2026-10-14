@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_mrp_line_capacity_tree" model="ir.ui.view">
+        <field name="name">mrp.line.capacity.list</field>
+        <field name="model">mrp.line.capacity</field>
+        <field name="arch" type="xml">
+            <list string="Line Capacities &amp; Production Norms">
+                <field name="workcenter_id"/>
+                <field name="product_id"/>
+                <field name="moulds_count"/>
+                <field name="units_per_sqm"/>
+                <field name="standard_press_per_hour"/>
+                <field name="standard_grinder_per_hour"/>
+                <field name="steam_curing_hours"/>
+                <field name="standard_waste_percent"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_mrp_line_capacity_form" model="ir.ui.view">
+        <field name="name">mrp.line.capacity.form</field>
+        <field name="model">mrp.line.capacity</field>
+        <field name="arch" type="xml">
+            <form string="Line Capacity &amp; Production Norm">
+                <sheet>
+                    <group>
+                        <group string="Line &amp; Product / الخط والصنف">
+                            <field name="workcenter_id"/>
+                            <field name="product_id"/>
+                            <field name="moulds_count"/>
+                            <field name="units_per_sqm"/>
+                        </group>
+                        <group string="Speed Standards &amp; Quality Norms / المعايير التشغيلية">
+                            <field name="standard_press_per_hour"/>
+                            <field name="standard_grinder_per_hour"/>
+                            <field name="steam_curing_hours"/>
+                            <field name="standard_waste_percent"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="notes" placeholder="Technical notes about moulds, batches or mixing..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_mrp_line_capacity_search" model="ir.ui.view">
+        <field name="name">mrp.line.capacity.search</field>
+        <field name="model">mrp.line.capacity</field>
+        <field name="arch" type="xml">
+            <search string="Search Capacities">
+                <field name="workcenter_id"/>
+                <field name="product_id"/>
+                <group expand="0" string="Group By">
+                    <filter string="Production Line" name="group_workcenter" context="{'group_by':'workcenter_id'}"/>
+                    <filter string="Product" name="group_product" context="{'group_by':'product_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_mrp_line_capacity" model="ir.actions.act_window">
+        <field name="name">Production Norms &amp; Capacities / معايير الطاقات الإنتاجية</field>
+        <field name="res_model">mrp.line.capacity</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_mrp_line_capacity_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Define Standard Output Norms (mould cavities, hourly press/grinder speed, steam hours) per Line and Product.
+            </p>
+        </field>
+    </record>
+</odoo>

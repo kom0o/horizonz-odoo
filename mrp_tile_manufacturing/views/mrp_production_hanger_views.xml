@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_mrp_production_hanger_tree" model="ir.ui.view">
+        <field name="name">mrp.production.hanger.list</field>
+        <field name="model">mrp.production.hanger</field>
+        <field name="arch" type="xml">
+            <list string="Production Halls / عنابر الإنتاج">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="warehouse_id"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="workcenter_count"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_mrp_production_hanger_form" model="ir.ui.view">
+        <field name="name">mrp.production.hanger.form</field>
+        <field name="model">mrp.production.hanger</field>
+        <field name="arch" type="xml">
+            <form string="Production Hall / عنبر وصالة الإنتاج">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. صالة رقم 1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="warehouse_id"/>
+                        </group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Production Lines / خطوط الإنتاج" name="lines">
+                            <field name="workcenter_ids" mode="list,kanban">
+                                <list>
+                                    <field name="line_code"/>
+                                    <field name="name"/>
+                                    <field name="line_manufacturer"/>
+                                    <field name="line_type"/>
+                                    <field name="capacity_count"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_mrp_production_hanger" model="ir.actions.act_window">
+        <field name="name">Production Halls / عنابر وصالات الإنتاج</field>
+        <field name="res_model">mrp.production.hanger</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Define a Production Hall or Bay!
+            </p>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_mrp_workcenter_tree_inherit_tile" model="ir.ui.view">
+        <field name="name">mrp.workcenter.list.inherit.tile</field>
+        <field name="model">mrp.workcenter</field>
+        <field name="inherit_id" ref="mrp.mrp_workcenter_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="before">
+                <field name="line_code"/>
+            </xpath>
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="hanger_id"/>
+                <field name="line_manufacturer"/>
+                <field name="line_type"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_mrp_workcenter_form_inherit_tile" model="ir.ui.view">
+        <field name="name">mrp.workcenter.form.inherit.tile</field>
+        <field name="model">mrp.workcenter</field>
+        <field name="inherit_id" ref="mrp.mrp_workcenter_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='workcenter_info']" position="after">
+                <group string="Tile Production Line Specs / خصائص خط إنتاج البلاط">
+                    <group>
+                        <field name="line_code"/>
+                        <field name="hanger_id"/>
+                    </group>
+                    <group>
+                        <field name="line_manufacturer"/>
+                        <field name="line_type"/>
+                    </group>
+                </group>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Standard Capacity &amp; Norms / معايير الطاقات والإنتاجية" name="tile_capacity">
+                    <field name="capacity_ids">
+                        <list editable="bottom">
+                            <field name="product_id"/>
+                            <field name="moulds_count"/>
+                            <field name="units_per_sqm"/>
+                            <field name="standard_press_per_hour"/>
+                            <field name="standard_grinder_per_hour"/>
+                            <field name="steam_curing_hours"/>
+                            <field name="standard_waste_percent"/>
+                            <field name="notes"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

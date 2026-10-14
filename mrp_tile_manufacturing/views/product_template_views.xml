@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_template_form_view_inherit_tile" model="ir.ui.view">
+        <field name="name">product.template.form.inherit.tile</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='general_information']//group[1]" position="after">
+                <group string="Tile &amp; Concrete Specs / مواصفات البلاط والمنتجات الأسمنتية">
+                    <group>
+                        <field name="is_tile_product"/>
+                        <field name="tile_group_id" invisible="not is_tile_product"/>
+                        <field name="tile_size" invisible="not is_tile_product" placeholder="e.g. 20×20, 25×25, 30×30"/>
+                        <field name="tile_color" invisible="not is_tile_product" placeholder="e.g. أبيض, رصاصي"/>
+                    </group>
+                    <group invisible="not is_tile_product">
+                        <field name="units_per_sqm"/>
+                        <field name="triala_capacity_sqm"/>
+                        <field name="crane_capacity_sqm"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="product_template_tree_view_inherit_tile" model="ir.ui.view">
+        <field name="name">product.template.list.inherit.tile</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="tile_size" optional="show"/>
+                <field name="tile_color" optional="show"/>
+                <field name="tile_group_id" optional="hide"/>
+                <field name="units_per_sqm" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

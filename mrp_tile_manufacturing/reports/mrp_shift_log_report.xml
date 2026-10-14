@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_mrp_shift_log" model="ir.actions.report">
+        <field name="name">Daily Shift Production Report / تقرير تشغيل الوردية اليومي</field>
+        <field name="model">mrp.shift.log</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">mrp_tile_manufacturing.report_shift_log_template</field>
+        <field name="report_file">mrp_tile_manufacturing.report_shift_log_template</field>
+        <field name="print_report_name">'Shift_Report_%s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_mrp_shift_log"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_shift_log_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page" dir="rtl" style="font-family: Arial, sans-serif; font-size: 13px;">
+                        <div class="text-center mb-4">
+                            <h2 style="color: #0f4c81; font-weight: bold; border-bottom: 2px solid #0f4c81; padding-bottom: 8px;">
+                                تقرير تشغيل وإنتاج الوردية اليومي
+                            </h2>
+                            <h4 class="text-muted"><t t-esc="doc.name"/></h4>
+                        </div>
+
+                        <!-- Header Information -->
+                        <div class="row mb-3 p-2" style="background-color: #f8f9fa; border-radius: 6px;">
+                            <div class="col-4">
+                                <strong>تاريخ الإنتاج: </strong> <span t-field="doc.date"/><br/>
+                                <strong>الوردية: </strong> <span t-field="doc.shift"/>
+                            </div>
+                            <div class="col-4">
+                                <strong>المصنع / الفرع: </strong> <span t-field="doc.warehouse_id"/><br/>
+                                <strong>مشرف الوردية: </strong> <span t-field="doc.supervisor_id"/>
+                            </div>
+                            <div class="col-4 text-end">
+                                <strong>الحالة: </strong> <span t-field="doc.state"/><br/>
+                                <strong>صافي الساعات المستهدفة: </strong> <span t-field="doc.net_available_hours"/> ساعة
+                            </div>
+                        </div>
+
+                        <!-- Section 1: Pressing Lines -->
+                        <h5 style="color: #1a5276; font-weight: bold; margin-top: 15px;">1. مخرجات الكبس (Pressing Output)</h5>
+                        <table class="table table-sm table-bordered text-center align-middle" style="margin-bottom: 20px;">
+                            <thead style="background-color: #eaf2f8;">
+                                <tr>
+                                    <th>خط الإنتاج</th>
+                                    <th>الصنف المكوبس</th>
+                                    <th>ساعات العمل</th>
+                                    <th>ساعات التوقف</th>
+                                    <th>الإنتاج الفعلي (م²)</th>
+                                    <th>الإنتاج المتوقع (م²)</th>
+                                    <th>الكفاءة %</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="doc.press_line_ids" t-as="p">
+                                    <td><span t-field="p.workcenter_id.name"/></td>
+                                    <td><span t-field="p.product_id.display_name"/></td>
+                                    <td><span t-field="p.operating_hours"/></td>
+                                    <td><span t-field="p.breakdown_hours"/></td>
+                                    <td><strong><span t-field="p.actual_press_sqm"/></strong></td>
+                                    <td><span t-field="p.expected_press_sqm"/></td>
+                                    <td><span t-field="p.efficiency_rate"/> %</td>
+                                </tr>
+                            </tbody>
+                            <tfoot style="background-color: #f8f9fa; font-weight: bold;">
+                                <tr>
+                                    <td colspan="4" class="text-start">الإجمالي:</td>
+                                    <td><span t-field="doc.total_press_sqm"/> م²</td>
+                                    <td colspan="2"></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <!-- Section 2: Grinding & Quality Grading -->
+                        <h5 style="color: #1a5276; font-weight: bold; margin-top: 15px;">2. مخرجات الجلي وتصنيف الجودة (Grinding &amp; Quality Grading)</h5>
+                        <table class="table table-sm table-bordered text-center align-middle" style="margin-bottom: 20px;">
+                            <thead style="background-color: #eaf2f8;">
+                                <tr>
+                                    <th>الجلاية</th>
+                                    <th>الصنف</th>
+                                    <th>فرز أول (م²)</th>
+                                    <th>فرز ثاني (م²)</th>
+                                    <th>وزرة (م²)</th>
+                                    <th>إعادة جلي (م²)</th>
+                                    <th>هالك (م²)</th>
+                                    <th>إجمالي الجلي (م²)</th>
+                                    <th>الهالك %</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="doc.grinder_line_ids" t-as="g">
+                                    <td><span t-field="g.workcenter_id.name"/></td>
+                                    <td><span t-field="g.product_id.display_name"/></td>
+                                    <td style="color: green; font-weight: bold;"><span t-field="g.first_quality_sqm"/></td>
+                                    <td><span t-field="g.second_quality_sqm"/></td>
+                                    <td><span t-field="g.skirting_sqm"/></td>
+                                    <td><span t-field="g.regrind_sqm"/></td>
+                                    <td style="color: red;"><span t-field="g.waste_sqm"/></td>
+                                    <td><strong><span t-field="g.total_grinded_sqm"/></strong></td>
+                                    <td><span t-field="g.waste_percent"/> %</td>
+                                </tr>
+                            </tbody>
+                            <tfoot style="background-color: #f8f9fa; font-weight: bold;">
+                                <tr>
+                                    <td colspan="2" class="text-start">الإجمالي الكلي:</td>
+                                    <td style="color: green;"><span t-field="doc.total_first_quality_sqm"/> م²</td>
+                                    <td><span t-field="doc.total_second_quality_sqm"/> م²</td>
+                                    <td><span t-field="doc.total_skirting_sqm"/> م²</td>
+                                    <td><span t-field="doc.total_regrind_sqm"/> م²</td>
+                                    <td style="color: red;"><span t-field="doc.total_waste_sqm"/> م²</td>
+                                    <td><span t-field="doc.total_grinder_sqm"/> م²</td>
+                                    <td><span t-field="doc.avg_waste_percent"/> %</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <!-- Section 3: Machine Breakdowns -->
+                        <h5 style="color: #1a5276; font-weight: bold; margin-top: 15px;">3. سجل الأعطال والتوقفات (Stoppages &amp; Breakdowns)</h5>
+                        <table class="table table-sm table-bordered text-center align-middle">
+                            <thead style="background-color: #fdedec;">
+                                <tr>
+                                    <th>الماكينة / الخط</th>
+                                    <th>الجزء المتعطل</th>
+                                    <th>سبب العطل</th>
+                                    <th>المدة (ساعة)</th>
+                                    <th>ملاحظات الصيانة</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="doc.breakdown_ids" t-as="b">
+                                    <td><span t-field="b.workcenter_id.name"/></td>
+                                    <td><span t-field="b.equipment_part"/></td>
+                                    <td><span t-field="b.cause_id.name"/></td>
+                                    <td><strong><span t-field="b.duration_hours"/></strong></td>
+                                    <td><span t-field="b.notes"/></td>
+                                </tr>
+                            </tbody>
+                            <tfoot style="background-color: #fdedec; font-weight: bold;">
+                                <tr>
+                                    <td colspan="3" class="text-start">إجمالي ساعات التوقف:</td>
+                                    <td><span t-field="doc.total_breakdown_hours"/> ساعة</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <!-- Sign-off Block -->
+                        <div class="row mt-5 pt-4">
+                            <div class="col-6 text-center">
+                                <strong>مشرف الوردية</strong>
+                                <br/><br/>
+                                <span>.............................................</span>
+                            </div>
+                            <div class="col-6 text-center">
+                                <strong>مدير المصنع والإنتاج</strong>
+                                <br/><br/>
+                                <span>.............................................</span>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,940 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="cause_1" model="mrp.breakdown.cause">
+            <field name="legacy_code">1</field>
+            <field name="name">إصلاح الجير بوكس</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_2" model="mrp.breakdown.cause">
+            <field name="legacy_code">2</field>
+            <field name="name">إعادة معايرة</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_3" model="mrp.breakdown.cause">
+            <field name="legacy_code">3</field>
+            <field name="name">لحام الفينجر كار</field>
+            <field name="part_type">finger_car</field>
+        </record>
+        <record id="cause_4" model="mrp.breakdown.cause">
+            <field name="legacy_code">4</field>
+            <field name="name">معايرة دوران قاعدة المكبس</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_5" model="mrp.breakdown.cause">
+            <field name="legacy_code">5</field>
+            <field name="name">تغيير سويتش قاعدة المكبس</field>
+            <field name="part_type">electric</field>
+        </record>
+        <record id="cause_6" model="mrp.breakdown.cause">
+            <field name="legacy_code">6</field>
+            <field name="name">إصلاح خلل  كهربائي</field>
+            <field name="part_type">electric</field>
+        </record>
+        <record id="cause_7" model="mrp.breakdown.cause">
+            <field name="legacy_code">7</field>
+            <field name="name">إصلاح بالقوالب</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_8" model="mrp.breakdown.cause">
+            <field name="legacy_code">8</field>
+            <field name="name">كسر بسلسلة الفنجر كار</field>
+            <field name="part_type">finger_car</field>
+        </record>
+        <record id="cause_9" model="mrp.breakdown.cause">
+            <field name="legacy_code">9</field>
+            <field name="name">اصلاح بالمكبس</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_10" model="mrp.breakdown.cause">
+            <field name="legacy_code">10</field>
+            <field name="name">اصلاح الهوبر الكهربائى</field>
+            <field name="part_type">electric</field>
+        </record>
+        <record id="cause_11" model="mrp.breakdown.cause">
+            <field name="legacy_code">11</field>
+            <field name="name">اصلاح كمبروسور الساحب</field>
+            <field name="part_type">extractor</field>
+        </record>
+        <record id="cause_12" model="mrp.breakdown.cause">
+            <field name="legacy_code">12</field>
+            <field name="name">اصلاح موتور الخلاطة</field>
+            <field name="part_type">mixer</field>
+        </record>
+        <record id="cause_13" model="mrp.breakdown.cause">
+            <field name="legacy_code">13</field>
+            <field name="name">تغيير ترس مصعد المكبس</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_14" model="mrp.breakdown.cause">
+            <field name="legacy_code">14</field>
+            <field name="name">إصلاح بالساحب</field>
+            <field name="part_type">extractor</field>
+        </record>
+        <record id="cause_15" model="mrp.breakdown.cause">
+            <field name="legacy_code">15</field>
+            <field name="name">تغيير الموتور</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_16" model="mrp.breakdown.cause">
+            <field name="legacy_code">16</field>
+            <field name="name">تغيير الاسطوانة</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_17" model="mrp.breakdown.cause">
+            <field name="legacy_code">17</field>
+            <field name="name">اصلاح سير</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_18" model="mrp.breakdown.cause">
+            <field name="legacy_code">18</field>
+            <field name="name">نقص بالاسمنت الابيض</field>
+            <field name="part_type">material</field>
+        </record>
+        <record id="cause_19" model="mrp.breakdown.cause">
+            <field name="legacy_code">19</field>
+            <field name="name">إصلاح عداد مياه الخلاطة</field>
+            <field name="part_type">mixer</field>
+        </record>
+        <record id="cause_20" model="mrp.breakdown.cause">
+            <field name="legacy_code">20</field>
+            <field name="name">تغيير الصمام الهوائى</field>
+            <field name="part_type">electric</field>
+        </record>
+        <record id="cause_21" model="mrp.breakdown.cause">
+            <field name="legacy_code">21</field>
+            <field name="name">تغيير القوالب</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_22" model="mrp.breakdown.cause">
+            <field name="legacy_code">22</field>
+            <field name="name">اصلاح بالخلاطة</field>
+            <field name="part_type">mixer</field>
+        </record>
+        <record id="cause_23" model="mrp.breakdown.cause">
+            <field name="legacy_code">23</field>
+            <field name="name">ملىء الساحات</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_24" model="mrp.breakdown.cause">
+            <field name="legacy_code">24</field>
+            <field name="name">اصلاح بالجلاية</field>
+            <field name="part_type">grinder</field>
+        </record>
+        <record id="cause_25" model="mrp.breakdown.cause">
+            <field name="legacy_code">25</field>
+            <field name="name">صيانة خط الأنتاج</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_26" model="mrp.breakdown.cause">
+            <field name="legacy_code">26</field>
+            <field name="name">لا يوجد بلاط منتج للجلي</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_27" model="mrp.breakdown.cause">
+            <field name="legacy_code">27</field>
+            <field name="name">عجز بالعماله</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_28" model="mrp.breakdown.cause">
+            <field name="legacy_code">28</field>
+            <field name="name">اصلاح دوزر</field>
+            <field name="part_type">doser</field>
+        </record>
+        <record id="cause_29" model="mrp.breakdown.cause">
+            <field name="legacy_code">29</field>
+            <field name="name">صاحب الشيول</field>
+            <field name="part_type">loader</field>
+        </record>
+        <record id="cause_30" model="mrp.breakdown.cause">
+            <field name="legacy_code">30</field>
+            <field name="name">امتلاء البالتات</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_31" model="mrp.breakdown.cause">
+            <field name="legacy_code">31</field>
+            <field name="name">عيب جودة بحص المجمعة</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_32" model="mrp.breakdown.cause">
+            <field name="legacy_code">32</field>
+            <field name="name">تغيير نوع البلاط</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_33" model="mrp.breakdown.cause">
+            <field name="legacy_code">33</field>
+            <field name="name">صيانة الفوركلفت</field>
+            <field name="part_type">forklift</field>
+        </record>
+        <record id="cause_34" model="mrp.breakdown.cause">
+            <field name="legacy_code">34</field>
+            <field name="name">بداية العمل بعد فترة صيانة طويلة</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_35" model="mrp.breakdown.cause">
+            <field name="legacy_code">35</field>
+            <field name="name">تأخير خلطة المواد لتشغيل الناقل يدويا</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_36" model="mrp.breakdown.cause">
+            <field name="legacy_code">36</field>
+            <field name="name">إنقطاع سير الجلاية</field>
+            <field name="part_type">grinder</field>
+        </record>
+        <record id="cause_37" model="mrp.breakdown.cause">
+            <field name="legacy_code">37</field>
+            <field name="name">إصلاح مضخة الدوران</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_38" model="mrp.breakdown.cause">
+            <field name="legacy_code">38</field>
+            <field name="name">تغيير جير التيلتر</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_39" model="mrp.breakdown.cause">
+            <field name="legacy_code">39</field>
+            <field name="name">إصلاح خلل كهربائي بالدوزر</field>
+            <field name="part_type">electric</field>
+        </record>
+        <record id="cause_40" model="mrp.breakdown.cause">
+            <field name="legacy_code">40</field>
+            <field name="name">إصلاح إسطوانة القالب</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_41" model="mrp.breakdown.cause">
+            <field name="legacy_code">41</field>
+            <field name="name">إرتفاع حرارة مضخة الكبس</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_42" model="mrp.breakdown.cause">
+            <field name="legacy_code">42</field>
+            <field name="name">مشكلة  بالضباب</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_43" model="mrp.breakdown.cause">
+            <field name="legacy_code">43</field>
+            <field name="name">إصلاح المسمار الحلزوني للدافع ( المغذي)</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_44" model="mrp.breakdown.cause">
+            <field name="legacy_code">44</field>
+            <field name="name">إصلاح صمام الهيدروليك</field>
+            <field name="part_type">electric</field>
+        </record>
+        <record id="cause_45" model="mrp.breakdown.cause">
+            <field name="legacy_code">45</field>
+            <field name="name">تغيير صمام الكهربائي</field>
+            <field name="part_type">electric</field>
+        </record>
+        <record id="cause_46" model="mrp.breakdown.cause">
+            <field name="legacy_code">46</field>
+            <field name="name">إصلاح الشيول</field>
+            <field name="part_type">loader</field>
+        </record>
+        <record id="cause_47" model="mrp.breakdown.cause">
+            <field name="legacy_code">47</field>
+            <field name="name">معايرة جير التلتر</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_48" model="mrp.breakdown.cause">
+            <field name="legacy_code">48</field>
+            <field name="name">تغيير إسطوانة الهوبر</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_49" model="mrp.breakdown.cause">
+            <field name="legacy_code">49</field>
+            <field name="name">إصلاح حساس الهوبر</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_50" model="mrp.breakdown.cause">
+            <field name="legacy_code">50</field>
+            <field name="name">إصالح عمود الحساس</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_51" model="mrp.breakdown.cause">
+            <field name="legacy_code">51</field>
+            <field name="name">إصلاح سلسلة الساحب</field>
+            <field name="part_type">extractor</field>
+        </record>
+        <record id="cause_53" model="mrp.breakdown.cause">
+            <field name="legacy_code">53</field>
+            <field name="name">إصلاح سير الجلاية</field>
+            <field name="part_type">grinder</field>
+        </record>
+        <record id="cause_54" model="mrp.breakdown.cause">
+            <field name="legacy_code">54</field>
+            <field name="name">إعادة معايرة طارد المكبس</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_56" model="mrp.breakdown.cause">
+            <field name="legacy_code">56</field>
+            <field name="name">تغيير الهزاز</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_57" model="mrp.breakdown.cause">
+            <field name="legacy_code">57</field>
+            <field name="name">إصلاح هزاز خزان المواد</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_58" model="mrp.breakdown.cause">
+            <field name="legacy_code">58</field>
+            <field name="name">إصلاح إسطوانة الهوبر</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_59" model="mrp.breakdown.cause">
+            <field name="legacy_code">59</field>
+            <field name="name">إصلاح صندوق تعبئة الهوبر</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_60" model="mrp.breakdown.cause">
+            <field name="legacy_code">60</field>
+            <field name="name">إصلاح إسطوانة الدوزر</field>
+            <field name="part_type">doser</field>
+        </record>
+        <record id="cause_61" model="mrp.breakdown.cause">
+            <field name="legacy_code">61</field>
+            <field name="name">إصلاح ذراع الخلاطة</field>
+            <field name="part_type">mixer</field>
+        </record>
+        <record id="cause_63" model="mrp.breakdown.cause">
+            <field name="legacy_code">63</field>
+            <field name="name">تغيير الصمام الحلزوني الداخلي</field>
+            <field name="part_type">electric</field>
+        </record>
+        <record id="cause_64" model="mrp.breakdown.cause">
+            <field name="legacy_code">64</field>
+            <field name="name">إصلاح كهرباء الفنجر كار</field>
+            <field name="part_type">finger_car</field>
+        </record>
+        <record id="cause_65" model="mrp.breakdown.cause">
+            <field name="legacy_code">65</field>
+            <field name="name">إصلاح حساس مضخة الكبس</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_66" model="mrp.breakdown.cause">
+            <field name="legacy_code">66</field>
+            <field name="name">إصلاح صمام المياه</field>
+            <field name="part_type">electric</field>
+        </record>
+        <record id="cause_67" model="mrp.breakdown.cause">
+            <field name="legacy_code">67</field>
+            <field name="name">إصلاح حاجز المكبس</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_68" model="mrp.breakdown.cause">
+            <field name="legacy_code">68</field>
+            <field name="name">إصلاح صمام مضخة الكبس</field>
+            <field name="part_type">electric</field>
+        </record>
+        <record id="cause_69" model="mrp.breakdown.cause">
+            <field name="legacy_code">69</field>
+            <field name="name">إصلاح الموجه المركزي</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_70" model="mrp.breakdown.cause">
+            <field name="legacy_code">70</field>
+            <field name="name">إنقطاع سير الخلاطة ( المواد )</field>
+            <field name="part_type">mixer</field>
+        </record>
+        <record id="cause_71" model="mrp.breakdown.cause">
+            <field name="legacy_code">71</field>
+            <field name="name">تغيير رمان دخول الساحب ( ستاكر )</field>
+            <field name="part_type">extractor</field>
+        </record>
+        <record id="cause_72" model="mrp.breakdown.cause">
+            <field name="legacy_code">72</field>
+            <field name="name">إصلاح سير الخلاطة</field>
+            <field name="part_type">mixer</field>
+        </record>
+        <record id="cause_73" model="mrp.breakdown.cause">
+            <field name="legacy_code">73</field>
+            <field name="name">عدم توفر قطع غيار لإسطوانة القالب</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_74" model="mrp.breakdown.cause">
+            <field name="legacy_code">74</field>
+            <field name="name">إصلاح كهرباء صندوق التعبئة</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_75" model="mrp.breakdown.cause">
+            <field name="legacy_code">75</field>
+            <field name="name">إصلاح مضخة المكبس</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_76" model="mrp.breakdown.cause">
+            <field name="legacy_code">76</field>
+            <field name="name">إصلاح ماسح الهوبر</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_77" model="mrp.breakdown.cause">
+            <field name="legacy_code">77</field>
+            <field name="name">تغيير إسطوانة القالب</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_78" model="mrp.breakdown.cause">
+            <field name="legacy_code">78</field>
+            <field name="name">تغيير ضباب المكبس ( كيوبر )</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_79" model="mrp.breakdown.cause">
+            <field name="legacy_code">79</field>
+            <field name="name">عطل بهزاز ماكينة الكبس</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_80" model="mrp.breakdown.cause">
+            <field name="legacy_code">80</field>
+            <field name="name">إنقطاع التيار الكهربائي</field>
+            <field name="part_type">electric</field>
+        </record>
+        <record id="cause_81" model="mrp.breakdown.cause">
+            <field name="legacy_code">81</field>
+            <field name="name">تغيير موتور راجع الرمل</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_82" model="mrp.breakdown.cause">
+            <field name="legacy_code">82</field>
+            <field name="name">تغيير عمود الساحب</field>
+            <field name="part_type">extractor</field>
+        </record>
+        <record id="cause_83" model="mrp.breakdown.cause">
+            <field name="legacy_code">83</field>
+            <field name="name">إصلاح بالضباب</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_84" model="mrp.breakdown.cause">
+            <field name="legacy_code">84</field>
+            <field name="name">إصلاح موتور باب الخلاطة</field>
+            <field name="part_type">mixer</field>
+        </record>
+        <record id="cause_85" model="mrp.breakdown.cause">
+            <field name="legacy_code">85</field>
+            <field name="name">إصلاح باب الخلاطة</field>
+            <field name="part_type">mixer</field>
+        </record>
+        <record id="cause_86" model="mrp.breakdown.cause">
+            <field name="legacy_code">86</field>
+            <field name="name">ميزان الخلاطة</field>
+            <field name="part_type">mixer</field>
+        </record>
+        <record id="cause_87" model="mrp.breakdown.cause">
+            <field name="legacy_code">87</field>
+            <field name="name">عطل بالدمبر</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_88" model="mrp.breakdown.cause">
+            <field name="legacy_code">88</field>
+            <field name="name">إصلاح جير المصعد والموتور</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_89" model="mrp.breakdown.cause">
+            <field name="legacy_code">89</field>
+            <field name="name">تشغيل بطيئ من الجلاية لجلي  MG03</field>
+            <field name="part_type">grinder</field>
+        </record>
+        <record id="cause_90" model="mrp.breakdown.cause">
+            <field name="legacy_code">90</field>
+            <field name="name">إصلاح خلل كهربائي بسير المواد</field>
+            <field name="part_type">electric</field>
+        </record>
+        <record id="cause_91" model="mrp.breakdown.cause">
+            <field name="legacy_code">91</field>
+            <field name="name">إصلاح بإسطوانة التلتر</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_92" model="mrp.breakdown.cause">
+            <field name="legacy_code">92</field>
+            <field name="name">إصلاح صندوق المصعد</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_93" model="mrp.breakdown.cause">
+            <field name="legacy_code">93</field>
+            <field name="name">عطل بلف الخلاطة</field>
+            <field name="part_type">mixer</field>
+        </record>
+        <record id="cause_94" model="mrp.breakdown.cause">
+            <field name="legacy_code">94</field>
+            <field name="name">صيانة للمكبس</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_95" model="mrp.breakdown.cause">
+            <field name="legacy_code">95</field>
+            <field name="name">عطل طرمبة مياه الخلاطة والبلف</field>
+            <field name="part_type">mixer</field>
+        </record>
+        <record id="cause_96" model="mrp.breakdown.cause">
+            <field name="legacy_code">96</field>
+            <field name="name">إصلاح خلل كهربائي طاولة المكبس</field>
+            <field name="part_type">electric</field>
+        </record>
+        <record id="cause_97" model="mrp.breakdown.cause">
+            <field name="legacy_code">97</field>
+            <field name="name">تغيير جير الشيول</field>
+            <field name="part_type">loader</field>
+        </record>
+        <record id="cause_98" model="mrp.breakdown.cause">
+            <field name="legacy_code">98</field>
+            <field name="name">تغيير إسطوانة الدوزر</field>
+            <field name="part_type">doser</field>
+        </record>
+        <record id="cause_99" model="mrp.breakdown.cause">
+            <field name="legacy_code">99</field>
+            <field name="name">إصلاح بالتلتر</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_100" model="mrp.breakdown.cause">
+            <field name="legacy_code">100</field>
+            <field name="name">إصلاح رأس المكبس</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_101" model="mrp.breakdown.cause">
+            <field name="legacy_code">101</field>
+            <field name="name">صيانة هيدروليك دفع الباليتات</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_102" model="mrp.breakdown.cause">
+            <field name="legacy_code">102</field>
+            <field name="name">تنظيف الهوبر لإنتاج منتج آخر</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_103" model="mrp.breakdown.cause">
+            <field name="legacy_code">103</field>
+            <field name="name">تغيير القالب لإنتاج منتج آخر</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_104" model="mrp.breakdown.cause">
+            <field name="legacy_code">104</field>
+            <field name="name">إصلاح بكرة الساحب</field>
+            <field name="part_type">extractor</field>
+        </record>
+        <record id="cause_105" model="mrp.breakdown.cause">
+            <field name="legacy_code">105</field>
+            <field name="name">معايرة مفتاح حدود الدوزر</field>
+            <field name="part_type">doser</field>
+        </record>
+        <record id="cause_106" model="mrp.breakdown.cause">
+            <field name="legacy_code">106</field>
+            <field name="name">نقص بالباليتات</field>
+            <field name="part_type">material</field>
+        </record>
+        <record id="cause_107" model="mrp.breakdown.cause">
+            <field name="legacy_code">107</field>
+            <field name="name">صيانة الدافع وإزالة الغبار</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_108" model="mrp.breakdown.cause">
+            <field name="legacy_code">108</field>
+            <field name="name">تغيير وصلة الشيول</field>
+            <field name="part_type">loader</field>
+        </record>
+        <record id="cause_109" model="mrp.breakdown.cause">
+            <field name="legacy_code">109</field>
+            <field name="name">إصلاح مفتاح السيكل</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_110" model="mrp.breakdown.cause">
+            <field name="legacy_code">110</field>
+            <field name="name">إصلاح شفاط سحب البلاط من المكبس</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_111" model="mrp.breakdown.cause">
+            <field name="legacy_code">111</field>
+            <field name="name">إصلاح جير الشيول</field>
+            <field name="part_type">loader</field>
+        </record>
+        <record id="cause_112" model="mrp.breakdown.cause">
+            <field name="legacy_code">112</field>
+            <field name="name">سوء جودة البودرة البلدي</field>
+            <field name="part_type">material</field>
+        </record>
+        <record id="cause_113" model="mrp.breakdown.cause">
+            <field name="legacy_code">113</field>
+            <field name="name">إصلاح دخول الساحب ( ستاكر )</field>
+            <field name="part_type">extractor</field>
+        </record>
+        <record id="cause_114" model="mrp.breakdown.cause">
+            <field name="legacy_code">114</field>
+            <field name="name">تغيير مكابح الساحب</field>
+            <field name="part_type">extractor</field>
+        </record>
+        <record id="cause_115" model="mrp.breakdown.cause">
+            <field name="legacy_code">115</field>
+            <field name="name">عجز بالبودرة البلدي</field>
+            <field name="part_type">material</field>
+        </record>
+        <record id="cause_116" model="mrp.breakdown.cause">
+            <field name="legacy_code">116</field>
+            <field name="name">إصلاح القابض ( الماسك )</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_117" model="mrp.breakdown.cause">
+            <field name="legacy_code">117</field>
+            <field name="name">إصلاح هيدروليك الساحب</field>
+            <field name="part_type">extractor</field>
+        </record>
+        <record id="cause_118" model="mrp.breakdown.cause">
+            <field name="legacy_code">118</field>
+            <field name="name">تغيير سير الخلاطة</field>
+            <field name="part_type">mixer</field>
+        </record>
+        <record id="cause_119" model="mrp.breakdown.cause">
+            <field name="legacy_code">119</field>
+            <field name="name">إصلاح جير موتور سلسلة خروج البلاط</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_120" model="mrp.breakdown.cause">
+            <field name="legacy_code">120</field>
+            <field name="name">إصلاح موتور طاولة الدوران</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_121" model="mrp.breakdown.cause">
+            <field name="legacy_code">121</field>
+            <field name="name">تغيير التلتر</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_122" model="mrp.breakdown.cause">
+            <field name="legacy_code">122</field>
+            <field name="name">إعادة معاير الجلاية لجلي بلاط 30×30</field>
+            <field name="part_type">grinder</field>
+        </record>
+        <record id="cause_123" model="mrp.breakdown.cause">
+            <field name="legacy_code">123</field>
+            <field name="name">إصلاح جير  الساحب</field>
+            <field name="part_type">extractor</field>
+        </record>
+        <record id="cause_124" model="mrp.breakdown.cause">
+            <field name="legacy_code">124</field>
+            <field name="name">إصلاح صمام الهواء</field>
+            <field name="part_type">electric</field>
+        </record>
+        <record id="cause_125" model="mrp.breakdown.cause">
+            <field name="legacy_code">125</field>
+            <field name="name">عطل بالفنجر كار</field>
+            <field name="part_type">finger_car</field>
+        </record>
+        <record id="cause_126" model="mrp.breakdown.cause">
+            <field name="legacy_code">126</field>
+            <field name="name">إصلاح خلل كهربائي بالشيول</field>
+            <field name="part_type">electric</field>
+        </record>
+        <record id="cause_127" model="mrp.breakdown.cause">
+            <field name="legacy_code">127</field>
+            <field name="name">إصلاح جير دخول الساحب ( ستاكر )</field>
+            <field name="part_type">extractor</field>
+        </record>
+        <record id="cause_128" model="mrp.breakdown.cause">
+            <field name="legacy_code">128</field>
+            <field name="name">تغيير لوحة تشغيل الخلاطة</field>
+            <field name="part_type">mixer</field>
+        </record>
+        <record id="cause_129" model="mrp.breakdown.cause">
+            <field name="legacy_code">129</field>
+            <field name="name">إصلاح الجير بوكس لسير المواد</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_130" model="mrp.breakdown.cause">
+            <field name="legacy_code">130</field>
+            <field name="name">إصلاح أذرعة دوران الدوزر</field>
+            <field name="part_type">doser</field>
+        </record>
+        <record id="cause_131" model="mrp.breakdown.cause">
+            <field name="legacy_code">131</field>
+            <field name="name">تشغيل الخلاطة يدويا</field>
+            <field name="part_type">mixer</field>
+        </record>
+        <record id="cause_132" model="mrp.breakdown.cause">
+            <field name="legacy_code">132</field>
+            <field name="name">تغيير رمان سير الخلاطة</field>
+            <field name="part_type">mixer</field>
+        </record>
+        <record id="cause_133" model="mrp.breakdown.cause">
+            <field name="legacy_code">133</field>
+            <field name="name">إصلاح خلل كهربائي ( ستاكر )</field>
+            <field name="part_type">electric</field>
+        </record>
+        <record id="cause_134" model="mrp.breakdown.cause">
+            <field name="legacy_code">134</field>
+            <field name="name">إصلاح عمود الأسمنت ( cement scrow)</field>
+            <field name="part_type">material</field>
+        </record>
+        <record id="cause_135" model="mrp.breakdown.cause">
+            <field name="legacy_code">135</field>
+            <field name="name">تغيير رمان صندوق المواد</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_136" model="mrp.breakdown.cause">
+            <field name="legacy_code">136</field>
+            <field name="name">إصلاح جير الهوبر</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_137" model="mrp.breakdown.cause">
+            <field name="legacy_code">137</field>
+            <field name="name">خلل كهربائي بهزاز القالب</field>
+            <field name="part_type">electric</field>
+        </record>
+        <record id="cause_138" model="mrp.breakdown.cause">
+            <field name="legacy_code">138</field>
+            <field name="name">إصلاح إسطوانة الهيدروليك</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_139" model="mrp.breakdown.cause">
+            <field name="legacy_code">139</field>
+            <field name="name">إصلاح قابض الهوبر</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_141" model="mrp.breakdown.cause">
+            <field name="legacy_code">141</field>
+            <field name="name">تغيير رمان الهوبر</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_142" model="mrp.breakdown.cause">
+            <field name="legacy_code">142</field>
+            <field name="name">تغيير موتور دخول الساحب ( ستاكر)</field>
+            <field name="part_type">extractor</field>
+        </record>
+        <record id="cause_143" model="mrp.breakdown.cause">
+            <field name="legacy_code">143</field>
+            <field name="name">تغيير إسطوانة صندوق المواد</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_144" model="mrp.breakdown.cause">
+            <field name="legacy_code">144</field>
+            <field name="name">تغيير كمبروسر التبريد</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_145" model="mrp.breakdown.cause">
+            <field name="legacy_code">145</field>
+            <field name="name">خلل كهربائي بمضخة الكبس</field>
+            <field name="part_type">electric</field>
+        </record>
+        <record id="cause_146" model="mrp.breakdown.cause">
+            <field name="legacy_code">146</field>
+            <field name="name">إصلاح مكابح الساحب</field>
+            <field name="part_type">extractor</field>
+        </record>
+        <record id="cause_147" model="mrp.breakdown.cause">
+            <field name="legacy_code">147</field>
+            <field name="name">إصلاح موتور الماكينة</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_148" model="mrp.breakdown.cause">
+            <field name="legacy_code">148</field>
+            <field name="name">إنقطاع الكابل الكهربائي لدخول الساحب - ستاكر</field>
+            <field name="part_type">extractor</field>
+        </record>
+        <record id="cause_149" model="mrp.breakdown.cause">
+            <field name="legacy_code">149</field>
+            <field name="name">تغيير موتور الهوبر</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_150" model="mrp.breakdown.cause">
+            <field name="legacy_code">150</field>
+            <field name="name">تغيير موتور الجلاية</field>
+            <field name="part_type">grinder</field>
+        </record>
+        <record id="cause_151" model="mrp.breakdown.cause">
+            <field name="legacy_code">151</field>
+            <field name="name">عجز بالباليتات</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_152" model="mrp.breakdown.cause">
+            <field name="legacy_code">152</field>
+            <field name="name">تغيير خرطوم الهيدروليك</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_153" model="mrp.breakdown.cause">
+            <field name="legacy_code">153</field>
+            <field name="name">إصلاح خطاف دخول الساحب ( ستاكر)</field>
+            <field name="part_type">extractor</field>
+        </record>
+        <record id="cause_154" model="mrp.breakdown.cause">
+            <field name="legacy_code">154</field>
+            <field name="name">تغيير بكرة الهوبر</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_155" model="mrp.breakdown.cause">
+            <field name="legacy_code">155</field>
+            <field name="name">وقت المعالجة</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_156" model="mrp.breakdown.cause">
+            <field name="legacy_code">156</field>
+            <field name="name">إصلاح مفتاح المصعد</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_157" model="mrp.breakdown.cause">
+            <field name="legacy_code">157</field>
+            <field name="name">تغيير جير قاعدة الدوران</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_159" model="mrp.breakdown.cause">
+            <field name="legacy_code">159</field>
+            <field name="name">تغيير سلسلة الساحب</field>
+            <field name="part_type">extractor</field>
+        </record>
+        <record id="cause_160" model="mrp.breakdown.cause">
+            <field name="legacy_code">160</field>
+            <field name="name">إصلاح كمبروسر الخلاطة</field>
+            <field name="part_type">mixer</field>
+        </record>
+        <record id="cause_161" model="mrp.breakdown.cause">
+            <field name="legacy_code">161</field>
+            <field name="name">إصلاح هزاز المكبس</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_162" model="mrp.breakdown.cause">
+            <field name="legacy_code">162</field>
+            <field name="name">إصلاح جير طاولة المكبس</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_163" model="mrp.breakdown.cause">
+            <field name="legacy_code">163</field>
+            <field name="name">إصلاح الهوبر</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_165" model="mrp.breakdown.cause">
+            <field name="legacy_code">165</field>
+            <field name="name">كسر بقاعدة الطبالي ( كونتينر )</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_166" model="mrp.breakdown.cause">
+            <field name="legacy_code">166</field>
+            <field name="name">تغيير موتور الشيول</field>
+            <field name="part_type">loader</field>
+        </record>
+        <record id="cause_167" model="mrp.breakdown.cause">
+            <field name="legacy_code">167</field>
+            <field name="name">تغيير سير الجلاية</field>
+            <field name="part_type">grinder</field>
+        </record>
+        <record id="cause_168" model="mrp.breakdown.cause">
+            <field name="legacy_code">168</field>
+            <field name="name">تغيير موتور الخلاطة</field>
+            <field name="part_type">mixer</field>
+        </record>
+        <record id="cause_169" model="mrp.breakdown.cause">
+            <field name="legacy_code">169</field>
+            <field name="name">تغيير صمام إسطوانة القالب</field>
+            <field name="part_type">electric</field>
+        </record>
+        <record id="cause_170" model="mrp.breakdown.cause">
+            <field name="legacy_code">170</field>
+            <field name="name">معايرة الخلاطة</field>
+            <field name="part_type">mixer</field>
+        </record>
+        <record id="cause_171" model="mrp.breakdown.cause">
+            <field name="legacy_code">171</field>
+            <field name="name">إصلاح خلل كهربائي بضباب الساحب ( كيوبر)</field>
+            <field name="part_type">extractor</field>
+        </record>
+        <record id="cause_173" model="mrp.breakdown.cause">
+            <field name="legacy_code">173</field>
+            <field name="name">الساحة مزدحمة</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_174" model="mrp.breakdown.cause">
+            <field name="legacy_code">174</field>
+            <field name="name">تغيير مضخة المياه الرئيسية</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_175" model="mrp.breakdown.cause">
+            <field name="legacy_code">175</field>
+            <field name="name">إصلاح ساحب البلاط تحت التشغيل</field>
+            <field name="part_type">extractor</field>
+        </record>
+        <record id="cause_176" model="mrp.breakdown.cause">
+            <field name="legacy_code">176</field>
+            <field name="name">تغيير الرمان الرئيسي للفنجر كار</field>
+            <field name="part_type">finger_car</field>
+        </record>
+        <record id="cause_177" model="mrp.breakdown.cause">
+            <field name="legacy_code">177</field>
+            <field name="name">إصلاح هوز هيدروليك مضخة الكبس</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_178" model="mrp.breakdown.cause">
+            <field name="legacy_code">178</field>
+            <field name="name">إصلاح فريم القالب</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_179" model="mrp.breakdown.cause">
+            <field name="legacy_code">179</field>
+            <field name="name">إصلاح غطاء الخلاطة</field>
+            <field name="part_type">mixer</field>
+        </record>
+        <record id="cause_180" model="mrp.breakdown.cause">
+            <field name="legacy_code">180</field>
+            <field name="name">تغيير المواد الخام لإنتاج منتج آخر</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_181" model="mrp.breakdown.cause">
+            <field name="legacy_code">181</field>
+            <field name="name">تغيير موتور الهزاز</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_182" model="mrp.breakdown.cause">
+            <field name="legacy_code">182</field>
+            <field name="name">إصلاح خلل كهربائي بقاعدة الدوران</field>
+            <field name="part_type">electric</field>
+        </record>
+        <record id="cause_183" model="mrp.breakdown.cause">
+            <field name="legacy_code">183</field>
+            <field name="name">إصلاح خلل كهربائي بالتلتر</field>
+            <field name="part_type">electric</field>
+        </record>
+        <record id="cause_184" model="mrp.breakdown.cause">
+            <field name="legacy_code">184</field>
+            <field name="name">تغيير موتور الدوزر</field>
+            <field name="part_type">doser</field>
+        </record>
+        <record id="cause_185" model="mrp.breakdown.cause">
+            <field name="legacy_code">185</field>
+            <field name="name">إصلاح جير قاعدة الدوران</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_186" model="mrp.breakdown.cause">
+            <field name="legacy_code">186</field>
+            <field name="name">إصلاح سير المواد</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_187" model="mrp.breakdown.cause">
+            <field name="legacy_code">187</field>
+            <field name="name">عجز بالأسمنت الأبيض</field>
+            <field name="part_type">material</field>
+        </record>
+        <record id="cause_188" model="mrp.breakdown.cause">
+            <field name="legacy_code">188</field>
+            <field name="name">كسر بماسورة مياه الخلاطة</field>
+            <field name="part_type">mixer</field>
+        </record>
+        <record id="cause_189" model="mrp.breakdown.cause">
+            <field name="legacy_code">189</field>
+            <field name="name">تغيير درام سير الجلاية</field>
+            <field name="part_type">grinder</field>
+        </record>
+        <record id="cause_190" model="mrp.breakdown.cause">
+            <field name="legacy_code">190</field>
+            <field name="name">تغيير الصينية السفلية</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_191" model="mrp.breakdown.cause">
+            <field name="legacy_code">191</field>
+            <field name="name">صيانة موتور رأس الجلاية رقم 2</field>
+            <field name="part_type">grinder</field>
+        </record>
+        <record id="cause_192" model="mrp.breakdown.cause">
+            <field name="legacy_code">192</field>
+            <field name="name">عدم تحرك الدوزر</field>
+            <field name="part_type">doser</field>
+        </record>
+        <record id="cause_193" model="mrp.breakdown.cause">
+            <field name="legacy_code">193</field>
+            <field name="name">إحتراق موصل التبريد</field>
+            <field name="part_type">press</field>
+        </record>
+        <record id="cause_194" model="mrp.breakdown.cause">
+            <field name="legacy_code">194</field>
+            <field name="name">سوء جودة الأسمنت</field>
+            <field name="part_type">material</field>
+        </record>
+    </data>
+</odoo>

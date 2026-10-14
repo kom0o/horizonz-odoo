@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- List / Tree View -->
+    <record id="view_mrp_shift_log_tree" model="ir.ui.view">
+        <field name="name">mrp.shift.log.list</field>
+        <field name="model">mrp.shift.log</field>
+        <field name="arch" type="xml">
+            <list string="Daily Shift Production Sheets" decoration-info="state == 'draft'" decoration-warning="state == 'confirmed'" decoration-success="state == 'done'" decoration-muted="state == 'cancel'">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="shift"/>
+                <field name="shift_status"/>
+                <field name="supervisor_id"/>
+                <field name="total_press_sqm" sum="Total Press"/>
+                <field name="total_grinder_sqm" sum="Total Grinded"/>
+                <field name="total_first_quality_sqm" sum="First Quality"/>
+                <field name="total_waste_sqm" sum="Total Waste"/>
+                <field name="avg_waste_percent" widget="percentage"/>
+                <field name="total_breakdown_hours" sum="Total Stoppages"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'confirmed'" decoration-success="state == 'done'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_mrp_shift_log_form" model="ir.ui.view">
+        <field name="name">mrp.shift.log.form</field>
+        <field name="model">mrp.shift.log</field>
+        <field name="arch" type="xml">
+            <form string="Daily Shift Production Sheet">
+                <header>
+                    <button name="action_confirm" string="Start Shift / بدء الوردية" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="action_done" string="Approve &amp; Close Shift / اعتماد وإنهاء الوردية" type="object" class="oe_highlight" invisible="state != 'confirmed'"/>
+                    <button name="action_draft" string="Reset to Draft / إعادة لمسودة" type="object" invisible="state not in ('confirmed', 'cancel')"/>
+                    <button name="action_cancel" string="Cancel / إلغاء" type="object" invisible="state in ('done', 'cancel')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <span class="o_form_label">Shift Sheet / ورقة إنتاج الوردية</span>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Shift Scheduling / توقيت الوردية">
+                            <field name="date" readonly="state == 'done'"/>
+                            <field name="shift" readonly="state == 'done'"/>
+                            <field name="shift_status" readonly="state == 'done'"/>
+                            <field name="supervisor_id" readonly="state == 'done'"/>
+                        </group>
+                        <group string="Plant &amp; Time Budget / ساعات التشغيل والمصنع">
+                            <field name="warehouse_id" readonly="state == 'done'"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <label for="scheduled_hours" string="Shift / Maint / Break Hours"/>
+                            <div class="o_row">
+                                <field name="scheduled_hours" readonly="state == 'done'" style="width: 50px;"/>
+                                <span> س كلي - صيانة: </span>
+                                <field name="maintenance_hours" readonly="state == 'done'" style="width: 50px;"/>
+                                <span> س - راحة: </span>
+                                <field name="rest_hours" readonly="state == 'done'" style="width: 50px;"/>
+                                <span> س</span>
+                            </div>
+                            <field name="net_available_hours" widget="float_time"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <!-- Tab 1: Pressing Operations -->
+                        <page string="Pressing Operations (الكبس)" name="press">
+                            <field name="press_line_ids" readonly="state == 'done'">
+                                <list editable="bottom">
+                                    <field name="workcenter_id" domain="[('line_type', 'in', ['terrazzo', 'interlock', 'block', 'cement'])]"/>
+                                    <field name="product_id" domain="[('is_tile_product', '=', True)]"/>
+                                    <field name="shift_hours"/>
+                                    <field name="breakdown_hours"/>
+                                    <field name="operating_hours"/>
+                                    <field name="standard_rate_hour"/>
+                                    <field name="actual_press_sqm" sum="Total Actual Press"/>
+                                    <field name="expected_press_sqm" sum="Total Expected Press"/>
+                                    <field name="efficiency_rate" widget="percentage"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- Tab 2: Grinding & Quality Sorting Matrix -->
+                        <page string="Grinding &amp; Quality Grading (الجلي والفرز والتصنيف)" name="grinder">
+                            <field name="grinder_line_ids" readonly="state == 'done'">
+                                <list editable="bottom" decoration-danger="is_waste_exceeded">
+                                    <field name="workcenter_id"/>
+                                    <field name="product_id" domain="[('is_tile_product', '=', True)]"/>
+                                    <field name="shift_hours"/>
+                                    <field name="breakdown_hours"/>
+                                    <field name="first_quality_sqm" sum="Total First Q"/>
+                                    <field name="second_quality_sqm" sum="Total Second Q"/>
+                                    <field name="skirting_sqm" sum="Total Skirting"/>
+                                    <field name="regrind_sqm" sum="Total Regrind"/>
+                                    <field name="waste_sqm" sum="Total Waste"/>
+                                    <field name="total_grinded_sqm" sum="Total Grinded"/>
+                                    <field name="waste_percent" widget="percentage"/>
+                                    <field name="is_waste_exceeded" column_invisible="True"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- Tab 3: Breakdowns & Stoppages -->
+                        <page string="Breakdowns &amp; Stoppages (سجل الأعطال والتوقفات)" name="breakdowns">
+                            <field name="breakdown_ids" readonly="state == 'done'">
+                                <list editable="bottom">
+                                    <field name="workcenter_id"/>
+                                    <field name="equipment_part"/>
+                                    <field name="cause_id"/>
+                                    <field name="duration_hours" sum="Total Hours"/>
+                                    <field name="maintenance_request_id" readonly="1"/>
+                                    <button name="action_create_maintenance_request" string="Create Maintenance Order" type="object" icon="fa-wrench" invisible="maintenance_request_id"/>
+                                    <field name="notes"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- Tab 4: Performance Summary -->
+                        <page string="Summary &amp; KPIs (مؤشرات الأداء والخلاصة)" name="summary">
+                            <group>
+                                <group string="Output Summary / مخرجات الإنتاج الكلية">
+                                    <field name="total_press_sqm"/>
+                                    <field name="total_grinder_sqm"/>
+                                    <field name="total_first_quality_sqm"/>
+                                    <field name="total_second_quality_sqm"/>
+                                    <field name="total_skirting_sqm"/>
+                                    <field name="total_regrind_sqm"/>
+                                </group>
+                                <group string="Efficiency &amp; Quality Metrics / كفاءة الجودة والهالك">
+                                    <field name="quality_yield_percent" widget="percentage"/>
+                                    <field name="total_waste_sqm"/>
+                                    <field name="avg_waste_percent" widget="percentage"/>
+                                    <field name="total_breakdown_hours" widget="float_time"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <!-- Tab 5: Remarks -->
+                        <page string="Shift Remarks / الملاحظات والتوجيهات" name="notes">
+                            <field name="notes" placeholder="Any special observations or instructions for the next shift..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Kanban View -->
+    <record id="view_mrp_shift_log_kanban" model="ir.ui.view">
+        <field name="name">mrp.shift.log.kanban</field>
+        <field name="model">mrp.shift.log</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile" sample="1">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="shift"/>
+                <field name="total_press_sqm"/>
+                <field name="total_first_quality_sqm"/>
+                <field name="avg_waste_percent"/>
+                <field name="state"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex justify-content-between mb-2">
+                            <strong><field name="name"/></strong>
+                            <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'confirmed'" decoration-success="state == 'done'"/>
+                        </div>
+                        <div class="text-muted mb-2">
+                            <span><field name="date"/> - <field name="shift"/></span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Press: <field name="total_press_sqm"/> m²</span>
+                            <span>First Q: <field name="total_first_quality_sqm"/> m²</span>
+                        </div>
+                        <div class="mt-1 text-end">
+                            <span class="text-danger" t-if="record.avg_waste_percent.raw_value &gt; 3">Waste: <field name="avg_waste_percent" widget="percentage"/></span>
+                            <span class="text-success" t-else="">Waste: <field name="avg_waste_percent" widget="percentage"/></span>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Pivot Analysis View -->
+    <record id="view_mrp_shift_log_pivot" model="ir.ui.view">
+        <field name="name">mrp.shift.log.pivot</field>
+        <field name="model">mrp.shift.log</field>
+        <field name="arch" type="xml">
+            <pivot string="Production Analysis" sample="1">
+                <field name="date" interval="month" type="row"/>
+                <field name="shift" type="col"/>
+                <field name="total_press_sqm" type="measure"/>
+                <field name="total_first_quality_sqm" type="measure"/>
+                <field name="total_waste_sqm" type="measure"/>
+                <field name="total_breakdown_hours" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Graph View -->
+    <record id="view_mrp_shift_log_graph" model="ir.ui.view">
+        <field name="name">mrp.shift.log.graph</field>
+        <field name="model">mrp.shift.log</field>
+        <field name="arch" type="xml">
+            <graph string="Daily Tile Output Trend" type="line" sample="1">
+                <field name="date"/>
+                <field name="total_first_quality_sqm" type="measure"/>
+                <field name="total_waste_sqm" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_mrp_shift_log_search" model="ir.ui.view">
+        <field name="name">mrp.shift.log.search</field>
+        <field name="model">mrp.shift.log</field>
+        <field name="arch" type="xml">
+            <search string="Search Shift Sheets">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="supervisor_id"/>
+                <field name="warehouse_id"/>
+                <separator/>
+                <filter string="Today" name="today" domain="[('date', '=', context_today())]"/>
+                <filter string="Morning Shift" name="shift_morning" domain="[('shift', '=', 'morning')]"/>
+                <filter string="Evening Shift" name="shift_evening" domain="[('shift', '=', 'evening')]"/>
+                <separator/>
+                <filter string="Draft" name="state_draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="In Progress" name="state_confirmed" domain="[('state', '=', 'confirmed')]"/>
+                <filter string="Approved / Done" name="state_done" domain="[('state', '=', 'done')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Date" name="group_date" context="{'group_by': 'date:day'}"/>
+                    <filter string="Shift" name="group_shift" context="{'group_by': 'shift'}"/>
+                    <filter string="Supervisor" name="group_supervisor" context="{'group_by': 'supervisor_id'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Window Action -->
+    <record id="action_mrp_shift_log" model="ir.actions.act_window">
+        <field name="name">Daily Shift Production Sheets / أوراق تشغيل الوردية اليومية</field>
+        <field name="res_model">mrp.shift.log</field>
+        <field name="view_mode">list,kanban,form,pivot,graph</field>
+        <field name="search_view_id" ref="view_mrp_shift_log_search"/>
+        <field name="context">{'search_default_today': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create the first Daily Shift Production Sheet!
+            </p>
+            <p>
+                Track pressing output, grinding with 5-tier quality grading, and machine breakdowns across all lines.
+            </p>
+        </field>
+    </record>
+</odoo>

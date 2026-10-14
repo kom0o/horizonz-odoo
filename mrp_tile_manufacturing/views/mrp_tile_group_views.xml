@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_mrp_tile_group_tree" model="ir.ui.view">
+        <field name="name">mrp.tile.group.list</field>
+        <field name="model">mrp.tile.group</field>
+        <field name="arch" type="xml">
+            <list string="Tile Product Groups">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="product_category_id"/>
+                <field name="product_count"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_mrp_tile_group_form" model="ir.ui.view">
+        <field name="name">mrp.tile.group.form</field>
+        <field name="model">mrp.tile.group</field>
+        <field name="arch" type="xml">
+            <form string="Tile Product Group">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. بلاط بلدي"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="product_category_id"/>
+                        </group>
+                        <group>
+                            <field name="active" widget="boolean_toggle"/>
+                            <field name="product_count"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Description / الوصف" name="desc">
+                            <field name="description" placeholder="Technical specifications of this tile category..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_mrp_tile_group" model="ir.actions.act_window">
+        <field name="name">Tile Product Groups / مجموعات البلاط والأسمنتي</field>
+        <field name="res_model">mrp.tile.group</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Define a new Tile Product Group!
+            </p>
+        </field>
+    </record>
+</odoo>

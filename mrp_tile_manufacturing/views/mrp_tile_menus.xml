@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Top-Level Tile Menu under MRP -->
+    <menuitem id="menu_mrp_tile_root"
+              name="Tile Production / تصنيع البلاط"
+              parent="mrp.menu_mrp_root"
+              sequence="15"/>
+
+    <!-- Operations Submenu -->
+    <menuitem id="menu_mrp_tile_operations"
+              name="Operations / التشغيل"
+              parent="menu_mrp_tile_root"
+              sequence="10"/>
+
+    <menuitem id="menu_mrp_shift_log"
+              name="Daily Shift Sheets / أوراق الوردية"
+              parent="menu_mrp_tile_operations"
+              action="action_mrp_shift_log"
+              sequence="10"/>
+
+    <!-- Master Data Submenu -->
+    <menuitem id="menu_mrp_tile_master"
+              name="Master Standards / المعايير والبيانات"
+              parent="menu_mrp_tile_root"
+              sequence="20"/>
+
+    <menuitem id="menu_mrp_production_hanger"
+              name="Production Halls / عنابر الإنتاج"
+              parent="menu_mrp_tile_master"
+              action="action_mrp_production_hanger"
+              sequence="10"/>
+
+    <menuitem id="menu_mrp_line_capacity"
+              name="Capacity Norms / معايير الطاقات"
+              parent="menu_mrp_tile_master"
+              action="action_mrp_line_capacity"
+              sequence="20"/>
+
+    <menuitem id="menu_mrp_breakdown_cause"
+              name="Breakdown Catalog / كتالوج أسباب الأعطال"
+              parent="menu_mrp_tile_master"
+              action="action_mrp_breakdown_cause"
+              sequence="30"/>
+
+    <menuitem id="menu_mrp_tile_group"
+              name="Tile Groups / مجموعات البلاط"
+              parent="menu_mrp_tile_master"
+              action="action_mrp_tile_group"
+              sequence="40"/>
+
+    <!-- Reporting Submenu -->
+    <menuitem id="menu_mrp_tile_reporting"
+              name="Reporting / التقارير"
+              parent="menu_mrp_tile_root"
+              sequence="30"/>
+
+    <menuitem id="menu_mrp_tile_pivot_report"
+              name="Production Analysis / تحليل الإنتاج والجودة"
+              parent="menu_mrp_tile_reporting"
+              action="action_mrp_shift_log"
+              sequence="10"/>
+</odoo>

@@ -1,0 +1,17 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_mrp_tile_group_worker,mrp.tile.group.worker,model_mrp_tile_group,group_mrp_tile_worker,1,0,0,0
+access_mrp_tile_group_mgr,mrp.tile.group.mgr,model_mrp_tile_group,group_mrp_tile_manager,1,1,1,1
+access_mrp_production_hanger_worker,mrp.production.hanger.worker,model_mrp_production_hanger,group_mrp_tile_worker,1,0,0,0
+access_mrp_production_hanger_mgr,mrp.production.hanger.mgr,model_mrp_production_hanger,group_mrp_tile_manager,1,1,1,1
+access_mrp_line_capacity_worker,mrp.line.capacity.worker,model_mrp_line_capacity,group_mrp_tile_worker,1,0,0,0
+access_mrp_line_capacity_mgr,mrp.line.capacity.mgr,model_mrp_line_capacity,group_mrp_tile_manager,1,1,1,1
+access_mrp_breakdown_cause_worker,mrp.breakdown.cause.worker,model_mrp_breakdown_cause,group_mrp_tile_worker,1,0,0,0
+access_mrp_breakdown_cause_mgr,mrp.breakdown.cause.mgr,model_mrp_breakdown_cause,group_mrp_tile_manager,1,1,1,1
+access_mrp_shift_log_worker,mrp.shift.log.worker,model_mrp_shift_log,group_mrp_tile_worker,1,1,1,0
+access_mrp_shift_log_mgr,mrp.shift.log.mgr,model_mrp_shift_log,group_mrp_tile_manager,1,1,1,1
+access_mrp_shift_log_press_worker,mrp.shift.log.press.worker,model_mrp_shift_log_press,group_mrp_tile_worker,1,1,1,0
+access_mrp_shift_log_press_mgr,mrp.shift.log.press.mgr,model_mrp_shift_log_press,group_mrp_tile_manager,1,1,1,1
+access_mrp_shift_log_grinder_worker,mrp.shift.log.grinder.worker,model_mrp_shift_log_grinder,group_mrp_tile_worker,1,1,1,0
+access_mrp_shift_log_grinder_mgr,mrp.shift.log.grinder.mgr,model_mrp_shift_log_grinder,group_mrp_tile_manager,1,1,1,1
+access_mrp_shift_log_breakdown_worker,mrp.shift.log.breakdown.worker,model_mrp_shift_log_breakdown,group_mrp_tile_worker,1,1,1,0
+access_mrp_shift_log_breakdown_mgr,mrp.shift.log.breakdown.mgr,model_mrp_shift_log_breakdown,group_mrp_tile_manager,1,1,1,1

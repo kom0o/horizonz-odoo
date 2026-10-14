@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="module_category_mrp_tiles" model="ir.module.category">
+        <field name="name">Tile &amp; Concrete Production / تصنيع البلاط والمنتجات الأسمنتية</field>
+        <field name="description">Access rights for Tile &amp; Concrete Manufacturing</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="group_mrp_tile_worker" model="res.groups">
+        <field name="name">Worker / فني تشغيل</field>
+        <field name="category_id" ref="module_category_mrp_tiles"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <record id="group_mrp_tile_supervisor" model="res.groups">
+        <field name="name">Shift Supervisor / مشرف وردية</field>
+        <field name="category_id" ref="module_category_mrp_tiles"/>
+        <field name="implied_ids" eval="[(4, ref('group_mrp_tile_worker')), (4, ref('mrp.group_mrp_user'))]"/>
+    </record>
+
+    <record id="group_mrp_tile_manager" model="res.groups">
+        <field name="name">Plant Manager / مدير المصنع والإنتاج</field>
+        <field name="category_id" ref="module_category_mrp_tiles"/>
+        <field name="implied_ids" eval="[(4, ref('group_mrp_tile_supervisor')), (4, ref('mrp.group_mrp_manager'))]"/>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+
+    <!-- Multi-Company Record Rules -->
+    <record id="mrp_shift_log_comp_rule" model="ir.rule">
+        <field name="name">Tile Shift Log Multi-Company</field>
+        <field name="model_id" ref="model_mrp_shift_log"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="mrp_production_hanger_comp_rule" model="ir.rule">
+        <field name="name">Production Hanger Multi-Company</field>
+        <field name="model_id" ref="model_mrp_production_hanger"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+</odoo>

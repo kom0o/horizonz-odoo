@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="tile_group_1" model="mrp.tile.group">
+            <field name="code">1</field>
+            <field name="name">بلاط بلدي</field>
+            <field name="description">Terrazzo Plain Tiles</field>
+        </record>
+        <record id="tile_group_2" model="mrp.tile.group">
+            <field name="code">2</field>
+            <field name="name">بلاط كسر رخام</field>
+            <field name="description">Marble Chips Tiles</field>
+        </record>
+        <record id="tile_group_3" model="mrp.tile.group">
+            <field name="code">3</field>
+            <field name="name">بلاط أسمنتي</field>
+            <field name="description">Cement Tiles</field>
+        </record>
+        <record id="tile_group_4" model="mrp.tile.group">
+            <field name="code">4</field>
+            <field name="name">إنترلوك</field>
+            <field name="description">Interlocking Pavers</field>
+        </record>
+        <record id="tile_group_5" model="mrp.tile.group">
+            <field name="code">5</field>
+            <field name="name">بلدورة</field>
+            <field name="description">Curbs &amp; Kerbstones</field>
+        </record>
+        <record id="tile_group_6" model="mrp.tile.group">
+            <field name="code">6</field>
+            <field name="name">بلك</field>
+            <field name="description">Concrete Masonry Blocks</field>
+        </record>
+        <record id="tile_group_7" model="mrp.tile.group">
+            <field name="code">7</field>
+            <field name="name">خلطه</field>
+            <field name="description">Raw Batch Mix</field>
+        </record>
+    </data>
+</odoo>
