@@ -291,7 +291,7 @@ function parseNum(v){if(typeof v==="number")return v;if(v==null)return null;let 
 function pid(y,m){return m?`${y}-${String(m).padStart(2,"0")}`:`${y}-A`}
 function plabel(p){if(p&&p._label)return p._label;return p.month?`${MONTHS[p.month]} ${p.year}`:`سنة ${p.year}`}
 function pkey(p){return p.year*100+(p.month||0)}
-function daysIn(p){if(p&&p.days)return p.days;return p.month?new Date(p.year,p.month,0).getDate():365}
+function daysIn(p){if(!p)return 30;if(p.days)return p.days;return p.month?new Date(p.year,p.month,0).getDate():365}
 function uid(prefix){return prefix+Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
 function localYmd(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
 function today(){return localYmd(new Date())}
@@ -780,12 +780,16 @@ function kcfg(k,cid){
   return {t:pick("t"),dir:pick("dir"),good:pick("good"),bad:pick("bad"),custom:Object.keys(c).length>0};
 }
 function causesFor(g){const c=(D.kpi._global&&D.kpi._global.causes)||DEFAULT_CAUSES;return [...(c[g]||DEFAULT_CAUSES[g]||[]),...(c.general||DEFAULT_CAUSES.general)]}
-function computeBase(p){const c=computeRaw(p);
-  const zeroOcf=c.has("ocf")&&Number(p.data.ocf)===0;
-  if(p&&p.company&&(!p._virt||(!c.has("ocf")&&!(p._missing||[]).length))&&(!c.has("ocf")||zeroOcf)){try{const cf=cashFlow(p);if(cf&&!cf.missing){c.ocf=cf.ocf;if(!c.has("capex")||Number(p.data.capex)===0)c.capex=cf.capex;const h=c.has;c.has=k=>k==="ocf"?true:h(k);c.ocfDerived=true}}catch(e){}}
-  return c}
+function computeBase(p){
+  if(!p) return { has: ()=>false, days: 30, ann: 12, gp: 0, ebitda: 0, ebit: 0, ebt: 0, ni: 0, totalExp: 0, hasBS: false, hasIS: false, ta: 0, tl: 0, equity: 0, balanceDiff: 0 };
+  const c=computeRaw(p);
+  const zeroOcf=c.has("ocf")&&Number((p.data||{}).ocf)===0;
+  if(p&&p.company&&(!p._virt||(!c.has("ocf")&&!(p._missing||[]).length))&&(!c.has("ocf")||zeroOcf)){try{const cf=cashFlow(p);if(cf&&!cf.missing){c.ocf=cf.ocf;if(!c.has("capex")||Number((p.data||{}).capex)===0)c.capex=cf.capex;const h=c.has;c.has=k=>k==="ocf"?true:h(k);c.ocfDerived=true}}catch(e){}}
+  return c;
+}
 function computeRaw(p){
-  const d=p.data||{}; const g=k=>{const v=d[k];return (v==null||v==="")?0:Number(v)};
+  if(!p) return { has: ()=>false, days: 30, ann: 12, gp: 0, ebitda: 0, ebit: 0, ebt: 0, ni: 0, totalExp: 0, hasBS: false, hasIS: false, ta: 0, tl: 0, equity: 0, balanceDiff: 0 };
+  const d=(p&&p.data)||{}; const g=k=>{const v=d[k];return (v==null||v==="")?0:Number(v)};
   const c={}; ALLF.forEach(f=>c[f.k]=g(f.k));
   c.has=k=>d[k]!=null&&d[k]!=="";
   c.days=daysIn(p); c.ann=365/c.days;
@@ -823,8 +827,18 @@ function zoneLabel(z){return z==="good"?"منطقة الأمان":z==="grey"?"ا
 function zonesHtml(k,cfg,v){const z=zoneOf(k,v,cfg);const t=fmtPlain(cfg.t,k.u),lo=fmtPlain(Z_LOW,k.u);
   return `<div class="zones">${[["good",`أمان: ${t} فأكثر`],["grey",`رمادية: من ${lo} إلى أقل من ${t}`],["bad",`خطر: أقل من ${lo}`]].map(([c,l])=>`<span class="zn ${c}${z===c?" on":""}"><i class="dot sm ${c}"></i>${l}</span>`).join("")}</div>`}
 function status(v,cfg){if(v==null)return "na";return cfg.dir==="up"?(v>=cfg.t?"good":"bad"):(v<=cfg.t?"good":"bad")}
-function periodsOf(cid,type){return Object.entries(D.periods).filter(([id,p])=>p.company===cid&&(type==null||(type==="m"?p.month:!p.month))).map(([id,p])=>({...p,_id:id})).sort((a,b)=>pkey(a)-pkey(b))}
-function periodDoc(cid,ppid){const p=D.periods[cid+"__"+ppid];return p?{...p,_id:cid+"__"+ppid}:null}
+function periodsOf(cid,type){
+  return Object.entries(D.periods)
+    .filter(([id,p])=> p && (String(p.company) === String(cid) || !cid) && (type==null||(type==="m"?p.month:!p.month)))
+    .map(([id,p])=>({...p,_id:id}))
+    .sort((a,b)=>pkey(a)-pkey(b));
+}
+function periodDoc(cid,ppid){
+  if(!ppid) return null;
+  const key = cid ? (cid+"__"+ppid) : ppid;
+  const p = D.periods[key] || D.periods[ppid] || Object.values(D.periods).find(x => x && (String(x.company) === String(cid) || !cid) && (x.code === ppid || pid(x.year, x.month) === ppid));
+  return p ? { ...p, _id: p._id || key } : null;
+}
 function comparePeriod(p){
   if(!p)return null;
   if(p._virt){const r=parseRangeId(p._id);if(r&&r.year)return anyPeriod(p.company,"Y:"+(r.year-1));return null}
@@ -832,8 +846,9 @@ function comparePeriod(p){
   const list=periodsOf(p.company,p.month?"m":"a");const i=list.findIndex(x=>x._id===p._id);return i>0?list[i-1]:null;
 }
 function evaluate(p,cpo){
+  if(!p) return [];
   const c=computeBase(p);const cp=cpo!==undefined?cpo:comparePeriod(p);const pc=cp?computeBase(cp):null;
-  return KPIS.map(k=>{const cfg=kcfg(k,p.company);const v=kpiValue(k,c,pc);const pv=(pc&&!k.cmp&&!k.cmpBS&&!k.cmpAny)?kpiValue(k,pc,null):null;return {k,cfg,v,pv,st:status(v,cfg)}});
+  return KPIS.map(k=>{const cfg=kcfg(k,p ? p.company : "");const v=kpiValue(k,c,pc);const pv=(pc&&!k.cmp&&!k.cmpBS&&!k.cmpAny)?kpiValue(k,pc,null):null;return {k,cfg,v,pv,st:status(v,cfg)}});
 }
 function kpiStatusAt(k,p){const cp=comparePeriod(p);const v=kpiValue(k,computeBase(p),cp?computeBase(cp):null);return {v,st:status(v,kcfg(k,p.company))}}
 function issueFor(cid,ppid,kid){return Object.entries(D.issues).map(([id,i])=>({...i,_id:id})).filter(i=>i.company===cid&&i.period===ppid&&i.kpi===kid).sort((a,b)=>b.createdAt-a.createdAt)[0]||null}

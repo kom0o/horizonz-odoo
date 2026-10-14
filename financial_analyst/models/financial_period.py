@@ -721,13 +721,14 @@ class FinancialPeriod(models.Model):
         periods_data = {}
         for p in periods:
             p_code = p.code or f"{p.year}-{p.month:02d}"
-            periods_data[p_code] = {
+            cid_str = str(p.company_id.id)
+            period_dict = {
                 'id': p.id,
                 'code': p_code,
                 'name': p.name,
                 'year': p.year,
                 'month': p.month,
-                'company': str(p.company_id.id),
+                'company': cid_str,
                 'companyName': p.company_id.name,
                 'state': p.state,
                 'data': {
@@ -773,6 +774,9 @@ class FinancialPeriod(models.Model):
                     'aiNarrative': p.ai_narrative or '',
                 }
             }
+            periods_data[f"{cid_str}__{p_code}"] = period_dict
+            periods_data[p_code] = period_dict
+
 
         # 3. الإحالات
         issues = env['financial.analyst.issue'].search([('company_id', '=', active_company.id)])
