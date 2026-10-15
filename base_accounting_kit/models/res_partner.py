@@ -317,94 +317,122 @@ class ResPartner(models.Model):
             main = self.env.cr.dictfetchall()
             self.env.cr.execute(amount)
             amount = self.env.cr.dictfetchall()
+            currency_sym = self.currency_id.symbol if self.currency_id else (self.env.company.currency_id.symbol or '')
+            total_val = amount[0]['total'] if amount and amount[0].get('total') is not None else 0.0
+            balance_val = amount[0]['balance'] if amount and amount[0].get('balance') is not None else 0.0
             data = {
-                'customer': self.display_name,
-                'street': self.street,
-                'street2': self.street2,
-                'city': self.city,
-                'state': self.state_id.name,
-                'zip': self.zip,
+                'customer': self.display_name or self.name,
+                'street': self.street or '',
+                'street2': self.street2 or '',
+                'city': self.city or '',
+                'state': self.state_id.name if self.state_id else '',
+                'zip': self.zip or '',
                 'my_data': main,
-                'total': amount[0]['total'],
-                'balance': amount[0]['balance'],
-                'currency': self.currency_id.symbol,
+                'total': total_val,
+                'balance': balance_val,
+                'currency': currency_sym,
             }
+            json_data = json.dumps(data, default=json_default)
             return {
                 'type': 'ir.actions.report',
                 'data': {
                     'model': 'res.partner',
-                    'options': json.dumps(data,
-                                          default=json_default),
+                    'options': json_data,
+                    'data': json_data,
                     'output_format': 'xlsx',
-                    'report_name': 'Payment Statement Report'
+                    'report_name': 'Customer Statement - %s' % (self.name or 'Report'),
+                    'report_action': 'base_accounting_kit.res_partner_action',
                 },
                 'report_type': 'xlsx',
             }
         else:
             raise ValidationError('There is no statement to print')
 
-    def get_xlsx_report(self, data, response):
+    def get_xlsx_report(self, data, response, report_name=None, report_action=None):
         """ Get xlsx report data """
+        if isinstance(data, str):
+            try:
+                data = json.loads(data)
+            except Exception:
+                pass
+
+        if not isinstance(data, dict):
+            data = {}
+
         output = io.BytesIO()
         workbook = xlsxwriter.Workbook(output, {'in_memory': True})
-        sheet = workbook.add_worksheet()
+        sheet = workbook.add_worksheet('Customer Statement')
         cell_format_with_color = workbook.add_format({
-            'font_size': '14px', 'bold': True,
-            'bg_color': 'yellow', 'border': 1})
-        cell_format = workbook.add_format({'font_size': '14px', 'bold': True})
-        txt = workbook.add_format({'font_size': '13px'})
-        txt_border = workbook.add_format({'font_size': '13px', 'border': 1})
+            'font_size': 11, 'bold': True,
+            'bg_color': '#D9E1F2', 'border': 1, 'align': 'center'})
+        cell_format = workbook.add_format({'font_size': 11, 'bold': True})
+        txt = workbook.add_format({'font_size': 11})
+        txt_border = workbook.add_format({'font_size': 10, 'border': 1})
+        txt_border_center = workbook.add_format({'font_size': 10, 'border': 1, 'align': 'center'})
+        txt_border_right = workbook.add_format({'font_size': 10, 'border': 1, 'align': 'right'})
         head = workbook.add_format({'align': 'center', 'bold': True,
-                                    'font_size': '22px'})
-        sheet.merge_range('B2:Q4', 'Payment Statement Report', head)
-        if data['customer']:
-            sheet.merge_range('B7:D7', 'Customer/Supplier : ', cell_format)
-            sheet.merge_range('E7:H7', data['customer'], txt)
-        sheet.merge_range('B9:C9', 'Address : ', cell_format)
-        if data['street']:
-            sheet.merge_range('D9:F9', data['street'], txt)
-        if data['street2']:
-            sheet.merge_range('D10:F10', data['street2'], txt)
-        if data['city']:
-            sheet.merge_range('D11:F11', data['city'], txt)
-        if data['state']:
-            sheet.merge_range('D12:F12', data['state'], )
-        if data['zip']:
-            sheet.merge_range('D13:F13', data['zip'], txt)
-        sheet.merge_range('B15:C15', 'Date', cell_format_with_color)
-        sheet.merge_range('D15:G15', 'Invoice/Bill Number',
-                          cell_format_with_color)
-        sheet.merge_range('H15:I15', 'Due Date', cell_format_with_color)
-        sheet.merge_range('J15:L15', 'Invoices/Debit', cell_format_with_color)
-        sheet.merge_range('M15:O15', 'Amount Due', cell_format_with_color)
-        sheet.merge_range('P15:R15', 'Balance Due', cell_format_with_color)
-        row = 15
+                                    'font_size': 18, 'color': '#1F4E79'})
+
+        sheet.set_column('A:A', 3)
+        sheet.set_column('B:C', 14)
+        sheet.set_column('D:G', 22)
+        sheet.set_column('H:I', 14)
+        sheet.set_column('J:L', 16)
+        sheet.set_column('M:O', 16)
+        sheet.set_column('P:R', 16)
+
+        sheet.merge_range('B2:R3', 'Customer Statement Report', head)
+        if data.get('customer'):
+            sheet.merge_range('B5:D5', 'Customer : ', cell_format)
+            sheet.merge_range('E5:H5', str(data['customer']), txt)
+        sheet.merge_range('B6:C6', 'Address : ', cell_format)
+        addr_parts = [data.get('street'), data.get('street2'), data.get('city'), data.get('state'), data.get('zip')]
+        addr_str = ', '.join([str(p) for p in addr_parts if p])
+        if addr_str:
+            sheet.merge_range('D6:L6', addr_str, txt)
+
+        sheet.merge_range('B8:C8', 'Date', cell_format_with_color)
+        sheet.merge_range('D8:G8', 'Invoice Number', cell_format_with_color)
+        sheet.merge_range('H8:I8', 'Due Date', cell_format_with_color)
+        sheet.merge_range('J8:L8', 'Invoices / Total', cell_format_with_color)
+        sheet.merge_range('M8:O8', 'Amount Due', cell_format_with_color)
+        sheet.merge_range('P8:R8', 'Balance Due', cell_format_with_color)
+
+        currency = data.get('currency') or ''
+        row = 8
         column = 0
-        for record in data['my_data']:
-            sub_total = data['currency'] + str(record['sub_total'])
-            amount_due = data['currency'] + str(record['amount_due'])
-            balance = data['currency'] + str(record['balance'])
-            total = data['currency'] + str(data['total'])
-            remain_balance = data['currency'] + str(data['balance'])
-            sheet.merge_range(row, column + 1, row, column + 2,
-                              record['invoice_date'], txt_border)
-            sheet.merge_range(row, column + 3, row, column + 6,
-                              record['name'], txt_border)
-            sheet.merge_range(row, column + 7, row, column + 8,
-                              record['invoice_date_due'], txt_border)
-            sheet.merge_range(row, column + 9, row, column + 11,
-                              sub_total, txt_border)
-            sheet.merge_range(row, column + 12, row, column + 14,
-                              amount_due, txt_border)
-            sheet.merge_range(row, column + 15, row, column + 17,
-                              balance, txt_border)
-            row = row + 1
-        sheet.write(row + 2, column + 1, 'Total Amount: ', cell_format)
-        sheet.merge_range(row + 2, column + 3, row + 2, column + 4,
-                          total, txt)
-        sheet.write(row + 4, column + 1, 'Balance Due: ', cell_format)
-        sheet.merge_range(row + 4, column + 3, row + 4, column + 4,
-                          remain_balance, txt)
+        for record in data.get('my_data', []):
+            inv_date = str(record.get('invoice_date') or '')
+            inv_name = str(record.get('name') or '')
+            inv_due = str(record.get('invoice_date_due') or '')
+            sub_total_num = record.get('sub_total') if record.get('sub_total') is not None else 0.0
+            amount_due_num = record.get('amount_due') if record.get('amount_due') is not None else 0.0
+            balance_num = record.get('balance') if record.get('balance') is not None else 0.0
+
+            sub_total = f"{currency} {sub_total_num:,.2f}"
+            amount_due = f"{currency} {amount_due_num:,.2f}"
+            balance = f"{currency} {balance_num:,.2f}"
+
+            sheet.merge_range(row, column + 1, row, column + 2, inv_date, txt_border_center)
+            sheet.merge_range(row, column + 3, row, column + 6, inv_name, txt_border)
+            sheet.merge_range(row, column + 7, row, column + 8, inv_due, txt_border_center)
+            sheet.merge_range(row, column + 9, row, column + 11, sub_total, txt_border_right)
+            sheet.merge_range(row, column + 12, row, column + 14, amount_due, txt_border_right)
+            sheet.merge_range(row, column + 15, row, column + 17, balance, txt_border_right)
+            row += 1
+
+        tot_val = data.get('total') or 0.0
+        bal_val = data.get('balance') or 0.0
+        total_str = f"{currency} {tot_val:,.2f}"
+        remain_balance_str = f"{currency} {bal_val:,.2f}"
+
+        total_fmt = workbook.add_format({'font_size': 11, 'bold': True, 'align': 'right', 'bg_color': '#F2F2F2', 'border': 1})
+        sheet.merge_range(row + 1, column + 1, row + 1, column + 8, 'Total Amount: ', cell_format)
+        sheet.merge_range(row + 1, column + 9, row + 1, column + 11, total_str, total_fmt)
+
+        sheet.merge_range(row + 2, column + 1, row + 2, column + 8, 'Total Balance Due: ', cell_format)
+        sheet.merge_range(row + 2, column + 9, row + 2, column + 11, remain_balance_str, total_fmt)
+
         workbook.close()
         output.seek(0)
         response.stream.write(output.read())

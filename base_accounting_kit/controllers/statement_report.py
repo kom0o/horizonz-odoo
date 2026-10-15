@@ -20,9 +20,12 @@
 #
 ###############################################################################
 import json
+import logging
 from odoo import http
 from odoo.http import content_disposition, request
 from odoo.tools import html_escape
+
+_logger = logging.getLogger(__name__)
 
 
 class XLSXReportController(http.Controller):
@@ -30,22 +33,23 @@ class XLSXReportController(http.Controller):
 
     @http.route('/xlsx_report', type='http', auth='user', methods=['POST'],
                 csrf=False)
-    def get_report_xlsx(self, model, data, output_format, report_name,
-                        report_action):
+    def get_report_xlsx(self, model=None, data=None, output_format='xlsx', report_name='Report',
+                        report_action=None, **kw):
         """Generate an XLSX report based on the provided data and return it as
         a response.
-            Args:
-                model (str): The name of the model on which the report is based.
-                data (str): The data required for generating the report.
-                output_format (str): The desired output format for the report
-                (e.g., 'xlsx').
-                report_name (str): The name to be given to the generated report
-                file.
-            Returns:
-                Response: The generated report file as a response.
-            Raises:
-                Exception: If an error occurs during report generation.
-            """
+        """
+        # Resolve parameters from kw if not provided as named args
+        if not model and 'model' in kw:
+            model = kw.get('model')
+        if not data:
+            data = kw.get('data') or kw.get('options')
+        if not output_format and 'output_format' in kw:
+            output_format = kw.get('output_format', 'xlsx')
+        if not report_name or report_name == 'Report':
+            report_name = kw.get('report_name') or report_name or 'Report'
+        if not report_action and 'report_action' in kw:
+            report_action = kw.get('report_action')
+
         uid = request.session.uid
         report_obj = request.env[model].with_user(uid)
         token = 'dummy-because-api-expects-one'
@@ -56,14 +60,18 @@ class XLSXReportController(http.Controller):
                     headers=[
                         ('Content-Type', 'application/vnd.ms-excel'),
                         ('Content-Disposition',
-                         content_disposition(report_name + '.xlsx'))
+                         content_disposition((report_name or 'Report') + '.xlsx'))
                     ]
                 )
-                report_obj.get_xlsx_report(data, response, report_name,
-                                           report_action)
+                try:
+                    report_obj.get_xlsx_report(data, response, report_name, report_action)
+                except TypeError:
+                    report_obj.get_xlsx_report(data, response)
+
             response.set_cookie('fileToken', token)
             return response
         except Exception as e:
+            _logger.exception("Error generating XLSX report: %s", str(e))
             se = http.serialize_exception(e)
             error = {
                 'code': 200,
