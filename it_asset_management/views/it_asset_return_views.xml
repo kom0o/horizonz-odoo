@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Return List View -->
+    <record id="view_it_asset_return_tree" model="ir.ui.view">
+        <field name="name">it.asset.return.list</field>
+        <field name="model">it.asset.return</field>
+        <field name="arch" type="xml">
+            <list string="IT Asset Returns"
+                  decoration-info="state == 'draft'"
+                  decoration-success="state == 'done'">
+                <field name="name"/>
+                <field name="return_date"/>
+                <field name="return_from_id"/>
+                <field name="employee_code"/>
+                <field name="department_name"/>
+                <field name="reason"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-success="state == 'done'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Return Form View -->
+    <record id="view_it_asset_return_form" model="ir.ui.view">
+        <field name="name">it.asset.return.form</field>
+        <field name="model">it.asset.return</field>
+        <field name="arch" type="xml">
+            <form string="IT Asset Return &amp; Clearance">
+                <header>
+                    <button name="action_confirm_return" string="Confirm Return" type="object"
+                            class="btn-primary" icon="fa-undo"
+                            invisible="state != 'draft'"/>
+                    <button name="action_print_return_report" string="Print Return Form" type="object"
+                            icon="fa-print"/>
+                    <button name="action_set_draft" string="Set to Draft" type="object"
+                            invisible="state == 'draft'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <span class="o_form_label text-muted">Return Reference</span>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group name="return_employee" string="Employee Information">
+                            <field name="return_from_id"/>
+                            <field name="arabic_name"/>
+                            <field name="employee_code"/>
+                            <field name="national_id"/>
+                            <field name="department_name"/>
+                            <field name="report_manager_name"/>
+                        </group>
+                        <group name="return_details" string="Return Specifications">
+                            <field name="return_date"/>
+                            <field name="reason"/>
+                            <field name="assignment_id"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page name="assets_to_return" string="Assets Being Returned">
+                            <field name="asset_ids">
+                                <list string="Equipment Returned" editable="bottom">
+                                    <field name="ref"/>
+                                    <field name="name"/>
+                                    <field name="asset_type"/>
+                                    <field name="serial_no"/>
+                                    <field name="model_sku"/>
+                                    <field name="condition"/>
+                                    <field name="stage_id" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page name="inspector_notes" string="IT Inspection Notes">
+                            <field name="notes" placeholder="Condition of returned equipment, missing accessories, charger returned, damage noted..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_it_asset_return_search" model="ir.ui.view">
+        <field name="name">it.asset.return.search</field>
+        <field name="model">it.asset.return</field>
+        <field name="arch" type="xml">
+            <search string="Search Returns">
+                <field name="name"/>
+                <field name="return_from_id"/>
+                <field name="employee_code"/>
+                <field name="reason"/>
+                <filter string="Draft" name="filter_draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Completed Returns" name="filter_done" domain="[('state', '=', 'done')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Return Reason" name="group_reason" context="{'group_by': 'reason'}"/>
+                    <filter string="Employee" name="group_employee" context="{'group_by': 'return_from_id'}"/>
+                    <filter string="Return Date" name="group_date" context="{'group_by': 'return_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_it_asset_return" model="ir.actions.act_window">
+        <field name="name">Asset Returns &amp; Clearance</field>
+        <field name="res_model">it.asset.return</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_it_asset_return_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Process asset return clearance when an employee resigns, transfers, or upgrades their IT hardware.
+            </p>
+        </field>
+    </record>
+</odoo>

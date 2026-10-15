@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_it_asset_issue_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: 'Tajawal', 'Segoe UI', Tahoma, sans-serif; font-size: 14px; color: #222;">
+                        <style>
+                            .custody-table td, .custody-table th {
+                                padding: 6px 10px !important;
+                                vertical-align: middle;
+                            }
+                            .bg-header-gray {
+                                background-color: #f2f4f7 !important;
+                                font-weight: bold;
+                            }
+                        </style>
+
+                        <div class="text-center mb-3">
+                            <h2 style="font-weight: bold; text-decoration: underline; color: #004B8D; margin-bottom: 4px;">
+                                IT ASSET ISSUE FORM
+                            </h2>
+                            <h4 style="color: #555; font-weight: bold;">
+                                نموذج تسليم عهدة أجهزة تقنية
+                            </h4>
+                        </div>
+
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <strong>Reference / الرقم المرجعي: </strong>
+                                <span t-field="doc.name" style="font-weight: bold; color: #004B8D;"/>
+                            </div>
+                            <div class="col-6 text-end text-right">
+                                <strong>Date / التاريخ: </strong>
+                                <span t-field="doc.assign_date"/>
+                            </div>
+                        </div>
+
+                        <!-- Employee Details Table -->
+                        <table class="table table-bordered table-sm custody-table mb-3" style="border: 2px solid #333; width: 100%;">
+                            <tbody>
+                                <tr>
+                                    <td class="bg-header-gray" style="width: 35%;">
+                                        <strong>Full Name / الاسم الكامل</strong>
+                                    </td>
+                                    <td style="width: 65%;">
+                                        <span t-field="doc.assigned_to_id.name"/>
+                                        <t t-if="doc.arabic_name">
+                                            - <span t-field="doc.arabic_name"/>
+                                        </t>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-header-gray">
+                                        <strong>ID NO / رقم الهوية - الإقامة</strong>
+                                    </td>
+                                    <td>
+                                        <span t-field="doc.national_id"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-header-gray">
+                                        <strong>Employee Code / الرقم الوظيفي</strong>
+                                    </td>
+                                    <td>
+                                        <span t-field="doc.employee_code"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-header-gray">
+                                        <strong>Department / الإدارة</strong>
+                                    </td>
+                                    <td>
+                                        <span t-field="doc.department_name"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-header-gray">
+                                        <strong>Reporting Manager / المدير المباشر</strong>
+                                    </td>
+                                    <td>
+                                        <span t-field="doc.report_manager_name"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-header-gray">
+                                        <strong>Mobile &amp; Email / الجوال والبريد</strong>
+                                    </td>
+                                    <td>
+                                        <span t-field="doc.phone"/> | <span t-field="doc.email"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Hardware Specifications Table -->
+                        <div class="mb-2" style="font-weight: bold; color: #004B8D; font-size: 15px;">
+                            ALLOCATED HARDWARE &amp; SPECIFICATIONS / تفاصيل الأجهزة المسلمة
+                        </div>
+
+                        <t t-set="main_comp" t-value="doc.main_asset_id or (doc.asset_ids.filtered(lambda a: a.asset_type in ['laptop', 'pc', 'tablet', 'all_in_one'])[:1])"/>
+                        
+                        <table class="table table-bordered table-sm custody-table mb-3" style="border: 2px solid #333; width: 100%;">
+                            <tbody>
+                                <tr>
+                                    <td class="bg-header-gray" style="width: 25%;">
+                                        <strong>Primary Device / الجهاز الأساسي</strong>
+                                    </td>
+                                    <td colspan="3" style="width: 75%;">
+                                        <t t-if="main_comp">
+                                            <span t-field="main_comp.name"/> (<span t-field="main_comp.asset_type"/>)
+                                        </t>
+                                        <t t-else="">N/A</t>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-header-gray">
+                                        <strong>Model &amp; SKU / طراز الأصل</strong>
+                                    </td>
+                                    <td colspan="3">
+                                        <t t-if="main_comp and main_comp.model_sku">
+                                            <span t-field="main_comp.model_sku"/>
+                                        </t>
+                                        <t t-else="">N/A</t>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-header-gray">
+                                        <strong>Serial No / الرقم التسلسلي</strong>
+                                    </td>
+                                    <td colspan="3">
+                                        <t t-if="main_comp and main_comp.serial_no">
+                                            <strong style="letter-spacing: 1px;"><span t-field="main_comp.serial_no"/></strong>
+                                        </t>
+                                        <t t-else="">N/A</t>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-header-gray" style="width: 20%;"><strong>CPU</strong></td>
+                                    <td style="width: 30%;"><t t-if="main_comp"><span t-field="main_comp.cpu"/></t></td>
+                                    <td class="bg-header-gray" style="width: 20%;"><strong>RAM</strong></td>
+                                    <td style="width: 30%;"><t t-if="main_comp"><span t-field="main_comp.ram"/></t></td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-header-gray"><strong>Storage (NVMe/SSD/HDD)</strong></td>
+                                    <td>
+                                        <t t-if="main_comp">
+                                            <span t-if="main_comp.nvme">NVMe: <t t-esc="main_comp.nvme"/> </span>
+                                            <span t-if="main_comp.ssd">SSD: <t t-esc="main_comp.ssd"/> </span>
+                                            <span t-if="main_comp.hdd">HDD: <t t-esc="main_comp.hdd"/></span>
+                                        </t>
+                                    </td>
+                                    <td class="bg-header-gray"><strong>Operating System</strong></td>
+                                    <td><t t-if="main_comp"><span t-field="main_comp.os"/></t></td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-header-gray"><strong>Monitor / Screen</strong></td>
+                                    <td colspan="3">
+                                        <t t-set="monitors" t-value="doc.asset_ids.filtered(lambda a: a.asset_type == 'screen') or doc.monitor_asset_id"/>
+                                        <t t-if="monitors">
+                                            <t t-foreach="monitors" t-as="m">
+                                                <div><span t-field="m.name"/> - S/N: <span t-field="m.serial_no"/></div>
+                                            </t>
+                                        </t>
+                                        <t t-else="">N/A</t>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-header-gray"><strong>Keyboard &amp; Mouse</strong></td>
+                                    <td colspan="3">
+                                        <t t-set="periphs" t-value="doc.asset_ids.filtered(lambda a: a.asset_type in ['keyboard', 'mouse']) | doc.keyboard_asset_id | doc.mouse_asset_id"/>
+                                        <t t-if="periphs">
+                                            <t t-foreach="periphs" t-as="p">
+                                                <div><span t-field="p.name"/> (<span t-field="p.asset_type"/>) - S/N: <span t-field="p.serial_no"/></div>
+                                            </t>
+                                        </t>
+                                        <t t-elif="main_comp and (main_comp.keyboard_included or main_comp.mouse_included)">
+                                            <span t-if="main_comp.keyboard_included">Standard Keyboard Included. </span>
+                                            <span t-if="main_comp.mouse_included">Standard Mouse Included.</span>
+                                        </t>
+                                        <t t-else="">N/A</t>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-header-gray"><strong>Printer / Other</strong></td>
+                                    <td colspan="3">
+                                        <t t-set="others" t-value="doc.asset_ids.filtered(lambda a: a.asset_type in ['printer', 'other']) | doc.printer_asset_id"/>
+                                        <t t-if="others">
+                                            <t t-foreach="others" t-as="o">
+                                                <div><span t-field="o.name"/> - S/N: <span t-field="o.serial_no"/></div>
+                                            </t>
+                                        </t>
+                                        <t t-else="">N/A</t>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Custody Acknowledgment Terms -->
+                        <div class="p-2 mb-3" style="background-color: #f9f9f9; border-left: 4px solid #004B8D; font-size: 12px; line-height: 1.5;">
+                            <strong>Acknowledgment / إقرار استلام عهدة:</strong><br/>
+                            I acknowledge that I have received the IT assets listed above in good working condition. I agree to maintain them with due care, utilize them strictly for business purposes, and return them promptly upon request or termination of service.<br/>
+                            أقر أنا الموقع أدناه بأنني استلمت الأجهزة والمعدات التقنية الموضحة أعلاه بحالة سليمة وجيدة، وأتعهد بالمحافظة عليها واستخدامها لأغراض العمل وإعادتها فور طلبها أو عند انتهاء فترة العمل.
+                        </div>
+
+                        <!-- Signatures -->
+                        <div style="page-break-inside: avoid;">
+                            <table class="table table-bordered table-sm custody-table" style="border: 2px solid #333; width: 100%;">
+                                <tbody>
+                                    <tr class="text-center bg-header-gray">
+                                        <td style="width: 50%;"><strong>Employee / Custodian (المستلم)</strong></td>
+                                        <td style="width: 50%;"><strong>IT Department (قسم تقنية المعلومات)</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="height: 70px; vertical-align: top;">
+                                            <div><strong>Signature / التوقيع:</strong></div>
+                                        </td>
+                                        <td style="height: 70px; vertical-align: top;">
+                                            <div><strong>Signature &amp; Stamp / التوقيع والختم:</strong></div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

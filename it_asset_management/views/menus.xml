@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Top Level Menu -->
+    <menuitem id="menu_it_asset_root"
+              name="IT Assets"
+              web_icon="fa fa-laptop,#004B8D,#FFFFFF"
+              sequence="25"/>
+
+    <!-- Operations / Assets Menu -->
+    <menuitem id="menu_it_asset_main"
+              name="Assets"
+              parent="menu_it_asset_root"
+              action="action_it_asset"
+              sequence="10"/>
+
+    <!-- Custody & Operations Submenu -->
+    <menuitem id="menu_it_asset_custody_root"
+              name="Custody &amp; Operations"
+              parent="menu_it_asset_root"
+              sequence="20"/>
+
+    <menuitem id="menu_it_asset_assign"
+              name="Custody Assignments (Issue)"
+              parent="menu_it_asset_custody_root"
+              action="action_it_asset_assign"
+              sequence="10"/>
+
+    <menuitem id="menu_it_asset_return"
+              name="Asset Returns &amp; Clearance"
+              parent="menu_it_asset_custody_root"
+              action="action_it_asset_return"
+              sequence="20"/>
+
+    <menuitem id="menu_it_asset_disposal"
+              name="Disposals &amp; Scrapping"
+              parent="menu_it_asset_custody_root"
+              action="action_it_asset_disposal"
+              sequence="30"/>
+
+    <!-- Credentials Vault -->
+    <menuitem id="menu_it_credential"
+              name="Credentials Vault"
+              parent="menu_it_asset_root"
+              action="action_it_credential"
+              groups="group_it_asset_manager"
+              sequence="30"/>
+
+    <!-- Configuration Menu -->
+    <menuitem id="menu_it_asset_config"
+              name="Configuration"
+              parent="menu_it_asset_root"
+              groups="group_it_asset_manager"
+              sequence="100"/>
+
+    <menuitem id="menu_it_asset_stage"
+              name="Asset Stages"
+              parent="menu_it_asset_config"
+              action="action_it_asset_stage"
+              sequence="10"/>
+
+    <menuitem id="menu_it_asset_location"
+              name="Physical Locations"
+              parent="menu_it_asset_config"
+              action="action_it_asset_location"
+              sequence="20"/>
+
+    <menuitem id="menu_it_asset_settings"
+              name="Settings"
+              parent="menu_it_asset_config"
+              action="action_it_asset_config_settings"
+              sequence="30"/>
+</odoo>

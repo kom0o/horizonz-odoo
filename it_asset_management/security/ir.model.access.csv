@@ -1,0 +1,14 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_it_asset_user,it.asset.user,model_it_asset,group_it_asset_user,1,1,1,0
+access_it_asset_manager,it.asset.manager,model_it_asset,group_it_asset_manager,1,1,1,1
+access_it_asset_stage_user,it.asset.stage.user,model_it_asset_stage,group_it_asset_user,1,0,0,0
+access_it_asset_stage_manager,it.asset.stage.manager,model_it_asset_stage,group_it_asset_manager,1,1,1,1
+access_it_asset_location_user,it.asset.location.user,model_it_asset_location,group_it_asset_user,1,1,1,0
+access_it_asset_location_manager,it.asset.location.manager,model_it_asset_location,group_it_asset_manager,1,1,1,1
+access_it_asset_assign_user,it.asset.assign.user,model_it_asset_assign,group_it_asset_user,1,1,1,0
+access_it_asset_assign_manager,it.asset.assign.manager,model_it_asset_assign,group_it_asset_manager,1,1,1,1
+access_it_asset_return_user,it.asset.return.user,model_it_asset_return,group_it_asset_user,1,1,1,0
+access_it_asset_return_manager,it.asset.return.manager,model_it_asset_return,group_it_asset_manager,1,1,1,1
+access_it_asset_disposal_user,it.asset.disposal.user,model_it_asset_disposal,group_it_asset_user,1,1,1,0
+access_it_asset_disposal_manager,it.asset.disposal.manager,model_it_asset_disposal,group_it_asset_manager,1,1,1,1
+access_it_credential_manager,it.credential.manager,model_it_credential,group_it_asset_manager,1,1,1,1

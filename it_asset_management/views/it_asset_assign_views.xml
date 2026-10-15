@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Assignment List View -->
+    <record id="view_it_asset_assign_tree" model="ir.ui.view">
+        <field name="name">it.asset.assign.list</field>
+        <field name="model">it.asset.assign</field>
+        <field name="arch" type="xml">
+            <list string="IT Asset Assignments"
+                  decoration-info="state == 'draft'"
+                  decoration-warning="state == 'waiting_approval'"
+                  decoration-success="state == 'confirmed'"
+                  decoration-muted="state in ['returned', 'cancelled']">
+                <field name="name"/>
+                <field name="assign_date"/>
+                <field name="assigned_to_id"/>
+                <field name="employee_code"/>
+                <field name="department_name"/>
+                <field name="main_asset_id"/>
+                <field name="whatsapp_status" widget="badge"
+                       decoration-warning="whatsapp_status == 'sent'"
+                       decoration-success="whatsapp_status == 'approved'"
+                       decoration-danger="whatsapp_status == 'failed'"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'waiting_approval'"
+                       decoration-success="state == 'confirmed'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Assignment Form View -->
+    <record id="view_it_asset_assign_form" model="ir.ui.view">
+        <field name="name">it.asset.assign.form</field>
+        <field name="model">it.asset.assign</field>
+        <field name="arch" type="xml">
+            <form string="IT Asset Assignment &amp; Custody">
+                <header>
+                    <button name="action_send_whatsapp_approval" string="Send WhatsApp Confirmation" type="object"
+                            class="btn-primary" icon="fa-paper-plane"
+                            invisible="state not in ['draft', 'waiting_approval']"/>
+                    <button name="action_confirm" string="Confirm Custody" type="object"
+                            class="btn-success" icon="fa-check"
+                            invisible="state not in ['draft', 'waiting_approval']"/>
+                    <button name="action_print_issue_report" string="Print Custody Form" type="object"
+                            icon="fa-print"/>
+                    <button name="action_set_draft" string="Set to Draft" type="object"
+                            invisible="state in ['draft', 'returned']"/>
+                    <button name="action_cancel" string="Cancel" type="object"
+                            invisible="state in ['cancelled', 'returned']"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,waiting_approval,confirmed,returned"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <span class="o_form_label text-muted">Custody Document</span>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group name="employee_main" string="Employee Information">
+                            <field name="assigned_to_id" placeholder="Select staff member..."/>
+                            <field name="arabic_name"/>
+                            <field name="employee_code"/>
+                            <field name="national_id"/>
+                            <field name="phone" widget="phone"/>
+                            <field name="email" widget="email"/>
+                        </group>
+                        <group name="org_info" string="Assignment Details">
+                            <field name="assign_date"/>
+                            <field name="department_name"/>
+                            <field name="report_manager_name"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="whatsapp_status" widget="badge"
+                                   decoration-warning="whatsapp_status == 'sent'"
+                                   decoration-success="whatsapp_status == 'approved'"
+                                   decoration-danger="whatsapp_status == 'failed'"/>
+                            <field name="whatsapp_sent_date" invisible="not whatsapp_sent_date"/>
+                        </group>
+                    </group>
+
+                    <separator string="Standard Equipment Bundle Allocation"/>
+                    <div class="text-muted mb-2">
+                        Select hardware to allocate. Selected items will automatically bundle into the master custody record.
+                    </div>
+                    <group>
+                        <group string="Computing &amp; Display">
+                            <field name="main_asset_id" options="{'no_create': True}" placeholder="Laptop / PC / Tablet"/>
+                            <field name="monitor_asset_id" options="{'no_create': True}" placeholder="Secondary Monitor / Screen"/>
+                        </group>
+                        <group string="Peripherals &amp; Printing">
+                            <field name="keyboard_asset_id" options="{'no_create': True}" placeholder="Keyboard"/>
+                            <field name="mouse_asset_id" options="{'no_create': True}" placeholder="Mouse"/>
+                            <field name="printer_asset_id" options="{'no_create': True}" placeholder="Desktop Printer / Scanner"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page name="all_assets_tab" string="All Custody Assets">
+                            <field name="asset_ids">
+                                <list string="Assigned Assets" editable="bottom">
+                                    <field name="ref"/>
+                                    <field name="name"/>
+                                    <field name="asset_type"/>
+                                    <field name="model_sku"/>
+                                    <field name="serial_no"/>
+                                    <field name="cpu" optional="show"/>
+                                    <field name="ram" optional="show"/>
+                                    <field name="stage_id" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page name="notes_tab" string="Notes &amp; Terms">
+                            <field name="notes" placeholder="Special terms of custody, accessories given, power adapters, bags..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_it_asset_assign_search" model="ir.ui.view">
+        <field name="name">it.asset.assign.search</field>
+        <field name="model">it.asset.assign</field>
+        <field name="arch" type="xml">
+            <search string="Search Custody Assignments">
+                <field name="name"/>
+                <field name="assigned_to_id"/>
+                <field name="employee_code"/>
+                <field name="department_name"/>
+                <filter string="Draft" name="filter_draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Waiting WhatsApp Confirmation" name="filter_waiting" domain="[('state', '=', 'waiting_approval')]"/>
+                <filter string="Confirmed / In Custody" name="filter_confirmed" domain="[('state', '=', 'confirmed')]"/>
+                <separator/>
+                <filter string="WhatsApp Approved" name="filter_wa_approved" domain="[('whatsapp_status', '=', 'approved')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Department" name="group_dept" context="{'group_by': 'department_name'}"/>
+                    <filter string="Employee" name="group_employee" context="{'group_by': 'assigned_to_id'}"/>
+                    <filter string="Date" name="group_date" context="{'group_by': 'assign_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_it_asset_assign" model="ir.actions.act_window">
+        <field name="name">Custody Assignments (Issue)</field>
+        <field name="res_model">it.asset.assign</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_it_asset_assign_search"/>
+        <field name="context">{'search_default_filter_confirmed': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Issue IT equipment custody to employees and request WhatsApp digital confirmation.
+            </p>
+        </field>
+    </record>
+</odoo>

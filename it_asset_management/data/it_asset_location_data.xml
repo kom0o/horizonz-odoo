@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="loc_riyadh_ho" model="it.asset.location">
+        <field name="name">Riyadh Head Office (HO)</field>
+        <field name="code">HO</field>
+        <field name="address">Riyadh, Saudi Arabia</field>
+    </record>
+
+    <record id="loc_cmc_production" model="it.asset.location">
+        <field name="name">CMC Production</field>
+        <field name="code">CMC-PROD</field>
+        <field name="address">Riyadh, Saudi Arabia</field>
+    </record>
+
+    <record id="loc_cmc_qassim" model="it.asset.location">
+        <field name="name">CMC Qassim Factory</field>
+        <field name="code">QASSIM-FACT</field>
+        <field name="address">Al Qassim, Saudi Arabia</field>
+    </record>
+
+    <record id="loc_dammam_factory" model="it.asset.location">
+        <field name="name">Dammam Factory</field>
+        <field name="code">DAMMAM-FACT</field>
+        <field name="address">Dammam, Saudi Arabia</field>
+    </record>
+
+    <record id="loc_al_kharj" model="it.asset.location">
+        <field name="name">Al Kharj</field>
+        <field name="code">KHARJ</field>
+        <field name="address">Al Kharj, Saudi Arabia</field>
+    </record>
+
+    <record id="loc_exit_14" model="it.asset.location">
+        <field name="name">Exit 14 Sales</field>
+        <field name="code">EXIT-14</field>
+        <field name="address">Riyadh, Saudi Arabia</field>
+    </record>
+
+    <record id="loc_khamis_mushait" model="it.asset.location">
+        <field name="name">Khamis Mushait</field>
+        <field name="code">KHAMIS</field>
+        <field name="address">Khamis Mushait, Saudi Arabia</field>
+    </record>
+
+    <record id="loc_rimal_stockyard" model="it.asset.location">
+        <field name="name">Rimal Stockyards</field>
+        <field name="code">RIMAL</field>
+        <field name="address">Riyadh, Saudi Arabia</field>
+    </record>
+</odoo>

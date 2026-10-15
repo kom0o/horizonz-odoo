@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Disposal List View -->
+    <record id="view_it_asset_disposal_tree" model="ir.ui.view">
+        <field name="name">it.asset.disposal.list</field>
+        <field name="model">it.asset.disposal</field>
+        <field name="arch" type="xml">
+            <list string="Asset Disposals"
+                  decoration-danger="disposal_type == 'scrap'"
+                  decoration-muted="disposal_type == 'sold'">
+                <field name="name"/>
+                <field name="disposal_date"/>
+                <field name="asset_id"/>
+                <field name="asset_type"/>
+                <field name="serial_no"/>
+                <field name="disposal_type" widget="badge"
+                       decoration-danger="disposal_type == 'scrap'"
+                       decoration-secondary="disposal_type == 'sold'"/>
+                <field name="sell_price" widget="monetary"/>
+                <field name="buyer_id"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-success="state == 'confirmed'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Disposal Form View -->
+    <record id="view_it_asset_disposal_form" model="ir.ui.view">
+        <field name="name">it.asset.disposal.form</field>
+        <field name="model">it.asset.disposal</field>
+        <field name="arch" type="xml">
+            <form string="Asset Disposal &amp; Scrapping">
+                <header>
+                    <button name="action_confirm_disposal" string="Confirm Disposal / Decommission" type="object"
+                            class="btn-danger" icon="fa-trash"
+                            invisible="state != 'draft'"
+                            confirm="Are you sure you want to decommission this asset? If price is 0 it will transition to Scrap, otherwise it will transition to Sold."/>
+                    <button name="action_set_draft" string="Set to Draft" type="object"
+                            invisible="state == 'draft'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <span class="o_form_label text-muted">Disposal Action</span>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group name="disposal_target" string="Asset Details">
+                            <field name="asset_id" options="{'no_create': True}"/>
+                            <field name="asset_type"/>
+                            <field name="model_sku"/>
+                            <field name="serial_no"/>
+                            <field name="acquisition_date"/>
+                            <field name="acquisition_price" widget="monetary"/>
+                        </group>
+                        <group name="disposal_execution" string="Decommission Details">
+                            <field name="disposal_date"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="sell_price" widget="monetary"/>
+                            <field name="disposal_type" widget="badge"
+                                   decoration-danger="disposal_type == 'scrap'"
+                                   decoration-secondary="disposal_type == 'sold'"/>
+                            <field name="buyer_id" invisible="sell_price == 0"/>
+                        </group>
+                    </group>
+
+                    <group string="Disposal Justification &amp; Notes">
+                        <field name="notes" placeholder="Explain reason (e.g., Stolen, motherboard burnt, beyond economic repair, liquidated to staff...)" nolabel="1"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_it_asset_disposal_search" model="ir.ui.view">
+        <field name="name">it.asset.disposal.search</field>
+        <field name="model">it.asset.disposal</field>
+        <field name="arch" type="xml">
+            <search string="Search Disposals">
+                <field name="name"/>
+                <field name="asset_id"/>
+                <field name="serial_no"/>
+                <field name="buyer_id"/>
+                <filter string="Scrapped Assets (0 Price)" name="filter_scrap" domain="[('disposal_type', '=', 'scrap')]"/>
+                <filter string="Sold Assets (>0 Price)" name="filter_sold" domain="[('disposal_type', '=', 'sold')]"/>
+                <separator/>
+                <filter string="Confirmed" name="filter_confirmed" domain="[('state', '=', 'confirmed')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Disposition Type" name="group_type" context="{'group_by': 'disposal_type'}"/>
+                    <filter string="Disposal Date" name="group_date" context="{'group_by': 'disposal_date:month'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_it_asset_disposal" model="ir.actions.act_window">
+        <field name="name">Asset Disposals &amp; Scrapping</field>
+        <field name="res_model">it.asset.disposal</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_it_asset_disposal_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Decommission end-of-life, damaged, stolen, or sold hardware assets.
+            </p>
+        </field>
+    </record>
+</odoo>

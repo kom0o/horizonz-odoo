@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_it_asset_return_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: 'Tajawal', 'Segoe UI', Tahoma, sans-serif; font-size: 14px; color: #222;">
+                        <style>
+                            .return-table td, .return-table th {
+                                padding: 6px 10px !important;
+                                vertical-align: middle;
+                            }
+                            .bg-header-gray {
+                                background-color: #f2f4f7 !important;
+                                font-weight: bold;
+                            }
+                        </style>
+
+                        <div class="text-center mb-3">
+                            <h2 style="font-weight: bold; text-decoration: underline; color: #004B8D; margin-bottom: 4px;">
+                                IT ASSET RETURN FORM
+                            </h2>
+                            <h4 style="color: #555; font-weight: bold;">
+                                نموذج استرجاع عهدة أجهزة تقنية / إخلاء طرف
+                            </h4>
+                        </div>
+
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <strong>Reference / الرقم المرجعي: </strong>
+                                <span t-field="doc.name" style="font-weight: bold; color: #004B8D;"/>
+                            </div>
+                            <div class="col-6 text-end text-right">
+                                <strong>Return Date / تاريخ الاسترجاع: </strong>
+                                <span t-field="doc.return_date"/>
+                            </div>
+                        </div>
+
+                        <!-- Returning Employee Information -->
+                        <table class="table table-bordered table-sm return-table mb-3" style="border: 2px solid #333; width: 100%;">
+                            <tbody>
+                                <tr>
+                                    <td class="bg-header-gray" style="width: 35%;">
+                                        <strong>Full Name / الاسم الكامل</strong>
+                                    </td>
+                                    <td style="width: 65%;">
+                                        <span t-field="doc.return_from_id.name"/>
+                                        <t t-if="doc.arabic_name">
+                                            - <span t-field="doc.arabic_name"/>
+                                        </t>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-header-gray">
+                                        <strong>ID NO / رقم الهوية - الإقامة</strong>
+                                    </td>
+                                    <td>
+                                        <span t-field="doc.national_id"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-header-gray">
+                                        <strong>Employee Code / الرقم الوظيفي</strong>
+                                    </td>
+                                    <td>
+                                        <span t-field="doc.employee_code"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-header-gray">
+                                        <strong>Department / الإدارة</strong>
+                                    </td>
+                                    <td>
+                                        <span t-field="doc.department_name"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-header-gray">
+                                        <strong>Return Reason / سبب الإرجاع</strong>
+                                    </td>
+                                    <td>
+                                        <strong style="color: #004B8D;"><span t-field="doc.reason"/></strong>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Returned Assets Breakdown -->
+                        <div class="mb-2" style="font-weight: bold; color: #004B8D; font-size: 15px;">
+                            RETURNED HARDWARE LIST / قائمة الأجهزة المستلمة
+                        </div>
+
+                        <table class="table table-bordered table-sm return-table mb-3" style="border: 2px solid #333; width: 100%;">
+                            <thead>
+                                <tr class="bg-header-gray text-center">
+                                    <th style="width: 15%;">Asset Code</th>
+                                    <th style="width: 35%;">Description &amp; Model</th>
+                                    <th style="width: 30%;">Serial Number</th>
+                                    <th style="width: 20%;">Condition</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="doc.asset_ids" t-as="asset">
+                                    <tr>
+                                        <td class="text-center"><strong><span t-field="asset.ref"/></strong></td>
+                                        <td>
+                                            <span t-field="asset.name"/><br/>
+                                            <small class="text-muted"><span t-field="asset.model_sku"/></small>
+                                        </td>
+                                        <td><span t-field="asset.serial_no"/></td>
+                                        <td class="text-center"><span t-field="asset.condition"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <!-- Inspection notes -->
+                        <t t-if="doc.notes">
+                            <div class="p-2 mb-3" style="background-color: #fdfdfe; border: 1px solid #ccc; font-size: 13px;">
+                                <strong>Inspection Notes / ملاحظات الفحص الفني:</strong><br/>
+                                <span t-field="doc.notes"/>
+                            </div>
+                        </t>
+
+                        <!-- Clearance Sign-off -->
+                        <div class="p-2 mb-3" style="background-color: #f9f9f9; border-left: 4px solid #004B8D; font-size: 12px; line-height: 1.5;">
+                            <strong>Clearance Acknowledgment / إخلاء طرف:</strong><br/>
+                            The IT Department confirms that the above-listed devices and accessories have been returned and inspected. The employee is hereby cleared of custody obligations for these specific assets.<br/>
+                            يؤكد قسم تقنية المعلومات بأنه تم استلام وفحص الأجهزة والمعدات المذكورة أعلاه، وبذلك يعتبر الموظف قد أفرغ ذمته من عهدة هذه الأجهزة المحددة.
+                        </div>
+
+                        <!-- Signatures -->
+                        <div style="page-break-inside: avoid;">
+                            <table class="table table-bordered table-sm return-table" style="border: 2px solid #333; width: 100%;">
+                                <tbody>
+                                    <tr class="text-center bg-header-gray">
+                                        <td style="width: 50%;"><strong>Returning Employee (المُسلّم)</strong></td>
+                                        <td style="width: 50%;"><strong>IT Clearance Officer (المُستلم / تقنية المعلومات)</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="height: 70px; vertical-align: top;">
+                                            <div><strong>Signature / التوقيع:</strong></div>
+                                        </td>
+                                        <td style="height: 70px; vertical-align: top;">
+                                            <div><strong>Signature &amp; Stamp / التوقيع والختم:</strong></div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

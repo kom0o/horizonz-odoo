@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_it_assets" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.it.assets</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="70"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="IT Assets" string="IT Assets" name="it_asset_management">
+                    <block title="n8n &amp; WhatsApp Digital Approvals" id="it_assets_n8n_setting">
+                        <setting string="Outgoing WhatsApp Webhook" help="Webhook URL called in n8n when custody confirmation is initiated.">
+                            <field name="it_asset_n8n_webhook_url" class="w-100" placeholder="https://n8n.domain.com/webhook/..."/>
+                        </setting>
+                        <setting string="Incoming Webhook Secret" help="Secret token to validate incoming custody approval callbacks from n8n.">
+                            <field name="it_asset_webhook_secret" placeholder="Secret Token"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_it_asset_config_settings" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+        <field name="context">{'module': 'it_asset_management', 'bin_size': False}</field>
+    </record>
+</odoo>

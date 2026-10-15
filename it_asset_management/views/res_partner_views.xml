@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form_inherit_it_assets" model="ir.ui.view">
+        <field name="name">res.partner.form.it.assets</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_assigned_assets" type="object"
+                        class="oe_stat_button" icon="fa-laptop">
+                    <field name="assigned_asset_count" widget="statinfo" string="IT Assets"/>
+                </button>
+            </xpath>
+
+            <xpath expr="//notebook" position="inside">
+                <page name="it_custody" string="IT Custody &amp; Employee Info">
+                    <group>
+                        <group string="Employee Demographics">
+                            <field name="arabic_name"/>
+                            <field name="national_id"/>
+                            <field name="employee_code"/>
+                        </group>
+                        <group string="Organization &amp; Management">
+                            <field name="it_company_name"/>
+                            <field name="it_department_name"/>
+                            <field name="it_report_manager_name"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

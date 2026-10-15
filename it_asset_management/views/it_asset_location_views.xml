@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_it_asset_location_tree" model="ir.ui.view">
+        <field name="name">it.asset.location.list</field>
+        <field name="model">it.asset.location</field>
+        <field name="arch" type="xml">
+            <list string="Asset Locations">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="address"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_it_asset_location_form" model="ir.ui.view">
+        <field name="name">it.asset.location.form</field>
+        <field name="model">it.asset.location</field>
+        <field name="arch" type="xml">
+            <form string="Asset Location">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="code"/>
+                        </group>
+                        <group>
+                            <field name="active" widget="boolean_toggle"/>
+                            <field name="address"/>
+                        </group>
+                    </group>
+                    <field name="notes" placeholder="Notes regarding this branch, facility or stockyard..."/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_it_asset_location" model="ir.actions.act_window">
+        <field name="name">Physical Locations</field>
+        <field name="res_model">it.asset.location</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Define company branches, stockyards, factories, and offices where IT assets reside.
+            </p>
+        </field>
+    </record>
+</odoo>
