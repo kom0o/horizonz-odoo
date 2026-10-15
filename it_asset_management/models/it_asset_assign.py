@@ -239,13 +239,17 @@ class ItAssetAssign(models.Model):
                 ) % (asset.name, self.name, self.assigned_to_id.name))
 
             # 3. Update asset record
-            asset.write({
+            asset_vals = {
                 'stage_id': assigned_stage.id,
                 'assigned_to_id': self.assigned_to_id.id,
                 'assign_date': self.assign_date,
                 'current_assignment_id': self.id,
                 'previous_owner': asset.assigned_to_id.name if asset.assigned_to_id else False,
-            })
+                'has_been_assigned': True,
+            }
+            if asset.condition == 'new':
+                asset_vals['condition'] = 'used'
+            asset.write(asset_vals)
 
         self.write({
             'state': 'confirmed',

@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 from odoo import models, fields, api, _
+from odoo.exceptions import UserError
 
 class ItAsset(models.Model):
     _name = 'it.asset'
@@ -47,13 +47,27 @@ class ItAsset(models.Model):
     anti_virus = fields.Char(string='Anti-Virus')
     software_others = fields.Char(string='Other Software / Licenses')
 
+    # Status & Confirmation State
+    state = fields.Selection([
+        ('draft', 'Draft'),
+        ('confirmed', 'Confirmed'),
+    ], string='Status', default='draft', tracking=True, copy=False)
+
     # Condition & Stage
     condition = fields.Selection([
         ('new', 'New'),
+        ('used', 'Used'),
         ('good', 'Good / Used'),
         ('fair', 'Fair'),
         ('damaged', 'Damaged / Needs Repair'),
-    ], string='Physical Condition', default='good', tracking=True)
+    ], string='Physical Condition', default='new', tracking=True)
+
+    has_been_assigned = fields.Boolean(
+        string='Has Been Assigned',
+        default=False,
+        copy=False,
+        help='Automatically tracked. Once assigned to any custodian at least once, physical condition transitions to Used.'
+    )
 
     stage_id = fields.Many2one(
         'it.asset.stage',
@@ -144,7 +158,44 @@ class ItAsset(models.Model):
             if 'name' not in vals or not vals.get('name'):
                 type_name = dict(self._fields['asset_type'].selection).get(vals.get('asset_type', 'laptop'), 'Asset')
                 vals['name'] = f"{type_name} - {vals.get('ref', '')}"
+            if vals.get('assigned_to_id'):
+                vals['has_been_assigned'] = True
+                if vals.get('condition') in ['new', False]:
+                    vals['condition'] = 'used'
         return super(ItAsset, self).create(vals_list)
+
+    def write(self, vals):
+        if vals.get('assigned_to_id'):
+            vals['has_been_assigned'] = True
+            if 'condition' not in vals:
+                for asset in self:
+                    if asset.condition == 'new':
+                        vals['condition'] = 'used'
+                        break
+        return super(ItAsset, self).write(vals)
+
+    @api.constrains('condition', 'has_been_assigned')
+    def _check_condition_history(self):
+        for asset in self:
+            if asset.has_been_assigned and asset.condition == 'new':
+                raise UserError(_(
+                    "Asset '%s' has already been assigned in custody before and cannot be set back to 'New'. "
+                    "Physical condition must be 'Used', 'Fair', or 'Damaged'."
+                ) % asset.name)
+
+    def action_confirm(self):
+        """Confirms asset details and locks specifications into read-only state."""
+        for asset in self:
+            asset.state = 'confirmed'
+            asset.message_post(body=_("Asset details confirmed and locked."))
+
+    def action_set_to_draft(self):
+        """Only IT Managers / Administrators can unlock and set back to Draft."""
+        if not self.env.user.has_group('it_asset_management.group_it_asset_manager') and not self.env.is_admin():
+            raise UserError(_("Only IT Asset Managers or Administrators can reset an asset back to Draft."))
+        for asset in self:
+            asset.state = 'draft'
+            asset.message_post(body=_("Asset status reset to Draft by %s.") % self.env.user.name)
 
     def action_set_to_stock(self):
         stock_stage = self.env['it.asset.stage'].search([('stage_type', '=', 'stock')], limit=1)

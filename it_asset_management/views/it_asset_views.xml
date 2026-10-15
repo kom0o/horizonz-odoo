@@ -12,6 +12,8 @@
                 <field name="asset_type"/>
                 <field name="serial_no"/>
                 <field name="model_sku"/>
+                <field name="state"/>
+                <field name="condition"/>
                 <field name="assigned_to_id"/>
                 <field name="stage_id"/>
                 <field name="stage_type"/>
@@ -47,6 +49,9 @@
                                 </div>
                                 <div class="o_kanban_record_bottom mt-2 pt-1 border-top">
                                     <div class="oe_kanban_bottom_left">
+                                        <span t-if="record.state.raw_value == 'draft'" class="badge text-bg-warning me-1">
+                                            Draft
+                                        </span>
                                         <span t-if="record.assigned_to_id.value" class="badge text-bg-info">
                                             <i class="fa fa-user me-1" title="Assigned User"/> <field name="assigned_to_id"/>
                                         </span>
@@ -81,6 +86,12 @@
                 <field name="asset_type"/>
                 <field name="model_sku"/>
                 <field name="serial_no"/>
+                <field name="condition" widget="badge"
+                       decoration-success="condition == 'new'"
+                       decoration-primary="condition == 'used'"
+                       decoration-info="condition == 'good'"
+                       decoration-warning="condition == 'fair'"
+                       decoration-danger="condition == 'damaged'"/>
                 <field name="cpu" optional="show"/>
                 <field name="ram" optional="show"/>
                 <field name="asset_location_id" optional="show"/>
@@ -88,6 +99,9 @@
                 <field name="assign_date" optional="hide"/>
                 <field name="acquisition_price" widget="monetary" optional="hide"/>
                 <field name="currency_id" column_invisible="True"/>
+                <field name="state" widget="badge"
+                       decoration-warning="state == 'draft'"
+                       decoration-success="state == 'confirmed'"/>
                 <field name="stage_id" widget="badge"/>
                 <field name="stage_type" column_invisible="True"/>
             </list>
@@ -101,18 +115,28 @@
         <field name="arch" type="xml">
             <form string="IT Asset">
                 <header>
+                    <button name="action_confirm" string="Confirm Asset" type="object"
+                            class="btn-primary" invisible="state == 'confirmed'"/>
+                    <button name="action_set_to_draft" string="Set to Draft" type="object"
+                            class="btn-secondary" invisible="state != 'confirmed'"
+                            groups="it_asset_management.group_it_asset_manager,base.group_system"
+                            confirm="Are you sure you want to unlock this asset and set it back to Draft?"/>
                     <button name="action_assign_wizard" string="Assign Custody" type="object"
-                            class="btn-primary" invisible="stage_type != 'stock'"/>
+                            class="btn-info" invisible="stage_type != 'stock' or state != 'confirmed'"/>
                     <button name="action_set_to_stock" string="Restore to Stock" type="object"
                             class="btn-secondary" invisible="stage_type == 'stock'"
                             confirm="Are you sure you want to release this asset and restore it to available stock?"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed"/>
                     <field name="stage_id" widget="statusbar" options="{'clickable': '1'}"/>
                 </header>
                 <sheet>
+                    <field name="state" invisible="1"/>
+                    <field name="has_been_assigned" invisible="1"/>
                     <field name="stage_type" invisible="1"/>
+                    <widget name="web_ribbon" title="Draft" bg_color="text-bg-warning" invisible="state == 'confirmed'"/>
                     <widget name="web_ribbon" title="Scrapped" bg_color="text-bg-danger" invisible="stage_type != 'scrap'"/>
                     <widget name="web_ribbon" title="Sold" bg_color="text-bg-secondary" invisible="stage_type != 'sold'"/>
-                    <field name="image_1920" widget="image" class="oe_avatar" options="{'preview_image': 'image_1920'}"/>
+                    <field name="image_1920" widget="image" class="oe_avatar" options="{'preview_image': 'image_1920'}" readonly="state == 'confirmed'"/>
 
                     <div class="oe_title">
                         <span class="o_form_label text-muted">Asset Reference</span>
@@ -121,24 +145,24 @@
                         </h1>
                         <label for="name" class="oe_edit_only"/>
                         <h2>
-                            <field name="name" placeholder="e.g. HP ProBook 450 G10"/>
+                            <field name="name" placeholder="e.g. HP ProBook 450 G10" readonly="state == 'confirmed'"/>
                         </h2>
                     </div>
 
                     <group>
                         <group name="asset_info" string="Device Information">
-                            <field name="asset_type"/>
-                            <field name="model_sku" placeholder="Model name and SKU number"/>
-                            <field name="serial_no" placeholder="Hardware Serial Number"/>
-                            <field name="condition"/>
-                            <field name="priority" widget="boolean_favorite"/>
+                            <field name="asset_type" readonly="state == 'confirmed'"/>
+                            <field name="model_sku" placeholder="Model name and SKU number" readonly="state == 'confirmed'"/>
+                            <field name="serial_no" placeholder="Hardware Serial Number" readonly="state == 'confirmed'"/>
+                            <field name="condition" readonly="state == 'confirmed'"/>
+                            <field name="priority" widget="boolean_favorite" readonly="state == 'confirmed'"/>
                         </group>
                         <group name="custody_info" string="Location &amp; Custody">
-                            <field name="asset_location_id"/>
-                            <field name="assigned_to_id"/>
-                            <field name="assign_date" invisible="not assigned_to_id"/>
+                            <field name="asset_location_id" readonly="state == 'confirmed'"/>
+                            <field name="assigned_to_id" readonly="state == 'confirmed'"/>
+                            <field name="assign_date" invisible="not assigned_to_id" readonly="state == 'confirmed'"/>
                             <field name="current_assignment_id" invisible="not current_assignment_id"/>
-                            <field name="link" widget="url" placeholder="https://..."/>
+                            <field name="link" widget="url" placeholder="https://..." readonly="state == 'confirmed'"/>
                         </group>
                     </group>
 
@@ -146,19 +170,19 @@
                         <page name="hardware_specs" string="Hardware Specifications">
                             <group>
                                 <group string="Processing &amp; Memory">
-                                    <field name="cpu" placeholder="e.g. Intel Core i7 13th Generation"/>
-                                    <field name="ram" placeholder="e.g. 16 GB DDR4"/>
+                                    <field name="cpu" placeholder="e.g. Intel Core i7 13th Generation" readonly="state == 'confirmed'"/>
+                                    <field name="ram" placeholder="e.g. 16 GB DDR4" readonly="state == 'confirmed'"/>
                                 </group>
                                 <group string="Internal Storage">
-                                    <field name="nvme" placeholder="e.g. 512 GB NVMe M.2"/>
-                                    <field name="ssd" placeholder="e.g. 256 GB SSD"/>
-                                    <field name="hdd" placeholder="e.g. 1 TB HDD"/>
+                                    <field name="nvme" placeholder="e.g. 512 GB NVMe M.2" readonly="state == 'confirmed'"/>
+                                    <field name="ssd" placeholder="e.g. 256 GB SSD" readonly="state == 'confirmed'"/>
+                                    <field name="hdd" placeholder="e.g. 1 TB HDD" readonly="state == 'confirmed'"/>
                                 </group>
                             </group>
                             <group string="Included Accessories">
                                 <group>
-                                    <field name="keyboard_included" widget="boolean_toggle"/>
-                                    <field name="mouse_included" widget="boolean_toggle"/>
+                                    <field name="keyboard_included" widget="boolean_toggle" readonly="state == 'confirmed'"/>
+                                    <field name="mouse_included" widget="boolean_toggle" readonly="state == 'confirmed'"/>
                                 </group>
                             </group>
                         </page>
@@ -166,12 +190,12 @@
                         <page name="software_compliance" string="Software &amp; OS">
                             <group>
                                 <group string="System &amp; Productivity">
-                                    <field name="os" placeholder="e.g. Windows 11 Pro 64-bit"/>
-                                    <field name="ms_office" placeholder="e.g. Office 365 Business"/>
+                                    <field name="os" placeholder="e.g. Windows 11 Pro 64-bit" readonly="state == 'confirmed'"/>
+                                    <field name="ms_office" placeholder="e.g. Office 365 Business" readonly="state == 'confirmed'"/>
                                 </group>
                                 <group string="Security &amp; Other">
-                                    <field name="anti_virus" placeholder="e.g. Kaspersky Endpoint / Defender"/>
-                                    <field name="software_others" placeholder="Additional software licenses"/>
+                                    <field name="anti_virus" placeholder="e.g. Kaspersky Endpoint / Defender" readonly="state == 'confirmed'"/>
+                                    <field name="software_others" placeholder="Additional software licenses" readonly="state == 'confirmed'"/>
                                 </group>
                             </group>
                         </page>
@@ -179,12 +203,12 @@
                         <page name="financial_info" string="Procurement &amp; Warranty">
                             <group>
                                 <group string="Purchase Details">
-                                    <field name="acquisition_date"/>
+                                    <field name="acquisition_date" readonly="state == 'confirmed'"/>
                                     <field name="currency_id" invisible="1"/>
-                                    <field name="acquisition_price" widget="monetary"/>
+                                    <field name="acquisition_price" widget="monetary" readonly="state == 'confirmed'"/>
                                 </group>
                                 <group string="Support &amp; Warranty">
-                                    <field name="warranty_status" placeholder="e.g. Active until 2027-12-31"/>
+                                    <field name="warranty_status" placeholder="e.g. Active until 2027-12-31" readonly="state == 'confirmed'"/>
                                 </group>
                             </group>
                         </page>
@@ -218,7 +242,7 @@
                         </page>
 
                         <page name="internal_notes" string="Internal Notes">
-                            <field name="notes" placeholder="Detailed equipment notes, damage history, repairs, etc..."/>
+                            <field name="notes" placeholder="Detailed equipment notes, damage history, repairs, etc..." readonly="state == 'confirmed'"/>
                         </page>
                     </notebook>
                 </sheet>
@@ -240,6 +264,12 @@
                 <field name="assigned_to_id"/>
                 <field name="asset_location_id"/>
 
+                <filter string="Draft" name="filter_draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Confirmed" name="filter_confirmed" domain="[('state', '=', 'confirmed')]"/>
+                <separator/>
+                <filter string="Condition: New" name="filter_cond_new" domain="[('condition', '=', 'new')]"/>
+                <filter string="Condition: Used" name="filter_cond_used" domain="[('condition', 'in', ['used', 'good', 'fair'])]"/>
+                <separator/>
                 <filter string="In Stock (Available)" name="filter_stock" domain="[('stage_type', '=', 'stock')]"/>
                 <filter string="Assigned" name="filter_assigned" domain="[('stage_type', '=', 'assigned')]"/>
                 <filter string="Scrapped" name="filter_scrap" domain="[('stage_type', '=', 'scrap')]"/>
@@ -254,6 +284,7 @@
                 <filter string="Archived" name="filter_archived" domain="[('active', '=', False)]"/>
 
                 <group expand="0" string="Group By">
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
                     <filter string="Stage" name="group_stage" context="{'group_by': 'stage_id'}"/>
                     <filter string="Asset Type" name="group_type" context="{'group_by': 'asset_type'}"/>
                     <filter string="Location" name="group_location" context="{'group_by': 'asset_location_id'}"/>

@@ -55,6 +55,7 @@ class ItAssetReportWizard(models.TransientModel):
     condition = fields.Selection([
         ('all', 'All Conditions'),
         ('new', 'New'),
+        ('used', 'Used'),
         ('good', 'Good / Used'),
         ('fair', 'Fair'),
         ('damaged', 'Damaged / Needs Repair'),
@@ -428,7 +429,7 @@ class ItAssetReportWizard(models.TransientModel):
             cond_label = cond_dict.get(asset.condition, asset.condition or '')
             if asset.condition == 'new':
                 sheet.write(row_idx, 5, cond_label, badge_cond_new)
-            elif asset.condition == 'good':
+            elif asset.condition in ['used', 'good']:
                 sheet.write(row_idx, 5, cond_label, badge_cond_good)
             elif asset.condition == 'fair':
                 sheet.write(row_idx, 5, cond_label, badge_cond_fair)
