@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- IT Asset Excel Report Wizard Form View -->
+    <record id="view_it_asset_report_wizard_form" model="ir.ui.view">
+        <field name="name">it.asset.report.wizard.form</field>
+        <field name="model">it.asset.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="IT Assets Inventory &amp; Custody Excel Report">
+                <field name="state" invisible="1"/>
+                <field name="file_name" invisible="1"/>
+
+                <div class="alert alert-info d-flex align-items-center mb-3" role="alert" invisible="state != 'choose'">
+                    <i class="fa fa-info-circle fa-2x me-3 text-primary"/>
+                    <div>
+                        <strong>Executive IT Asset &amp; Custody Report Generator</strong>
+                        <div class="text-muted small">
+                            Export comprehensive hardware specifications, current custody, returns, disposals (Scrap/Sold), and financial valuations to a formatted multi-sheet Excel (.xlsx) workbook. Leave parameters empty to include all assets.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-success d-flex align-items-center mb-3" role="alert" invisible="state != 'get'">
+                    <i class="fa fa-check-circle fa-2x me-3 text-success"/>
+                    <div>
+                        <strong>Report Generated Successfully!</strong>
+                        <div class="text-muted small">
+                            Your download should begin automatically. If your browser blocked the download, click the file link below.
+                        </div>
+                    </div>
+                </div>
+
+                <sheet>
+                    <!-- Form parameters when choosing filters -->
+                    <div invisible="state != 'choose'">
+                        <group>
+                            <group string="Employee &amp; Location Parameters" name="emp_loc_params">
+                                <field name="employee_id" options="{'no_create': True}" placeholder="All Employees / Custodians"/>
+                                <field name="include_history" invisible="not employee_id"/>
+                                <field name="location_id" options="{'no_create': True}" placeholder="All Facilities / Branches"/>
+                                <field name="asset_type"/>
+                            </group>
+                            <group string="Status &amp; Condition Parameters" name="status_params">
+                                <field name="lifecycle_filter"/>
+                                <field name="stage_id" options="{'no_create': True}" placeholder="All Stages"/>
+                                <field name="condition"/>
+                            </group>
+                        </group>
+
+                        <group string="Date Range Filter (Optional)" name="date_params">
+                            <group>
+                                <field name="date_filter_type"/>
+                            </group>
+                            <group>
+                                <div class="o_row">
+                                    <span class="o_form_label me-2">From:</span>
+                                    <field name="date_from" class="oe_inline"/>
+                                    <span class="o_form_label mx-2">To:</span>
+                                    <field name="date_to" class="oe_inline"/>
+                                </div>
+                            </group>
+                        </group>
+                    </div>
+
+                    <!-- File download container when ready -->
+                    <div invisible="state != 'get'">
+                        <group string="Download Excel File">
+                            <field name="excel_file" filename="file_name" widget="binary" readonly="1"/>
+                        </group>
+                    </div>
+                </sheet>
+
+                <footer>
+                    <button name="action_generate_excel_report"
+                            string="Generate &amp; Download Excel (.xlsx)"
+                            type="object"
+                            class="btn-primary"
+                            icon="fa-file-excel-o"
+                            invisible="state != 'choose'"/>
+
+                    <button name="action_generate_excel_report"
+                            string="Regenerate Report"
+                            type="object"
+                            class="btn-outline-primary"
+                            icon="fa-refresh"
+                            invisible="state != 'get'"/>
+
+                    <button string="Close"
+                            class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Wizard Action Window -->
+    <record id="action_it_asset_report_wizard" model="ir.actions.act_window">
+        <field name="name">Assets Inventory Report (Excel)</field>
+        <field name="res_model">it.asset.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="model_it_asset"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

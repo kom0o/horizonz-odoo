@@ -45,6 +45,18 @@
               groups="group_it_asset_manager"
               sequence="30"/>
 
+    <!-- Reporting Menu -->
+    <menuitem id="menu_it_asset_reporting"
+              name="Reporting"
+              parent="menu_it_asset_root"
+              sequence="40"/>
+
+    <menuitem id="menu_it_asset_report_excel"
+              name="Assets Inventory Report (Excel)"
+              parent="menu_it_asset_reporting"
+              action="action_it_asset_report_wizard"
+              sequence="10"/>
+
     <!-- Configuration Menu -->
     <menuitem id="menu_it_asset_config"
               name="Configuration"

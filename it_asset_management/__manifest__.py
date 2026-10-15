@@ -50,6 +50,7 @@ A complete, native replacement for Studio-built IT asset systems:
         'views/it_credential_views.xml',
         'views/res_partner_views.xml',
         'views/res_config_settings_views.xml',
+        'wizard/it_asset_report_wizard_views.xml',
         'views/menus.xml',
     ],
     'demo': [],
