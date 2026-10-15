@@ -3,7 +3,7 @@
     <!-- Top Level Menu -->
     <menuitem id="menu_it_asset_root"
               name="IT Assets"
-              web_icon="fa fa-laptop,#004B8D,#FFFFFF"
+              web_icon="it_asset_management,static/description/icon.png"
               sequence="25"/>
 
     <!-- Operations / Assets Menu -->
