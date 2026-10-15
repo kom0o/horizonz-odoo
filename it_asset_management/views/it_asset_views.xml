@@ -41,14 +41,14 @@
                                     <field name="priority" widget="boolean_favorite" nolabel="1"/>
                                 </div>
                                 <div class="text-muted small">
-                                    <span t-if="record.model_sku.value"><i class="fa fa-tag me-1"/> <field name="model_sku"/><br/></span>
-                                    <span t-if="record.serial_no.value"><i class="fa fa-barcode me-1"/> <field name="serial_no"/><br/></span>
-                                    <span t-if="record.asset_location_id.value"><i class="fa fa-map-marker me-1"/> <field name="asset_location_id"/><br/></span>
+                                    <span t-if="record.model_sku.value"><i class="fa fa-tag me-1" title="Model / SKU"/> <field name="model_sku"/><br/></span>
+                                    <span t-if="record.serial_no.value"><i class="fa fa-barcode me-1" title="Serial Number"/> <field name="serial_no"/><br/></span>
+                                    <span t-if="record.asset_location_id.value"><i class="fa fa-map-marker me-1" title="Location"/> <field name="asset_location_id"/><br/></span>
                                 </div>
                                 <div class="o_kanban_record_bottom mt-2 pt-1 border-top">
                                     <div class="oe_kanban_bottom_left">
                                         <span t-if="record.assigned_to_id.value" class="badge text-bg-info">
-                                            <i class="fa fa-user me-1"/> <field name="assigned_to_id"/>
+                                            <i class="fa fa-user me-1" title="Assigned User"/> <field name="assigned_to_id"/>
                                         </span>
                                         <span t-else="" class="badge text-bg-success">
                                             In Stock

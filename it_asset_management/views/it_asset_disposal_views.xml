@@ -15,7 +15,7 @@
                 <field name="serial_no"/>
                 <field name="disposal_type" widget="badge"
                        decoration-danger="disposal_type == 'scrap'"
-                       decoration-secondary="disposal_type == 'sold'"/>
+                       decoration-muted="disposal_type == 'sold'"/>
                 <field name="sell_price" widget="monetary"/>
                 <field name="buyer_id"/>
                 <field name="currency_id" column_invisible="True"/>
@@ -64,7 +64,7 @@
                             <field name="sell_price" widget="monetary"/>
                             <field name="disposal_type" widget="badge"
                                    decoration-danger="disposal_type == 'scrap'"
-                                   decoration-secondary="disposal_type == 'sold'"/>
+                                   decoration-muted="disposal_type == 'sold'"/>
                             <field name="buyer_id" invisible="sell_price == 0"/>
                         </group>
                     </group>
