@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Top-Level Root Menu -->
+    <menuitem id="menu_electronic_archive_root"
+              name="الأرشيف الإلكتروني"
+              web_icon="electronic_archive_management,static/description/icon.png"
+              sequence="15"/>
+
+    <!-- 1. Centralized Search Engine Menu -->
+    <menuitem id="menu_archive_search"
+              name="محرك البحث والاسترجاع"
+              parent="menu_electronic_archive_root"
+              action="action_archive_document_search"
+              sequence="10"/>
+
+    <!-- 2. Master Archive Repository -->
+    <menuitem id="menu_archive_all_documents"
+              name="سجل الأرشيف الشامل"
+              parent="menu_electronic_archive_root"
+              action="action_archive_document_all"
+              sequence="20"/>
+
+    <!-- 3. Department Specific Archives -->
+    <menuitem id="menu_archive_departments_root"
+              name="أرشيف الإدارات"
+              parent="menu_electronic_archive_root"
+              sequence="30"/>
+
+    <menuitem id="menu_archive_inventory"
+              name="أرشيف إدارة المخازن"
+              parent="menu_archive_departments_root"
+              action="action_archive_document_inventory"
+              groups="electronic_archive_management.group_archive_inventory_user,electronic_archive_management.group_archive_auditor"
+              sequence="10"/>
+
+    <menuitem id="menu_archive_sale"
+              name="أرشيف إدارة المبيعات"
+              parent="menu_archive_departments_root"
+              action="action_archive_document_sale"
+              groups="electronic_archive_management.group_archive_sales_user,electronic_archive_management.group_archive_auditor"
+              sequence="20"/>
+
+    <menuitem id="menu_archive_accounting"
+              name="أرشيف الإدارة المالية"
+              parent="menu_archive_departments_root"
+              action="action_archive_document_accounting"
+              groups="electronic_archive_management.group_archive_account_user,electronic_archive_management.group_archive_auditor"
+              sequence="30"/>
+
+    <!-- 4. Configuration Menu -->
+    <menuitem id="menu_archive_config_root"
+              name="التهيئة والإعدادات"
+              parent="menu_electronic_archive_root"
+              groups="electronic_archive_management.group_archive_manager"
+              sequence="50"/>
+
+    <menuitem id="menu_archive_document_types"
+              name="أنواع المستندات والوثائق"
+              parent="menu_archive_config_root"
+              action="action_archive_document_type"
+              sequence="10"/>
+</odoo>

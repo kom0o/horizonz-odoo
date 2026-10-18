@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_move_form_archive_inherit" model="ir.ui.view">
+        <field name="name">account.move.form.archive.inherit</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <!-- Smart Button in Header Button Box -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_picking_attachments" type="object"
+                        class="oe_stat_button" icon="fa-truck"
+                        invisible="picking_attachment_count == 0">
+                    <field name="picking_attachment_count" widget="statinfo" string="مرفقات المخازن"/>
+                </button>
+            </xpath>
+
+            <!-- Picking Attachments Notebook Tab -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Picking Attachments" name="picking_attachments"
+                      invisible="move_type not in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund') and picking_attachment_count == 0">
+                    <div class="alert alert-info" role="alert" invisible="picking_attachment_count &gt; 0">
+                        لا توجد حالياً مرفقات مسجلة على حركات الاستلام أو التسليم المرتبطة بهذه الفاتورة. 
+                        عند رفع أي سند تسليم موقع أو صورة ميزان أو فاتورة مورد في المخازن، ستظهر هنا فوراً وتلقائياً حتى لو بعد ترحيل الفاتورة.
+                    </div>
+                    <field name="picking_attachment_ids" mode="list" readonly="1">
+                        <list string="مرفقات حركات المخازن المرتبطة" create="false" delete="false">
+                            <field name="name" string="اسم الملف والمستند"/>
+                            <field name="doc_type_id" string="نوع الوثيقة"/>
+                            <field name="doc_reference" string="رقم سند المخزن"/>
+                            <field name="archive_sub_app" string="طبيعة الحركة"/>
+                            <field name="create_date" string="تاريخ الرفع"/>
+                            <field name="file_size" widget="binary_size" string="الحجم"/>
+                            <field name="create_uid" string="المستخدم"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

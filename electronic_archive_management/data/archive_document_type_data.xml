@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- 1. Inventory: Raw Material Scale Slip -->
+        <record id="doc_type_raw_material_scale" model="archive.document.type">
+            <field name="name">صورة الميزان للمواد الخام (Raw Material Scale Slip)</field>
+            <field name="code">SCALE_SLIP</field>
+            <field name="department">inventory</field>
+            <field name="sub_app">receipt</field>
+            <field name="sequence">10</field>
+            <field name="is_mandatory">True</field>
+        </record>
+
+        <!-- 2. Inventory: Vendor Invoice / Delivery Note -->
+        <record id="doc_type_vendor_delivery_slip" model="archive.document.type">
+            <field name="name">فاتورة المورد / سند تسليم المورد (Vendor Delivery / Invoice Slip)</field>
+            <field name="code">VENDOR_DELIVERY</field>
+            <field name="department">inventory</field>
+            <field name="sub_app">receipt</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- 3. Inventory: Signed Delivery Note from Customer -->
+        <record id="doc_type_signed_delivery_note" model="archive.document.type">
+            <field name="name">سند تسليم موقع ومختوم من العميل (Customer Signed Delivery Note)</field>
+            <field name="code">SIGNED_DELIVERY</field>
+            <field name="department">inventory</field>
+            <field name="sub_app">delivery</field>
+            <field name="sequence">30</field>
+            <field name="is_mandatory">True</field>
+        </record>
+
+        <!-- 4. Inventory: Spare parts requisition / maintenance -->
+        <record id="doc_type_spare_parts_req" model="archive.document.type">
+            <field name="name">طلب صرف قطع غيار / أمر صيانة (Spare Parts Requisition)</field>
+            <field name="code">SPARE_PARTS_REQ</field>
+            <field name="department">inventory</field>
+            <field name="sub_app">delivery</field>
+            <field name="sequence">40</field>
+        </record>
+
+        <!-- 5. Inventory: Monthly raw materials inventory minutes -->
+        <record id="doc_type_raw_material_monthly" model="archive.document.type">
+            <field name="name">محضر جرد وتعfiguresميد صرف خامات شهرية (Monthly Raw Materials Issuance)</field>
+            <field name="code">RAW_MONTHLY_MINUTES</field>
+            <field name="department">inventory</field>
+            <field name="sub_app">delivery</field>
+            <field name="sequence">50</field>
+        </record>
+
+        <!-- 6. Inventory: Stock Adjustment Minutes -->
+        <record id="doc_type_stock_adjustment" model="archive.document.type">
+            <field name="name">مستند ومحضر التسوية المخزنية (Stock Adjustment Minutes)</field>
+            <field name="code">STOCK_ADJUSTMENT</field>
+            <field name="department">inventory</field>
+            <field name="sub_app">adjustment</field>
+            <field name="sequence">60</field>
+        </record>
+
+        <!-- 7. Sales: Customer Purchase Order / Agreement -->
+        <record id="doc_type_customer_po" model="archive.document.type">
+            <field name="name">طلب شراء العميل / الاتفاقية (Customer Purchase Order / Agreement)</field>
+            <field name="code">CUSTOMER_PO</field>
+            <field name="department">sale</field>
+            <field name="sub_app">sale_order</field>
+            <field name="sequence">70</field>
+            <field name="is_mandatory">True</field>
+        </record>
+
+        <!-- 8. Accounting: Direct Service/Admin Vendor Bill -->
+        <record id="doc_type_direct_vendor_bill" model="archive.document.type">
+            <field name="name">فاتورة مورد مباشرة / خدمات ومصروفات (Direct Vendor Bill / Services)</field>
+            <field name="code">DIRECT_BILL</field>
+            <field name="department">accounting</field>
+            <field name="sub_app">vendor_bill</field>
+            <field name="sequence">80</field>
+        </record>
+
+        <!-- 9. Accounting: Vendor Payment Bank Transfer -->
+        <record id="doc_type_vendor_payment_voucher" model="archive.document.type">
+            <field name="name">إشعار تحويل بنكي / إيصال سداد مورد (Vendor Bank Transfer / Voucher)</field>
+            <field name="code">VENDOR_PAYMENT</field>
+            <field name="department">accounting</field>
+            <field name="sub_app">payment_out</field>
+            <field name="sequence">90</field>
+            <field name="is_mandatory">True</field>
+        </record>
+
+        <!-- 10. Accounting: Customer Payment Receipt -->
+        <record id="doc_type_customer_receipt_voucher" model="archive.document.type">
+            <field name="name">إشعار تحويل بنكي / إيصال قبض عميل (Customer Bank Transfer / Receipt)</field>
+            <field name="code">CUSTOMER_RECEIPT</field>
+            <field name="department">accounting</field>
+            <field name="sub_app">payment_in</field>
+            <field name="sequence">100</field>
+            <field name="is_mandatory">True</field>
+        </record>
+
+        <!-- 11. Accounting: Manual Journal Entry Supporting Voucher -->
+        <record id="doc_type_manual_journal_voucher" model="archive.document.type">
+            <field name="name">مستند مؤيد لقيد محاسبي يدوي (Manual Journal Supporting Voucher)</field>
+            <field name="code">MANUAL_ENTRY_DOC</field>
+            <field name="department">accounting</field>
+            <field name="sub_app">general_entry</field>
+            <field name="sequence">110</field>
+            <field name="is_mandatory">True</field>
+        </record>
+    </data>
+</odoo>

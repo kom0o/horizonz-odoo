@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- Module Category -->
+        <record id="module_category_electronic_archive" model="ir.module.category">
+            <field name="name">منظومة الأرشيف الإلكتروني (Electronic Archiving)</field>
+            <field name="description">إدارة وحوكمة الأرشيف والوثائق الإلكترونية والرقابة المستندية</field>
+            <field name="sequence">25</field>
+        </record>
+
+        <!-- Base Archive User -->
+        <record id="group_archive_user" model="res.groups">
+            <field name="name">مستخدم الأرشيف الأساسي</field>
+            <field name="category_id" ref="module_category_electronic_archive"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <!-- Department Archive Groups -->
+        <record id="group_archive_inventory_user" model="res.groups">
+            <field name="name">أرشيف إدارة المخازن</field>
+            <field name="category_id" ref="module_category_electronic_archive"/>
+            <field name="implied_ids" eval="[(4, ref('group_archive_user'))]"/>
+        </record>
+
+        <record id="group_archive_sales_user" model="res.groups">
+            <field name="name">أرشيف إدارة المبيعات</field>
+            <field name="category_id" ref="module_category_electronic_archive"/>
+            <field name="implied_ids" eval="[(4, ref('group_archive_user'))]"/>
+        </record>
+
+        <record id="group_archive_account_user" model="res.groups">
+            <field name="name">أرشيف الإدارة المالية</field>
+            <field name="category_id" ref="module_category_electronic_archive"/>
+            <field name="implied_ids" eval="[(4, ref('group_archive_user'))]"/>
+        </record>
+
+        <!-- Archive Auditor / Read-Only Cross Department -->
+        <record id="group_archive_auditor" model="res.groups">
+            <field name="name">مدقق ومراجع الأرشيف العام (Auditor)</field>
+            <field name="category_id" ref="module_category_electronic_archive"/>
+            <field name="implied_ids" eval="[(4, ref('group_archive_user')), (4, ref('group_archive_inventory_user')), (4, ref('group_archive_sales_user')), (4, ref('group_archive_account_user'))]"/>
+        </record>
+
+        <!-- Archive Manager -->
+        <record id="group_archive_manager" model="res.groups">
+            <field name="name">مدير منظومة الأرشيف والرقابة (Manager)</field>
+            <field name="category_id" ref="module_category_electronic_archive"/>
+            <field name="implied_ids" eval="[(4, ref('group_archive_auditor'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+    </data>
+
+    <data noupdate="1">
+        <!-- Multi-Company Rule for Document Types -->
+        <record id="archive_document_type_comp_rule" model="ir.rule">
+            <field name="name">Archive Document Type Multi-Company</field>
+            <field name="model_id" ref="model_archive_document_type"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+    </data>
+</odoo>

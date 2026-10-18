@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_form_archive_inherit" model="ir.ui.view">
+        <field name="name">sale.order.form.archive.inherit</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <!-- Smart Button for Customer PO Attachments -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_archive_attachments" type="object"
+                        class="oe_stat_button" icon="fa-file-text-o">
+                    <field name="archive_attachment_count" widget="statinfo" string="طلب شراء العميل"/>
+                </button>
+            </xpath>
+
+            <!-- Notebook Tab for Archiving -->
+            <xpath expr="//notebook" position="inside">
+                <page string="وثائق الاتفاقية وطلب الشراء" name="sale_archive_page">
+                    <div class="mb-3">
+                        <button name="action_view_archive_attachments" type="object"
+                                string="إرفاق طلب شراء العميل / مستند الاتفاقية"
+                                class="btn btn-secondary" icon="fa-upload"/>
+                    </div>
+                    <field name="archive_attachment_ids" mode="list">
+                        <list string="مستندات المبيعات" editable="bottom">
+                            <field name="name" string="اسم المستند"/>
+                            <field name="doc_type_id" string="نوع الوثيقة" domain="[('department', '=', 'sale')]"/>
+                            <field name="file_size" widget="binary_size" string="الحجم" readonly="1"/>
+                            <field name="is_locked" string="مقفل" readonly="1"/>
+                            <field name="create_date" string="تاريخ الإرفاق" readonly="1"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

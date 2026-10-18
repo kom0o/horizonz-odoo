@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_account_payment_form_archive_inherit" model="ir.ui.view">
+        <field name="name">account.payment.form.archive.inherit</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="arch" type="xml">
+            <!-- Smart Button in Header Button Box -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_archive_attachments" type="object"
+                        class="oe_stat_button" icon="fa-paperclip">
+                    <field name="archive_attachment_count" widget="statinfo" string="المستندات المؤيدة"/>
+                </button>
+            </xpath>
+
+            <!-- Supporting Documents Section -->
+            <xpath expr="//sheet" position="inside">
+                <group string="المستندات المؤيدة للسداد / التحصيل (إشعار التحويل البنكي، إيصال السداد)">
+                    <field name="archive_attachment_ids" mode="list" nolabel="1">
+                        <list string="مستندات السداد" editable="bottom">
+                            <field name="name" string="اسم المستند"/>
+                            <field name="doc_type_id" string="نوع الوثيقة" domain="[('department', '=', 'accounting')]"/>
+                            <field name="file_size" widget="binary_size" string="الحجم" readonly="1"/>
+                            <field name="is_locked" string="مقفل" readonly="1"/>
+                            <field name="create_date" string="تاريخ الإرفاق" readonly="1"/>
+                        </list>
+                    </field>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

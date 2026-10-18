@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_archive_document_type_tree" model="ir.ui.view">
+        <field name="name">archive.document.type.tree</field>
+        <field name="model">archive.document.type</field>
+        <field name="arch" type="xml">
+            <list string="أنواع المستندات المؤرشفة">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="department"/>
+                <field name="sub_app"/>
+                <field name="is_mandatory"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_archive_document_type_form" model="ir.ui.view">
+        <field name="name">archive.document.type.form</field>
+        <field name="model">archive.document.type</field>
+        <field name="arch" type="xml">
+            <form string="نوع المستند المؤرشف">
+                <sheet>
+                    <widget name="web_ribbon" title="مؤرشف" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name" string="اسم نوع المستند والوثيقة"/>
+                        <h1>
+                            <field name="name" placeholder="مثال: صورة الميزان للمواد الخام"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="التصنيف الإداري">
+                            <field name="code" placeholder="SCALE_SLIP"/>
+                            <field name="department"/>
+                            <field name="sub_app"/>
+                        </group>
+                        <group string="الخصائص والسياسات">
+                            <field name="is_mandatory"/>
+                            <field name="active"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_archive_document_type_search" model="ir.ui.view">
+        <field name="name">archive.document.type.search</field>
+        <field name="model">archive.document.type</field>
+        <field name="arch" type="xml">
+            <search string="بحث أنواع الوثائق">
+                <field name="name"/>
+                <field name="code"/>
+                <filter string="إدارة المخازن" name="filter_inventory" domain="[('department', '=', 'inventory')]"/>
+                <filter string="إدارة المبيعات" name="filter_sale" domain="[('department', '=', 'sale')]"/>
+                <filter string="الإدارة المالية" name="filter_accounting" domain="[('department', '=', 'accounting')]"/>
+                <separator/>
+                <filter string="إلزامي" name="filter_mandatory" domain="[('is_mandatory', '=', True)]"/>
+                <group expand="0" string="تجميع حسب">
+                    <filter string="الإدارة" name="group_by_department" context="{'group_by': 'department'}"/>
+                    <filter string="التطبيق الفرعي" name="group_by_sub_app" context="{'group_by': 'sub_app'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_archive_document_type" model="ir.actions.act_window">
+        <field name="name">أنواع وتصنيفات الوثائق المؤرشفة</field>
+        <field name="res_model">archive.document.type</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_archive_document_type_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                قم بتعريف أنواع الوثائق والمستندات المعتمدة داخل الشركة لكل إدارة (مخازن، مبيعات، مالية).
+            </p>
+        </field>
+    </record>
+</odoo>

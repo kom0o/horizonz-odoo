@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Archived Documents List View -->
+    <record id="view_attachment_archive_tree" model="ir.ui.view">
+        <field name="name">ir.attachment.archive.tree</field>
+        <field name="model">ir.attachment</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <list string="المستندات المؤرشفة">
+                <field name="name" string="اسم الملف والمستند"/>
+                <field name="doc_type_id" string="نوع الوثيقة"/>
+                <field name="doc_reference" string="رقم المعاملة الأصلية"/>
+                <field name="archive_department" string="الإدارة"/>
+                <field name="archive_sub_app" string="التطبيق الفرعي"/>
+                <field name="partner_id" string="الطرف ذو العلاقة"/>
+                <field name="doc_date" string="تاريخ المعاملة"/>
+                <field name="fiscal_year" string="السنة"/>
+                <field name="file_size" widget="binary_size"/>
+                <field name="is_locked" widget="boolean_toggle" groups="electronic_archive_management.group_archive_manager"/>
+                <field name="create_uid" string="المستخدم"/>
+                <field name="create_date" string="تاريخ الإرفاق" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Archived Documents Form View -->
+    <record id="view_attachment_archive_form" model="ir.ui.view">
+        <field name="name">ir.attachment.archive.form</field>
+        <field name="model">ir.attachment</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <form string="تفاصيل الوثيقة المؤرشفة">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <field name="is_locked" invisible="1"/>
+                        <widget name="web_ribbon" title="مقفل رقابياً" bg_color="text-bg-warning" invisible="not is_locked"/>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name" string="اسم الملف / المستند"/>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="التصنيف الأرشيفي">
+                            <field name="doc_type_id"/>
+                            <field name="archive_department"/>
+                            <field name="archive_sub_app"/>
+                            <field name="is_locked" groups="electronic_archive_management.group_archive_manager"/>
+                        </group>
+                        <group string="بيانات المعاملة الأصلية">
+                            <field name="doc_reference"/>
+                            <field name="doc_date"/>
+                            <field name="fiscal_year"/>
+                            <field name="partner_id"/>
+                            <field name="res_model" readonly="1"/>
+                            <field name="res_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="الملف والمحتوى">
+                        <field name="type"/>
+                        <field name="datas" filename="name"/>
+                        <field name="mimetype"/>
+                        <field name="file_size"/>
+                        <field name="description" placeholder="ملاحظات توثيقية إضافية حول المستند..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_attachment_archive_search" model="ir.ui.view">
+        <field name="name">ir.attachment.archive.search</field>
+        <field name="model">ir.attachment</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <search string="بحث الأرشيف الإلكتروني">
+                <field name="name" string="اسم المستند"/>
+                <field name="doc_reference" string="رقم المعاملة"/>
+                <field name="partner_id" string="العميل أو المورد"/>
+                <field name="doc_type_id" string="نوع الوثيقة"/>
+                <field name="fiscal_year" string="السنة المالية"/>
+
+                <filter string="إدارة المخازن" name="filter_inventory" domain="[('archive_department', '=', 'inventory')]"/>
+                <filter string="إدارة المبيعات" name="filter_sale" domain="[('archive_department', '=', 'sale')]"/>
+                <filter string="الإدارة المالية" name="filter_accounting" domain="[('archive_department', '=', 'accounting')]"/>
+                <separator/>
+                <filter string="المستندات المقفلة رقابياً" name="filter_locked" domain="[('is_locked', '=', True)]"/>
+                
+                <group expand="0" string="تجميع حسب">
+                    <filter string="الإدارة" name="group_by_dept" context="{'group_by': 'archive_department'}"/>
+                    <filter string="التطبيق الفرعي" name="group_by_sub_app" context="{'group_by': 'archive_sub_app'}"/>
+                    <filter string="نوع الوثيقة" name="group_by_doc_type" context="{'group_by': 'doc_type_id'}"/>
+                    <filter string="السنة المالية" name="group_by_year" context="{'group_by': 'fiscal_year'}"/>
+                    <filter string="الطرف ذو العلاقة" name="group_by_partner" context="{'group_by': 'partner_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Actions -->
+    <record id="action_archive_document_all" model="ir.actions.act_window">
+        <field name="name">سجل الأرشيف الشامل لكافة الإدارات</field>
+        <field name="res_model">ir.attachment</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('archive_department', '!=', False)]</field>
+        <field name="search_view_id" ref="view_attachment_archive_search"/>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_attachment_archive_tree')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_attachment_archive_form')})]"/>
+    </record>
+
+    <record id="action_archive_document_inventory" model="ir.actions.act_window">
+        <field name="name">أرشيف مستندات إدارة المخازن</field>
+        <field name="res_model">ir.attachment</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('archive_department', '=', 'inventory')]</field>
+        <field name="context">{'default_archive_department': 'inventory'}</field>
+        <field name="search_view_id" ref="view_attachment_archive_search"/>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_attachment_archive_tree')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_attachment_archive_form')})]"/>
+    </record>
+
+    <record id="action_archive_document_sale" model="ir.actions.act_window">
+        <field name="name">أرشيف مستندات إدارة المبيعات</field>
+        <field name="res_model">ir.attachment</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('archive_department', '=', 'sale')]</field>
+        <field name="context">{'default_archive_department': 'sale'}</field>
+        <field name="search_view_id" ref="view_attachment_archive_search"/>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_attachment_archive_tree')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_attachment_archive_form')})]"/>
+    </record>
+
+    <record id="action_archive_document_accounting" model="ir.actions.act_window">
+        <field name="name">أرشيف مستندات الإدارة المالية</field>
+        <field name="res_model">ir.attachment</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('archive_department', '=', 'accounting')]</field>
+        <field name="context">{'default_archive_department': 'accounting'}</field>
+        <field name="search_view_id" ref="view_attachment_archive_search"/>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_attachment_archive_tree')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_attachment_archive_form')})]"/>
+    </record>
+</odoo>

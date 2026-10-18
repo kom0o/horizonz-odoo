@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_archive_document_type_user,archive.document.type.user,model_archive_document_type,electronic_archive_management.group_archive_user,1,0,0,0
+access_archive_document_type_manager,archive.document.type.manager,model_archive_document_type,electronic_archive_management.group_archive_manager,1,1,1,1
+access_archive_document_search_user,archive.document.search.user,model_archive_document_search,electronic_archive_management.group_archive_user,1,1,1,1

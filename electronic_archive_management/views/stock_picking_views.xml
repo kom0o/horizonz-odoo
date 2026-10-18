@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_picking_form_archive_inherit" model="ir.ui.view">
+        <field name="name">stock.picking.form.archive.inherit</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <!-- Smart Button for Archived Documents -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_archive_attachments" type="object"
+                        class="oe_stat_button" icon="fa-archive">
+                    <field name="archive_attachment_count" widget="statinfo" string="المستندات المؤرشفة"/>
+                </button>
+            </xpath>
+
+            <!-- Notebook Tab for Archiving -->
+            <xpath expr="//notebook" position="inside">
+                <page string="الأرشيف الإلكتروني والمستندات المؤيدة" name="picking_archive_page">
+                    <div class="mb-3">
+                        <button name="action_view_archive_attachments" type="object"
+                                string="إضافة / استعراض المستندات المؤرشفة"
+                                class="btn btn-secondary" icon="fa-upload"/>
+                    </div>
+                    <field name="archive_attachment_ids" mode="list">
+                        <list string="مستندات الحركة المخزنية" editable="bottom">
+                            <field name="name" string="اسم المستند"/>
+                            <field name="doc_type_id" string="نوع الوثيقة" domain="[('department', '=', 'inventory')]"/>
+                            <field name="file_size" widget="binary_size" string="حجم الملف" readonly="1"/>
+                            <field name="is_locked" string="مقفل" readonly="1"/>
+                            <field name="create_date" string="تاريخ الإرفاق" readonly="1"/>
+                            <field name="create_uid" string="المستخدم" readonly="1"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
